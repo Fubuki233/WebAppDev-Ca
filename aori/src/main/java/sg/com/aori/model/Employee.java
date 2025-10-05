@@ -11,10 +11,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "employee") // Maps the class to the "Employee" table in the database
+@Table(name = "employee")
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,8 +45,10 @@ public class Employee {
     private String phoneNumber;
 
     // role_id VARCHAR(36) NOT NULL,
-    @Column(name = "role_id", nullable = false)
-    private String roleId;
+    // Many-to-one relationship with Role entity
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     // status ENUM('Active', 'Inactive', 'Suspended') NOT NULL,
     @Enumerated(EnumType.STRING)
@@ -59,6 +63,97 @@ public class Employee {
     // updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     @CreationTimestamp
     @Column(name = "updated_at", updatable = true)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
+
+    public Employee() {
+
+    }
+
+    public Employee(String firstName, String lastName, String email, String passwordHash,
+            String phoneNumber, Role role, EmployeeStatus status) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+        this.status = status;
+    }
+
+    // --- Getters and Setters ---
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public EmployeeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EmployeeStatus status) {
+        this.status = status;
+    }
+
+    // Getters for timestamps (no setters, as they are managed automatically)
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
 }

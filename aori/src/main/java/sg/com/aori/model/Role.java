@@ -8,10 +8,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "role") // Maps the class to the "Role" table in the database
+@Table(name = "role")
 public class Role {
     @Id
-    // Indicates the DB will generate a UUID
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "role_id", length = 36)
     private String roleId;
@@ -28,7 +27,6 @@ public class Role {
     public Role() {
     }
 
-    // You might add a constructor for creating new roles without the ID
     public Role(String roleName, String description) {
         this.roleName = roleName;
         this.description = description;
