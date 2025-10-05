@@ -1,10 +1,15 @@
 package sg.com.aori.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -23,6 +28,19 @@ public class Permission {
     // description TEXT
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    // many-to-many with Role
+    @ManyToMany(mappedBy = "permissions")
+    private List<Role> roles = new ArrayList<>();
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    // Setter for roles.
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
 
     public Permission() {
 
