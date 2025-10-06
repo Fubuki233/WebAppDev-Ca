@@ -562,3 +562,9 @@ VALUES (
         'Singapore',
         'Billing'
     );
+
+START TRANSACTION;
+
+UPDATE Orders SET total_amount = total_amount / 10;
+
+COMMIT;
