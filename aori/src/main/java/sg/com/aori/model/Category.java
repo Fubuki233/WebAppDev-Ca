@@ -1,4 +1,6 @@
 //Code by Ying Chun
+//need to crosscheck if PK should be UUID or AUTO
+
 package sg.com.aori.model;
 
 import jakarta.persistence.Column;
@@ -11,11 +13,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "product")
+@Table(name = "category")
 public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // category_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID())
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    // category_id VARCHAR(36) PRIMARY KEY DEFAULT
     @Column(name = "category_id", length = 36)
     private String categoryId;
     
