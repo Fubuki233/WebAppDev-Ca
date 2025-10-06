@@ -1,6 +1,25 @@
+START TRANSACTION;
+
+ALTER TABLE Orders
+MODIFY COLUMN customer_id VARCHAR(36) NOT NULL;
+
+ALTER TABLE Orders
+ADD INDEX idx_orders_customer_id (customer_id);
+
+ALTER TABLE Orders
+ADD CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customer (customer_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+COMMIT;
+
+SELECT constraint_name
+FROM information_schema.table_constraints
+WHERE
+    table_schema = 'fashion'
+    AND table_name = 'Orders'
+    AND constraint_type = 'FOREIGN KEY';
 -- Update Orders.customer_id to the provided UUIDs
 -- Mapping: ORD-001 -> first UUID, ORD-002 -> second UUID, ... ORD-050 -> 50th UUID
-BEGIN TRANSACTION;
+START TRANSACTION;
 
 UPDATE Orders
 SET
