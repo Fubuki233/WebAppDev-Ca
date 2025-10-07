@@ -4,13 +4,22 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity //
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * Entity representing a product in the system.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
+@Entity
 @Table(name = "Product")
 public class Product {
 
     @Id
     @Column(name = "product_id", length = 36, nullable = false)
-    private String productId = UUID.randomUUID().toString();
+    private String productId;
 
     @Column(name = "product_code", length = 20, nullable = false, unique = true)
     private String productCode;
@@ -45,6 +54,7 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Category category;
 
     public enum Season {
@@ -59,6 +69,9 @@ public class Product {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (this.productId == null || this.productId.isEmpty()) {
+            this.productId = UUID.randomUUID().toString();
+        }
     }
 
     @PreUpdate

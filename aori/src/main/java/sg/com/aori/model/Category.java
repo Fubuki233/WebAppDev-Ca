@@ -3,6 +3,9 @@ package sg.com.aori.model;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "Category")
 public class Category {
@@ -33,6 +36,9 @@ public class Category {
     private String slug;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+
+    @JsonIgnore // to avoid serialization issues, otherwise will
+                // generate infinite recursion
     private List<Product> products;
 
     public Category() {
@@ -43,6 +49,13 @@ public class Category {
         this.categoryCode = categoryCode;
         this.categoryName = categoryName;
         this.broadCategoryId = broadCategoryId;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.categoryId == null || this.categoryId.isEmpty()) {
+            this.categoryId = java.util.UUID.randomUUID().toString();
+        }
     }
 
     public String getCategoryId() {

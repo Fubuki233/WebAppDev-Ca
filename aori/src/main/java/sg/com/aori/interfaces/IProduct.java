@@ -12,37 +12,28 @@ import java.util.Optional;
  * @date 2025-10-07
  * @version 1.0
  */
-public class IProduct {
+public interface IProduct {
+    Product createProduct(Product product);
 
-    public interface ICreateProduct {
-        Product createProduct(Product product);
-    }
+    Optional<Product> getProductById(String productId);
 
-    public interface IReadProduct {
-        Optional<Product> getProductById(String productId);
+    Optional<List<Product>> getProductsByName(String productName);
 
-        Optional<List<Product>> getProductsByName(String productName);
+    Optional<List<Product>> getProductsByCategory(String category);
 
-        Optional<List<Product>> getProductsByCategory(String category);
+    // Optional<List<Product>> getProductsByPriceRange(double minPrice, double
+    // maxPrice);
 
-        // Optional<List<Product>> getProductsByPriceRange(double minPrice, double
-        // maxPrice);
+    // Optional<List<Product>> findByRatingBetween(double minRating, double
+    // maxRating);
 
-        // Optional<List<Product>> findByRatingBetween(double minRating, double
-        // maxRating);
+    Optional<List<Product>> getProductsByCollection(String collection);
 
-        Optional<List<Product>> getProductsByCollection(String collection);
+    // Optional<List<Product>> getProductsBySupplier(String supplier);
 
-        // Optional<List<Product>> getProductsBySupplier(String supplier);
+    Optional<List<Product>> getAllProducts();
 
-        Optional<List<Product>> getAllProducts();
-    }
+    Product updateProduct(String productId, Product product);
 
-    public interface IUpdateProduct {
-        Product updateProduct(String productId, Product product);
-    }
-
-    public interface IDeleteProduct {
-        Product deleteProduct(String productId);
-    }
+    Product deleteProduct(String productId);
 }
