@@ -1,9 +1,10 @@
 /**
  * Setup OrderValidationController 
+ * v1.1: REST API applied
  *
  * @author Jiang
  * @date 2025-10-07
- * @version 1.0
+ * @version 1.1
  */
 
 package sg.com.aori.config;
@@ -23,6 +24,6 @@ public class OrderConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(orderValidationInterceptor)
-                .addPathPatterns("/order/**");
+                .addPathPatterns("/api/orders/**");
     }
 }
