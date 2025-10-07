@@ -15,7 +15,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "role")
+@Table(name = "Role")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
