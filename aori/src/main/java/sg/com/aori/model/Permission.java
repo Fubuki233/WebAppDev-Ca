@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "permission")
+@Table(name = "Permission")
 public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
