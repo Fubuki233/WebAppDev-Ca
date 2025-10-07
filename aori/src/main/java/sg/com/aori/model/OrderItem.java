@@ -111,7 +111,7 @@ public class OrderItem {
 
     @Override
     public String toString() {
-        return "OrderItem{" +
+        return "{" +
                 "orderItemId='" + orderItemId + '\'' +
                 ", orderId='" + orderId + '\'' +
                 ", variantId='" + variantId + '\'' +

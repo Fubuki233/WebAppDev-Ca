@@ -143,7 +143,7 @@ public class ProductVariant {
 
     @Override
     public String toString() {
-        return "ProductVariant{" +
+        return "{" +
                 "variantId='" + variantId + '\'' +
                 ", productId='" + productId + '\'' +
                 ", sku='" + sku + '\'' +

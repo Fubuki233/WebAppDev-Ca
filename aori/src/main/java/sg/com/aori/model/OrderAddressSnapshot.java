@@ -146,7 +146,7 @@ public class OrderAddressSnapshot {
 
     @Override
     public String toString() {
-        return "OrderAddressSnapshot{" +
+        return "{" +
                 "orderId='" + orderId + '\'' +
                 ", addressId='" + addressId + '\'' +
                 ", recipientName='" + recipientName + '\'' +

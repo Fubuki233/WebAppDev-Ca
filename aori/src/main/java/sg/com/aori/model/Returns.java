@@ -121,7 +121,7 @@ public class Returns {
 
     @Override
     public String toString() {
-        return "Returns{" +
+        return "{" +
                 "returnId='" + returnId + '\'' +
                 ", returnCode='" + returnCode + '\'' +
                 ", orderItemId='" + orderItemId + '\'' +

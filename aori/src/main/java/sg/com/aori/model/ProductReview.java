@@ -13,12 +13,10 @@ import java.util.UUID;
  */
 
 @Entity
-@Table(name = "ProductReview",
-         indexes = {
-            @Index(name = "idx_pr_product_status_created", columnList = "product_id, status, created_at"),
-            @Index(name = "idx_pr_user", columnList = "user_id")
-         }
-)
+@Table(name = "ProductReview", indexes = {
+        @Index(name = "idx_pr_product_status_created", columnList = "product_id, status, created_at"),
+        @Index(name = "idx_pr_user", columnList = "user_id")
+})
 public class ProductReview {
 
     public enum ReviewStatus {
@@ -211,7 +209,7 @@ public class ProductReview {
 
     @Override
     public String toString() {
-        return "ProductReview{" +
+        return "{" +
                 "reviewId='" + reviewId + '\'' +
                 ", productId='" + productId + '\'' +
                 ", variantId='" + variantId + '\'' +

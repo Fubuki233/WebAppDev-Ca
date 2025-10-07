@@ -100,7 +100,7 @@ public class Wishlist {
 
     @Override
     public String toString() {
-        return "Wishlist{" +
+        return "{" +
                 "productId='" + productId + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", createdAt=" + createdAt +

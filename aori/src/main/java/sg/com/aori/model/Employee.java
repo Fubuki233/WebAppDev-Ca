@@ -70,10 +70,11 @@ public class Employee {
         Inactive,
         Suspended
     }
-    
+
     // Constructors
-    
-    public Employee() { }
+
+    public Employee() {
+    }
 
     public Employee(String firstName, String lastName, String email, String passwordHash,
             String phoneNumber, Role role, EmployeeStatus status) {
@@ -85,7 +86,7 @@ public class Employee {
         this.role = role;
         this.status = status;
     }
-    
+
     // Getters and Setters
 
     public String getEmployeeId() {
@@ -162,4 +163,18 @@ public class Employee {
         return updatedAt;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "employeeId='" + employeeId + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", role=" + (role != null ? role.getRoleName() : "null") +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

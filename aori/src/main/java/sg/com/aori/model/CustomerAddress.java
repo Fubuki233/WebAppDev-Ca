@@ -173,7 +173,7 @@ public class CustomerAddress {
 
     @Override
     public String toString() {
-        return "CustomerAddress{" +
+        return "{" +
                 "addressId='" + addressId + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", recipientName='" + recipientName + '\'' +

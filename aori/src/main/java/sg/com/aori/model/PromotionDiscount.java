@@ -108,7 +108,7 @@ public class PromotionDiscount {
 
     @Override
     public String toString() {
-        return "PromotionDiscount{" +
+        return "{" +
                 "promotionId='" + promotionId + '\'' +
                 ", promoCode='" + promoCode + '\'' +
                 ", description='" + description + '\'' +

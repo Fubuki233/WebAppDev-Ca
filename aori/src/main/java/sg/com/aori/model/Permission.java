@@ -74,4 +74,13 @@ public class Permission {
         this.description = description;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                " permissionId='" + getPermissionId() + "'" +
+                ", permissionName='" + getPermissionName() + "'" +
+                ", description='" + getDescription() + "'" +
+                "}";
+    }
+
 }

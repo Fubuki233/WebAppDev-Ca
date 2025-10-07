@@ -105,7 +105,7 @@ public class OrderPromotion {
 
     @Override
     public String toString() {
-        return "OrderPromotion{" +
+        return "{" +
                 "orderPromotionId='" + orderPromotionId + '\'' +
                 ", orderId='" + orderId + '\'' +
                 ", promotionId='" + promotionId + '\'' +

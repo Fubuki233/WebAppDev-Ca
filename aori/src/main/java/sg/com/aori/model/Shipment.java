@@ -176,7 +176,7 @@ public class Shipment {
 
     @Override
     public String toString() {
-        return "Shipment{" +
+        return "{" +
                 "shipmentId='" + shipmentId + '\'' +
                 ", shipmentCode='" + shipmentCode + '\'' +
                 ", orderId='" + orderId + '\'' +

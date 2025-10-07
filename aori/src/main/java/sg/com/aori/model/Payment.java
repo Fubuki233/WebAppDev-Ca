@@ -132,7 +132,7 @@ public class Payment {
 
     @Override
     public String toString() {
-        return "Payment{" +
+        return "{" +
                 "paymentId='" + paymentId + '\'' +
                 ", paymentCode='" + paymentCode + '\'' +
                 ", orderId='" + orderId + '\'' +

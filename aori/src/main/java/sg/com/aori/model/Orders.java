@@ -153,7 +153,7 @@ public class Orders {
 
     @Override
     public String toString() {
-        return "Orders{" +
+        return "{" +
                 "orderId='" + orderId + '\'' +
                 ", orderNumber='" + orderNumber + '\'' +
                 ", customerId='" + customerId + '\'' +
