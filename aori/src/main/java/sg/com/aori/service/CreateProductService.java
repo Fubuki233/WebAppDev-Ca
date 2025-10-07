@@ -7,6 +7,14 @@ import sg.com.aori.interfaces.IProduct.ICreateProduct;
 import sg.com.aori.repository.ProductRepository;
 import sg.com.aori.model.Product;
 
+/**
+ * Service class for creating products.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
+
 @Service
 public class CreateProductService implements ICreateProduct {
     @Autowired

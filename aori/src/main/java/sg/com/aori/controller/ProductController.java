@@ -2,6 +2,7 @@ package sg.com.aori.controller;
 
 import sg.com.aori.model.Product;
 import sg.com.aori.service.CreateProductService;
+import sg.com.aori.service.DeleteProductService;
 import sg.com.aori.service.UpdateProductService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,6 +22,9 @@ public class ProductController {
     @Autowired
     private UpdateProductService updatedProductService;
 
+    @Autowired
+    private DeleteProductService deleteProductService;
+
     @PostMapping("/products")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
 
@@ -30,17 +33,16 @@ public class ProductController {
     }
 
     @PostMapping("/products")
-    public String postMethodName(@PathVariable("id") String id, @RequestBody String entity) {
+    public ResponseEntity<Product> postMethodName(@PathVariable("id") String id, @RequestBody Product product) {
 
-        Product temp =
-        Product product = updatedProductService.updateProduct(id, );
-        return entity;
+        Product updatedProduct = updatedProductService.updateProduct(id, product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(updatedProduct);
     }
 
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable String productId) {
-        deleteProductService.deleteProduct(productId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Product> deleteProduct(@PathVariable String productId) {
+        Product deletedProduct = deleteProductService.deleteProduct(productId);
+        return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
     }
 
 }
