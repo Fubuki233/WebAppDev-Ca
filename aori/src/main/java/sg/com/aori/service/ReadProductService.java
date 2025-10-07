@@ -53,8 +53,8 @@ public class ReadProductService implements IReadProduct {
      */
 
     @Override
-    public Optional<List<Product>> getProductsByBrand(String brand) {
-        return Optional.ofNullable(productRepository.findByBrand(brand));
+    public Optional<List<Product>> getProductsByCollection(String collection) {
+        return Optional.ofNullable(productRepository.findByCollection(collection));
     }
 
     /*

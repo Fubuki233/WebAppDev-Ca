@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,8 +40,8 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
-    @PostMapping("/products")
-    public ResponseEntity<Product> postMethodName(@PathVariable("id") String id, @RequestBody Product product) {
+    @PutMapping("/products/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") String id, @RequestBody Product product) {
 
         Product updatedProduct = updatedProductService.updateProduct(id, product);
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedProduct);

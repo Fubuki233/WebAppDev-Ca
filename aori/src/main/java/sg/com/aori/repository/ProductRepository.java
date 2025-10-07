@@ -24,13 +24,13 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     List<Product> findByCategoryId(String categoryId);
 
-    List<Product> findByBrand(String brand);
+    List<Product> findByCollection(String collection);
 
     List<Product> findBySeason(Product.Season season);
 
     List<Product> findByProductNameContaining(String keyword);
 
-    List<Product> findByBrandAndSeason(String brand, Product.Season season);
+    List<Product> findByCollectionAndSeason(String collection, Product.Season season);
 
     // List<Product> findByPriceBetween(double minPrice, double maxPrice);
 
@@ -43,8 +43,8 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Product p SET p.brand = :brand WHERE p.productId = :productId")
-    int updateProductBrand(@Param("productId") String productId, @Param("brand") String brand);
+    @Query("UPDATE Product p SET p.collection = :collection WHERE p.productId = :productId")
+    int updateProductCollection(@Param("productId") String productId, @Param("collection") String collection);
 
     @Query("SELECT COUNT(p) FROM Product p WHERE p.categoryId = :categoryId")
     long countByCategoryId(@Param("categoryId") String categoryId);

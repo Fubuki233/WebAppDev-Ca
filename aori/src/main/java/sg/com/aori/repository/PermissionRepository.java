@@ -1,6 +1,6 @@
 package sg.com.aori.repository;
 
-import java.security.Permission;
+import sg.com.aori.model.Permission;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

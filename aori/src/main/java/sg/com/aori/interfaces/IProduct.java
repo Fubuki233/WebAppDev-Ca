@@ -31,7 +31,7 @@ public class IProduct {
         // Optional<List<Product>> findByRatingBetween(double minRating, double
         // maxRating);
 
-        Optional<List<Product>> getProductsByBrand(String brand);
+        Optional<List<Product>> getProductsByCollection(String collection);
 
         // Optional<List<Product>> getProductsBySupplier(String supplier);
 
