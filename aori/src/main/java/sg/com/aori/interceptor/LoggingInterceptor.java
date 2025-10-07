@@ -11,6 +11,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+/**
+ * Interceptor to log and validate user sessions.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
+
 @Component
 public class LoggingInterceptor implements HandlerInterceptor {
     @Autowired
