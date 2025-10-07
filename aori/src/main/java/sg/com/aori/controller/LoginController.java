@@ -14,7 +14,8 @@ import sg.com.aori.service.LoginService;
 
 /**
  * Controller class for handling login-related requests.
- *
+ * not fully tested*
+ * 
  * @author Yunhe
  * @date 2025-10-07
  * @version 1.0
