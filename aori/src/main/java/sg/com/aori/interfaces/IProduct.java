@@ -36,6 +36,6 @@ public class IProduct {
     }
 
     public interface IDeleteProduct {
-        void deleteProduct(String productId);
+        Product deleteProduct(String productId);
     }
 }

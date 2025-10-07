@@ -12,6 +12,9 @@ public class Product {
     @Column(name = "product_id", length = 36, nullable = false)
     private String productId = UUID.randomUUID().toString();
 
+    @Column(name = "product_code", length = 20, nullable = false, unique = true)
+    private String productCode;
+
     @Column(name = "product_name", length = 150, nullable = false)
     private String productName;
 
@@ -21,8 +24,8 @@ public class Product {
     @Column(name = "category_id", length = 36, nullable = false)
     private String categoryId;
 
-    @Column(name = "brand", length = 100)
-    private String brand = "Store Brand";
+    @Column(name = "collection", length = 100, nullable = false)
+    private String collection;
 
     @Column(name = "material", length = 100)
     private String material;
@@ -103,12 +106,20 @@ public class Product {
         this.categoryId = categoryId;
     }
 
-    public String getBrand() {
-        return brand;
+    public String getProductCode() {
+        return productCode;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+
+    public String getCollection() {
+        return collection;
+    }
+
+    public void setCollection(String collection) {
+        this.collection = collection;
     }
 
     public String getMaterial() {
@@ -163,10 +174,11 @@ public class Product {
     public String toString() {
         return "Product{" +
                 "productId='" + productId + '\'' +
+                ", productCode='" + productCode + '\'' +
                 ", productName='" + productName + '\'' +
                 ", description='" + description + '\'' +
                 ", categoryId='" + categoryId + '\'' +
-                ", brand='" + brand + '\'' +
+                ", collection='" + collection + '\'' +
                 ", material='" + material + '\'' +
                 ", season=" + season +
                 ", careInstructions='" + careInstructions + '\'' +

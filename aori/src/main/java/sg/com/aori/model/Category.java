@@ -1,49 +1,48 @@
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity //
+@Entity
 @Table(name = "Category")
 public class Category {
+
+    public enum BroadCategory {
+        Men,
+        Women,
+        Girls,
+        Boys,
+        Unisex
+    }
 
     @Id
     @Column(name = "category_id", length = 36, nullable = false)
     private String categoryId;
 
-    @Column(name = "category_name", length = 100, nullable = false, unique = true)
+    @Column(name = "category_code", length = 20, nullable = false, unique = true)
+    private String categoryCode;
+
+    @Column(name = "category_name", length = 100, nullable = false)
     private String categoryName;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "broad_category_id", nullable = false)
+    private BroadCategory broadCategoryId;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "slug", length = 100)
+    private String slug;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Product> products;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
     public Category() {
     }
 
-    public Category(String categoryId, String categoryName) {
+    public Category(String categoryId, String categoryCode, String categoryName, BroadCategory broadCategoryId) {
         this.categoryId = categoryId;
+        this.categoryCode = categoryCode;
         this.categoryName = categoryName;
+        this.broadCategoryId = broadCategoryId;
     }
 
     public String getCategoryId() {
@@ -54,6 +53,14 @@ public class Category {
         this.categoryId = categoryId;
     }
 
+    public String getCategoryCode() {
+        return categoryCode;
+    }
+
+    public void setCategoryCode(String categoryCode) {
+        this.categoryCode = categoryCode;
+    }
+
     public String getCategoryName() {
         return categoryName;
     }
@@ -62,28 +69,20 @@ public class Category {
         this.categoryName = categoryName;
     }
 
-    public String getDescription() {
-        return description;
+    public BroadCategory getBroadCategoryId() {
+        return broadCategoryId;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setBroadCategoryId(BroadCategory broadCategoryId) {
+        this.broadCategoryId = broadCategoryId;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getSlug() {
+        return slug;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public List<Product> getProducts() {
@@ -98,10 +97,10 @@ public class Category {
     public String toString() {
         return "Category{" +
                 "categoryId='" + categoryId + '\'' +
+                ", categoryCode='" + categoryCode + '\'' +
                 ", categoryName='" + categoryName + '\'' +
-                ", description='" + description + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", broadCategoryId=" + broadCategoryId +
+                ", slug='" + slug + '\'' +
                 '}';
     }
 }
