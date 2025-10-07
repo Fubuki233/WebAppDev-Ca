@@ -14,6 +14,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller class for handling product-related requests.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
 @RestController
 public class ProductController {
     @Autowired

@@ -10,6 +10,13 @@ import sg.com.aori.model.Product;
 import java.util.List;
 import java.util.Optional;;
 
+/**
+ * Service class for reading product-related information.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
 @Service
 public class ReadProductService implements IReadProduct {
     @Autowired
