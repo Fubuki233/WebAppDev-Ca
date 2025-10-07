@@ -1,9 +1,8 @@
 <!--
+v1.1: REST API applied
 @author Jiang
 @date 2025-10-07
-@version 1.0
-
-***** AI added much frontend code, check if we should move it to backend
+@version 1.1
 -->
 
 <!DOCTYPE html>
@@ -15,8 +14,24 @@
     <script>
         let countdown = 60;
         let paymentInterval;
+        let currentOrderId = '';
+        
+        // Initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get orderId with thymeleaf
+            const orderIdElement = document.querySelector('[th\\:text="${order.id}"]');
+            if (orderIdElement) {
+                currentOrderId = orderIdElement.textContent.trim();
+                console.log('Current order ID:', currentOrderId);
+            }
+        });
         
         function startPayment() {
+            if (!currentOrderId) {
+                alert('Order ID not found');
+                return;
+            }
+            
             document.getElementById('payBtn').disabled = true;
             document.getElementById('cancelBtn').disabled = true;
             document.getElementById('paymentStatus').innerText = 'Processing payment...';
@@ -31,8 +46,8 @@
                 }
             }, 1000);
             
-            // Simulate payment process
-            fetch('/order/pay', {
+            // Pay with REST API
+            fetch(`/api/orders/${currentOrderId}/payment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -43,10 +58,11 @@
                 clearInterval(paymentInterval);
                 if (data.success) {
                     document.getElementById('paymentStatus').innerText = 'Payment successful!';
-                    document.getElementById('orderStatus').innerText = 'Paid';
+                    document.getElementById('orderStatus').innerText = data.orderStatus || 'Paid';
+                    document.getElementById('paymentStatusField').innerText = data.paymentStatus || 'Paid';
                 } else {
                     document.getElementById('paymentStatus').innerText = 'Payment failed: ' + data.message;
-                    document.getElementById('paymentStatusField').innerText = 'Failed';
+                    document.getElementById('paymentStatusField').innerText = data.paymentStatus || 'Failed';
                 }
             })
             .catch(error => {
@@ -56,8 +72,13 @@
         }
         
         function cancelOrder() {
+            if (!currentOrderId) {
+                alert('Order ID not found');
+                return;
+            }
+            
             if (confirm('Are you sure you want to cancel this order?')) {
-                fetch('/order/cancel', {
+                fetch(`/api/orders/${currentOrderId}/cancellation`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -66,11 +87,16 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById('orderStatus').innerText = 'Cancelled';
+                        document.getElementById('orderStatus').innerText = data.orderStatus || 'Cancelled';
                         document.getElementById('payBtn').disabled = true;
                         document.getElementById('cancelBtn').disabled = true;
                         document.getElementById('paymentStatus').innerText = 'Order has been cancelled';
+                    } else {
+                        alert('Failed to cancel order: ' + data.message);
                     }
+                })
+                .catch(error => {
+                    alert('Error cancelling order: ' + error);
                 });
             }
         }
@@ -83,7 +109,7 @@
         <div th:if="${order != null}">
             <div class="card">
                 <div class="card-header">
-                    <h4>Order #<span th:text="${order.id}">Order ID</span></h4>
+                    <h4>Order #<span id="orderIdDisplay" th:text="${order.id}">Order ID</span></h4>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
