@@ -65,9 +65,15 @@ public class Employee {
     @Column(name = "updated_at", updatable = true)
     private LocalDateTime updatedAt;
 
-    public Employee() {
-
+    public enum EmployeeStatus {
+        Active,
+        Inactive,
+        Suspended
     }
+    
+    // Constructors
+    
+    public Employee() { }
 
     public Employee(String firstName, String lastName, String email, String passwordHash,
             String phoneNumber, Role role, EmployeeStatus status) {
@@ -79,8 +85,8 @@ public class Employee {
         this.role = role;
         this.status = status;
     }
-
-    // --- Getters and Setters ---
+    
+    // Getters and Setters
 
     public String getEmployeeId() {
         return employeeId;
