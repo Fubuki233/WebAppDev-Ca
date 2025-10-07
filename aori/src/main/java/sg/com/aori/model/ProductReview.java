@@ -4,8 +4,21 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Detailed description of the class.
+ *
+ * @author Simon Lei
+ * @date 2025-10-07
+ * @version 1.0
+ */
+
 @Entity
-@Table(name = "ProductReview")
+@Table(name = "ProductReview",
+         indexes = {
+            @Index(name = "idx_pr_product_status_created", columnList = "product_id, status, created_at"),
+            @Index(name = "idx_pr_user", columnList = "user_id")
+         }
+)
 public class ProductReview {
 
     public enum ReviewStatus {
@@ -38,11 +51,11 @@ public class ProductReview {
     private String comment;
 
     @Column(name = "images", columnDefinition = "JSON")
-    private String images;
+    private String imagesJson;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private ReviewStatus status;
+    private ReviewStatus status = ReviewStatus.Pending;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -141,11 +154,11 @@ public class ProductReview {
     }
 
     public String getImages() {
-        return images;
+        return imagesJson;
     }
 
-    public void setImages(String images) {
-        this.images = images;
+    public void setImages(String imagesJson) {
+        this.imagesJson = imagesJson;
     }
 
     public ReviewStatus getStatus() {
@@ -206,7 +219,7 @@ public class ProductReview {
                 ", rating=" + rating +
                 ", title='" + title + '\'' +
                 ", comment='" + comment + '\'' +
-                ", images='" + images + '\'' +
+                ", images='" + imagesJson + '\'' +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
