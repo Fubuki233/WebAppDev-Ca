@@ -9,6 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service class for handling login-related operations.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
 @Service
 @Transactional(readOnly = true)
 public class LoginService implements ILogin {

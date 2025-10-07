@@ -5,6 +5,13 @@ import sg.com.aori.model.Product;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Interface for product-related operations.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
 public class IProduct {
 
     public interface ICreateProduct {

@@ -10,6 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import sg.com.aori.model.Product;
 
+/**
+ * Repository interface for Product entity.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
 

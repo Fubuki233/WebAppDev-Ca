@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import sg.com.aori.model.Customer;
 import sg.com.aori.service.LoginService;
 
+/**
+ * Controller class for handling login-related requests.
+ *
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.0
+ */
 @Controller
 public class LoginController {
     @Autowired
