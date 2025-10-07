@@ -1,0 +1,117 @@
+/**
+ * Service Implementation for Create Customer Account
+ *
+ * @author SunRui
+ * @date 2025-10-07
+ * @version 1.0
+ */
+
+package sg.com.aori.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sg.com.aori.interfaces.ICreateAccount;
+import sg.com.aori.model.Customer;
+import sg.com.aori.model.CustomerAddress;
+import sg.com.aori.repository.CustomerAddressRepository;
+import sg.com.aori.repository.CustomerRepository;
+
+/**
+ * Default implementation for the "Create Account" use case service.
+ */
+
+@Service
+public class CreateAccountServiceImpl implements ICreateAccount {
+
+    /** Repository for accessing Customer records */
+    private final CustomerRepository customerRepository;
+
+    /** Repository for accessing CustomerAddress records */
+    private final CustomerAddressRepository addressRepository;
+
+    public CreateAccountServiceImpl(CustomerRepository customerRepository,
+            CustomerAddressRepository addressRepository) {
+        this.customerRepository = customerRepository;
+        this.addressRepository = addressRepository;
+    }
+
+    /**
+     * Creates and persists a new Customer record.
+     * param: customer. A fully-prepared Customer entity to be saved (id is generated in the entity).
+     * return: The persisted Customer entity with database-managed fields populated.
+     * throws: IllegalArgumentException if input is invalid.
+     */
+    @Transactional
+    @Override
+    public Customer createCustomer(Customer customer) {
+        // 此处暂时不做任何 Bean/Custom Validation；仅做最小持久化操作
+        // 如果将来需要“注册查重”，可启用：
+        // if (customer.getEmail() != null &&
+        // customerRepository.existsByEmail(customer.getEmail())) { ... }
+        return customerRepository.save(customer);
+    }
+
+    /**
+     * Optionally creates an initial CustomerAddress for the given customer.
+     * If the customer currently has no default address, the saved address will be marked as default.
+     *
+     * @param address The CustomerAddress to persist. Its customerId must reference
+     *                the created customer.
+     * @return The persisted CustomerAddress.
+     * @throws IllegalArgumentException if input is invalid.
+     */
+    @Transactional
+    @Override
+    public CustomerAddress addInitialAddress(CustomerAddress address) {
+        // 保持最小业务逻辑：若该用户目前没有默认地址，则将本地址设为默认
+        if (address.getCustomerId() != null
+                && addressRepository.findFirstByCustomerIdAndIsDefaultTrue(address.getCustomerId()).isEmpty()) {
+            address.setIsDefault(true);
+        }
+        return addressRepository.save(address);
+    }
+
+    /**
+     * Retrieves a Customer by its id.
+     *
+     * param: customerId. The Customer primary key (String UUID).
+     * return: Optional containing Customer if found; otherwise empty.
+     * throws: IllegalArgumentException if input is invalid.
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Customer> getCustomerById(String customerId) {
+        return customerRepository.findById(customerId);
+    }
+
+    /**
+     * Retrieves a Customer by email.
+     *
+     * param: email. Email address to search for.
+     * return: Optional containing Customer if found; otherwise empty.
+     * throws: IllegalArgumentException if input is invalid.
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Customer> getCustomerByEmail(String email) {
+        return customerRepository.findCustomerByEmail(email);
+    }
+
+    /**
+     * Lists all addresses of a given customer, newest first.
+     *
+     * param: customerId. The Customer primary key (String UUID).
+     * return: List of CustomerAddress ordered by createdAt descending.
+     * throws: IllegalArgumentException if input is invalid.
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public List<CustomerAddress> listAddresses(String customerId) {
+        return addressRepository.findByCustomerIdOrderByCreatedAtDesc(customerId);
+    }
+}
+
