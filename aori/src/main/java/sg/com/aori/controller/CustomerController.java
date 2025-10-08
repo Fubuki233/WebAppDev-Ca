@@ -4,7 +4,7 @@
  *
  * @author Sun Rui
  * @date 2025-10-08
- * @version 2.0
+ * @version 1.2
  */
 
 package sg.com.aori.controller;
@@ -12,6 +12,7 @@ package sg.com.aori.controller;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,7 @@ public class CustomerController {
      * throws: IllegalArgumentException if input is invalid.
      */
     @PostMapping
-    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
         Customer saved = createAccountService.createCustomer(customer);
         return ResponseEntity
                 .created(URI.create("/api/customers/" + saved.getCustomerId()))
@@ -94,7 +95,7 @@ public class CustomerController {
      */
     @PostMapping("/{customerId}/addresses")
     public ResponseEntity<CustomerAddress> addInitialAddress(@PathVariable String customerId,
-            @RequestBody CustomerAddress address) {
+            @Valid @RequestBody CustomerAddress address) {
         // 以路径变量为准，避免与 body 内不一致
         address.setCustomerId(customerId);
         CustomerAddress saved = createAccountService.addInitialAddress(address);
