@@ -2,8 +2,14 @@ package sg.com.aori.service;
 
 import java.util.List;
 
+import sg.com.aori.interfaces.IEmployee;
 import sg.com.aori.model.Employee;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import sg.com.aori.repository.EmployeeRepository;
+
+import java.util.NoSuchElementException;
 
 /**
  * Service for Employee entity.
@@ -13,14 +19,64 @@ import sg.com.aori.model.Employee;
  * @version 1.0
  */
 
-public interface EmployeeService {
-    Employee createEmployee(Employee employee);
+@Service
+public class EmployeeService implements IEmployee { // Note: Implement your interface here
 
-    Employee getEmployeeById(String id);
+    private final EmployeeRepository employeeRepository;
+    // You'd typically inject a PasswordEncoder here for security
 
-    List<Employee> getAllEmployees();
+    public EmployeeService(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
+    }
 
-    Employee updateEmployee(String id, Employee employeeDetails);
+    @Override
+    @Transactional
+    public Employee createEmployee(Employee employee) {
+        // employee.setPasswordHash(passwordEncoder.encode(employee.getPasswordHash()));
 
-    void deleteEmployee(String id);
+        // You may also want to set the initial status (e.g., EmployeeStatus.Active) if
+        // not provided.
+
+        return employeeRepository.save(employee);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Employee getEmployeeById(String id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Employee not found with ID: " + id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public Employee updateEmployee(String id, Employee employeeDetails) {
+        Employee existingEmployee = getEmployeeById(id);
+
+        // Update fields. Note: Password hash is typically updated via a separate
+        // endpoint/method.
+        existingEmployee.setFirstName(employeeDetails.getFirstName());
+        existingEmployee.setLastName(employeeDetails.getLastName());
+        existingEmployee.setEmail(employeeDetails.getEmail());
+        existingEmployee.setPhoneNumber(employeeDetails.getPhoneNumber());
+        existingEmployee.setStatus(employeeDetails.getStatus());
+
+        // Assume the role update is handled via a separate business process
+        if (employeeDetails.getRole() != null) {
+            existingEmployee.setRole(employeeDetails.getRole());
+        }
+
+        return employeeRepository.save(existingEmployee);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEmployee(String id) {
+        employeeRepository.deleteById(id);
+    }
 }
