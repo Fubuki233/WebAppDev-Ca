@@ -19,7 +19,7 @@ import java.util.Map;
  */
 
 @RestController
-@RequestMapping("/api/v1/roles")
+@RequestMapping("/api/roles")
 public class RoleController {
 
     private final IRole roleService;
@@ -30,7 +30,7 @@ public class RoleController {
     }
 
     /**
-     * POST /api/v1/roles : Creates a new Role.
+     * POST /api/roles : Creates a new Role.
      */
     @PostMapping
     public ResponseEntity<Role> createRole(@RequestBody Role role) {
@@ -39,7 +39,7 @@ public class RoleController {
     }
 
     /**
-     * GET /api/v1/roles : Retrieves all Roles.
+     * GET /api/roles : Retrieves all Roles.
      */
     @GetMapping
     public ResponseEntity<List<Role>> getAllRoles() {
@@ -48,7 +48,7 @@ public class RoleController {
     }
 
     /**
-     * GET /api/v1/roles/{id} : Retrieves a Role by ID.
+     * GET /api/roles/{id} : Retrieves a Role by ID.
      */
     @GetMapping("/{id}")
     public ResponseEntity<Role> getRoleById(@PathVariable String id) {
@@ -58,7 +58,7 @@ public class RoleController {
     }
 
     /**
-     * PUT /api/v1/roles/{id} : Updates an existing Role.
+     * PUT /api/roles/{id} : Updates an existing Role.
      */
     @PutMapping("/{id}")
     public ResponseEntity<Role> updateRole(@PathVariable String id, @RequestBody Role roleDetails) {
@@ -71,7 +71,7 @@ public class RoleController {
     }
 
     /**
-     * DELETE /api/v1/roles/{id} : Deletes a Role by ID.
+     * DELETE /api/roles/{id} : Deletes a Role by ID.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable String id) {
@@ -82,7 +82,7 @@ public class RoleController {
     // --- Role-Permission Management Endpoint ---
 
     /**
-     * POST /api/v1/roles/{roleId}/permissions : Assigns a permission to a role.
+     * POST /api/roles/{roleId}/permissions : Assigns a permission to a role.
      */
     @PostMapping("/{roleId}/permissions")
     public ResponseEntity<Void> assignPermission(

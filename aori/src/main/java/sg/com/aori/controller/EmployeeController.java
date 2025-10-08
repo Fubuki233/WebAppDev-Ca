@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  */
 
 @RestController
-@RequestMapping("/api/v1/employees")
+@RequestMapping("/api/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -35,14 +35,14 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    // GET /api/v1/employees
+    // GET /api/employees
     @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
         List<Employee> employees = employeeService.getAllEmployees();
         return ResponseEntity.ok(employees);
     }
 
-    // GET /api/v1/employees/{id}
+    // GET /api/employees/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) {
         Employee employee = employeeService.getEmployeeById(id);
@@ -51,21 +51,21 @@ public class EmployeeController {
         // via a @ControllerAdvice for a clean 404 response.
     }
 
-    // POST /api/v1/employees
+    // POST /api/employees
     @PostMapping
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
         Employee createdEmployee = employeeService.createEmployee(employee);
         return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
     }
 
-    // PUT /api/v1/employees/{id}
+    // PUT /api/employees/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable String id, @RequestBody Employee employeeDetails) {
         Employee updatedEmployee = employeeService.updateEmployee(id, employeeDetails);
         return ResponseEntity.ok(updatedEmployee);
     }
 
-    // DELETE /api/v1/employees/{id}
+    // DELETE /api/employees/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable String id) {
         employeeService.deleteEmployee(id);

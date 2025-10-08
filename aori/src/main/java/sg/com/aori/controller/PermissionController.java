@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/v1/permissions")
+@RequestMapping("/api/permissions")
 public class PermissionController {
 
     private final IPermission permissionService;
@@ -29,7 +29,7 @@ public class PermissionController {
     }
 
     /**
-     * POST /api/v1/permissions : Creates a new Permission.
+     * POST /api/permissions : Creates a new Permission.
      */
     @PostMapping
     public ResponseEntity<Permission> createPermission(@RequestBody Permission permission) {
@@ -38,7 +38,7 @@ public class PermissionController {
     }
 
     /**
-     * GET /api/v1/permissions : Retrieves all Permissions.
+     * GET /api/permissions : Retrieves all Permissions.
      */
     @GetMapping
     public ResponseEntity<List<Permission>> getAllPermissions() {
@@ -47,7 +47,7 @@ public class PermissionController {
     }
 
     /**
-     * GET /api/v1/permissions/{id} : Retrieves a Permission by ID.
+     * GET /api/permissions/{id} : Retrieves a Permission by ID.
      */
     @GetMapping("/{id}")
     public ResponseEntity<Permission> getPermissionById(@PathVariable String id) {
@@ -58,10 +58,11 @@ public class PermissionController {
     }
 
     /**
-     * PUT /api/v1/permissions/{id} : Updates an existing Permission.
+     * PUT /api/permissions/{id} : Updates an existing Permission.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Permission> updatePermission(@PathVariable String id, @RequestBody Permission permissionDetails) {
+    public ResponseEntity<Permission> updatePermission(@PathVariable String id,
+            @RequestBody Permission permissionDetails) {
         try {
             Permission updatedPermission = permissionService.updatePermission(id, permissionDetails);
             return ResponseEntity.ok(updatedPermission);
@@ -72,7 +73,7 @@ public class PermissionController {
     }
 
     /**
-     * DELETE /api/v1/permissions/{id} : Deletes a Permission by ID.
+     * DELETE /api/permissions/{id} : Deletes a Permission by ID.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePermission(@PathVariable String id) {
