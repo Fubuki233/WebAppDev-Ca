@@ -1,3 +1,12 @@
+
+/**
+ * Detailed description of the class.
+ *
+ * @author Sun Rui
+ * @date 2025-10-08
+ * @version 1.0
+ */
+
 package sg.com.aori.controller;
 
 import java.net.URI;
@@ -22,6 +31,9 @@ public class CustomerController {
 
     /** Service handling the Create Account use case */
     private final ICreateAccount createAccountService;
+
+    /** Session key for logged-in customer id */
+    private static final String AUTH_CUSTOMER_ID = "AUTH_CUSTOMER_ID";
 
     public CustomerController(ICreateAccount createAccountService) {
         this.createAccountService = createAccountService;
@@ -78,8 +90,7 @@ public class CustomerController {
      * default.
      *
      * param: customerId The Customer primary key (String UUID) from the path.
-     * param: address The address payload; its customerId will be enforced to match
-     * path variable.
+     * param: address The address payload; its customerId will be enforced to match path variable.
      * return: 201 Created with the persisted CustomerAddress in body and Location
      * header pointing to /api/customers/{id}/addresses.
      * throws: IllegalArgumentException if input is invalid.
