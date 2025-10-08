@@ -1,6 +1,9 @@
 package sg.com.aori.repository;
 
 import java.util.List;
+import java.util.Collection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,6 +34,35 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     List<Product> findByProductNameContaining(String keyword);
 
     List<Product> findByCollectionAndSeason(String collection, Product.Season season);
+
+    /** search products by name and category
+    *
+    * @author Simon Lei
+    * @date 2025-10-08
+    * @version 1.0
+    */
+    Page<Product> findByProductNameContainingIgnoreCase(
+            String keyword, Pageable pageable);
+
+    Page<Product> findByProductNameContainingIgnoreCaseAndCategoryIdIn(
+            String keyword, Collection<String> categoryIds, Pageable pageable);
+
+    @Query("""
+        select p from Product p
+        left join p.category c
+        where (
+            :kw is null 
+            or lower(p.productName) like lower(concat('%', :kw, '%'))
+            or (c is not null and lower(c.categoryName) like lower(concat('%', :kw, '%')))
+        )
+        and (:hasCats = false or p.categoryId in :catIds)
+    """)
+    Page<Product> searchByKeywordAndCategories(
+            @Param("kw") String keyword,
+            @Param("catIds") Collection<String> categoryIds,
+            @Param("hasCats") boolean hasCategories,
+            Pageable pageable);
+
 
     // List<Product> findByPriceBetween(double minPrice, double maxPrice);
 
