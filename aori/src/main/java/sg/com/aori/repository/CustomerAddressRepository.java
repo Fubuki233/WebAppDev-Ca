@@ -4,6 +4,10 @@
  * @author SunRui
  * @date 2025-10-07
  * @version 1.0
+ * 
+ * @author Ying Chun
+ * @date 2025-10-08
+ * @version 1.1 - added two more methods
  */
 
 package sg.com.aori.repository;
@@ -27,5 +31,16 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 
     // 统计用户地址数量（控制上限/提示用）
     long countByCustomerId(String customerId);
+    
+    // for use when updating customer address in customer account
+    // find all addresses for a given customer
+    List<CustomerAddress> findByCustomerId(String customerId);
+    
+    // for use when updating customer address in customer account
+    // to find a specific address by its ID and match to the correct customer
+    
+    Optional<CustomerAddress> findByAddressIdAndCustomerId(String addressId, String customerId);
+
+
 
 }
