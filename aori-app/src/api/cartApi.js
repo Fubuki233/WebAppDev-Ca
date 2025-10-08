@@ -1,4 +1,10 @@
-
+/**
+ * Cart API module for managing shopping cart operations.
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
 const CART_STORAGE_KEY = 'aori_shopping_cart';

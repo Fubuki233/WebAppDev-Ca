@@ -1,4 +1,10 @@
-
+/**
+ * Product API module for managing product data and interactions.
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
 const mockProducts = [

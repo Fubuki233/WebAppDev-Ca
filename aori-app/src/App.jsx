@@ -1,3 +1,10 @@
+/**
+ * Main application component for Aori e-commerce platform.
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ */
 import { useState, useEffect } from 'react';
 import HomePage from "./components/HomePage";
 import ProductsPage from "./components/ProductsPage";

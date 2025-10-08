@@ -1,4 +1,10 @@
-
+/**
+ * API configuration module for managing API endpoints and settings.
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ */
 const DEV_CONFIG = {
     BASE_URL: 'http://localhost:8080/api',
     USE_MOCK: true,

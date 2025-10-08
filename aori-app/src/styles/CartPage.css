@@ -1,9 +1,15 @@
+/**
+ * Cart API module for managing shopping cart operations.
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ */
 .cart-page {
     min-height: 100vh;
     background-color: #f5f5f5;
 }
 
-/* 统一的 Navbar 样式 */
 .cart-navbar {
     background: white;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);

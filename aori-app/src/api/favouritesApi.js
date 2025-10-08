@@ -1,4 +1,10 @@
-
+/**
+ * Favourites API module for managing user favourites.
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
 const FAVOURITES_KEY = 'aori_favourites';
