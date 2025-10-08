@@ -116,4 +116,8 @@ public class CustomerController {
         List<CustomerAddress> list = createAccountService.listAddresses(customerId);
         return ResponseEntity.ok(list);
     }
+
+
+    //获取email,得到UUID做session验证
+    //login的时候已经将customerID传进了session
 }
