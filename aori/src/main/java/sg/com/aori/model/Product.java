@@ -9,7 +9,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Entity representing a product in the system.
  * Updated entity
- *
+ * 
+ * JSON example:
+ * {
+ * "productCode": "PROD-000001",
+ * "productName": "Classic Polo Shirt",
+ * "description": "High quality polo shirt",
+ * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
+ * "collection": "Summer 2025",
+ * "material": "Cotton",
+ * "season": "Summer",
+ * "careInstructions": "Machine wash cold",
+ * "colors": "[\"#000000\", \"#FFFFFF\", \"#000080\"]",
+ * "image":
+ * "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=600&fit=crop",
+ * "price": 249,
+ * "inStock": "true",
+ * "size": "[\"XS\", \"S\", \"M\", \"L\", \"XL\"]",
+ * "rating": 4.7,
+ * "tags": "best-seller"
+ * }
+ * 
  * @author Yunhe
  * @date 2025-10-08
  * @version 2.1
