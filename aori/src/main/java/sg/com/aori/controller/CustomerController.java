@@ -10,7 +10,6 @@
 package sg.com.aori.controller;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 import jakarta.validation.Valid;
 
@@ -55,20 +54,6 @@ public class CustomerController {
     }
 
     /**
-     * Get a customer by id.
-     *
-     * param: customerId The Customer primary key (String UUID).
-     * return: 200 OK with Customer if found, otherwise 404 Not Found.
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    @GetMapping("/{customerId}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable String customerId) {
-        Optional<Customer> opt = createAccountService.getCustomerById(customerId);
-        return opt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    /**
      * Get a customer by email.
      *
      * param: email Email address to search for (as query parameter).
@@ -103,22 +88,4 @@ public class CustomerController {
                 .created(URI.create("/api/customers/" + customerId + "/addresses"))
                 .body(saved);
     }
-
-    /**
-     * List all addresses of a customer (newest first).
-     *
-     * param: customerId The Customer primary key (String UUID).
-     * return: 200 OK with a list of CustomerAddress ordered by createdAt descending
-     * (possibly empty).
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    @GetMapping("/{customerId}/addresses")
-    public ResponseEntity<List<CustomerAddress>> listAddresses(@PathVariable String customerId) {
-        List<CustomerAddress> list = createAccountService.listAddresses(customerId);
-        return ResponseEntity.ok(list);
-    }
-
-
-    //获取email,得到UUID做session验证
-    //login的时候已经将customerID传进了session
 }

@@ -26,9 +26,6 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
     // 某个用户的“默认地址”
     Optional<CustomerAddress> findFirstByCustomerIdAndIsDefaultTrue(String customerId);
 
-    // 某个用户的“账单地址们”（若一个或多个）
-    List<CustomerAddress> findByCustomerIdAndIsBillingTrue(String customerId);
-
     // 统计用户地址数量（控制上限/提示用）
     long countByCustomerId(String customerId);
     

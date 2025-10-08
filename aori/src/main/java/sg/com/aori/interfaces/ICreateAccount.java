@@ -7,8 +7,6 @@
  */
 
 package sg.com.aori.interfaces;
-
-import java.util.List;
 import java.util.Optional;
 
 import sg.com.aori.model.Customer;
@@ -41,15 +39,6 @@ public interface ICreateAccount{
     CustomerAddress addInitialAddress(CustomerAddress address);
 
     /**
-     * Retrieves a Customer by its id.
-     *
-     * param input: customerId. The Customer primary key (String UUID).
-     * return: Optional containing Customer if found; otherwise empty.
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    Optional<Customer> getCustomerById(String customerId);
-
-    /**
      * Retrieves a Customer by email.
      *
      * param email Email address to search for.
@@ -58,12 +47,4 @@ public interface ICreateAccount{
      */
     Optional<Customer> getCustomerByEmail(String email);
 
-    /**
-     * Lists all addresses of a given customer, newest first.
-     *
-     * param input: customerId. The Customer primary key (String UUID).
-     * return: List of CustomerAddress ordered by createdAt descending.
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    List<CustomerAddress> listAddresses(String customerId);
 }

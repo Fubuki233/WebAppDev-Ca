@@ -3,12 +3,11 @@
  *
  * @author SunRui
  * @date 2025-10-08
- * @version 1.1
+ * @version 1.2
  */
 
 package sg.com.aori.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -74,19 +73,6 @@ public class CreateAccountServiceImpl implements ICreateAccount {
     }
 
     /**
-     * Retrieves a Customer by its id.
-     *
-     * param: customerId. The Customer primary key (String UUID).
-     * return: Optional containing Customer if found; otherwise empty.
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<Customer> getCustomerById(String customerId) {
-        return customerRepository.findById(customerId);
-    }
-
-    /**
      * Retrieves a Customer by email.
      *
      * param: email. Email address to search for.
@@ -99,18 +85,6 @@ public class CreateAccountServiceImpl implements ICreateAccount {
         return customerRepository.findCustomerByEmail(email);
     }
 
-    /**
-     * Lists all addresses of a given customer, newest first.
-     *
-     * param: customerId. The Customer primary key (String UUID).
-     * return: List of CustomerAddress ordered by createdAt descending.
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    @Transactional(readOnly = true)
-    @Override
-    public List<CustomerAddress> listAddresses(String customerId) {
-        return addressRepository.findByCustomerIdOrderByCreatedAtDesc(customerId);
-    }
 
    /*------Validaiton part------- */ 
 
