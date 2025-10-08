@@ -7,7 +7,7 @@ import sg.com.aori.model.Employee;
 import sg.com.aori.service.EmployeeService;
 
 import java.util.List;
-
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * Controller for Employee entity.
  *
- * @author xiaobo
+ * @author xiaobo, SunRui
  * @date 2025-10-07
- * @version 1.0
+ * @version 1.1
  */
 
 @RestController
@@ -53,14 +53,15 @@ public class EmployeeController {
 
     // POST /api/employees
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
         Employee createdEmployee = employeeService.createEmployee(employee);
         return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
     }
 
     // PUT /api/employees/{id}
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable String id, @RequestBody Employee employeeDetails) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable String id, 
+            @Valid @RequestBody Employee employeeDetails) {
         Employee updatedEmployee = employeeService.updateEmployee(id, employeeDetails);
         return ResponseEntity.ok(updatedEmployee);
     }

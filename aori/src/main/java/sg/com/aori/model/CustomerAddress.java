@@ -1,5 +1,5 @@
 /**
- * Detailed description of the class.
+ * Entity of Customer Address.
  *
  * @author YunHe / SunRui
  * @date 2025-10-08

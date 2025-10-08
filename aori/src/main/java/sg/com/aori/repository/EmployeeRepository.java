@@ -14,9 +14,9 @@ import sg.com.aori.model.Employee;
 /**
  * Repository interface for Employee entity.
  *
- * @author xiaobo
- * @date 2025-10-07
- * @version 1.0
+ * @author xiaobo, Sun RUI
+ * @date 2025-10-08
+ * @version 1.1
  */
 public interface EmployeeRepository extends JpaRepository<Employee, String> {
     /**
@@ -61,4 +61,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
     @Query("UPDATE Employee e SET e.role = NULL WHERE e.role.roleId = :roleId")
     int unassignRoleFromEmployees(@Param("roleId") String roleId);
 
+    boolean existsByEmail(String email); // Check for duplicates when creating
+    
+    boolean existsByEmailAndEmployeeIdNot(String email, String employeeId); // Exclude yourself when checking if the
+                                                                            // mailbox is occupied
 }
