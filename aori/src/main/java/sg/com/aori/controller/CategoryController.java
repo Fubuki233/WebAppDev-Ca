@@ -20,12 +20,17 @@ import sg.com.aori.service.CategoryService;
  * @version 1.1
  */
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
+    /**
+     * Get all categories.
+     *
+     * @return The list of categories.
+     */
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
         List<Category> categories = categoryService.getAllCategories();

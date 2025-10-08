@@ -33,8 +33,6 @@ public class LoginController {
     @PostMapping("/login")
     public String handleLogin(@RequestParam("email") String email, @RequestParam("passwd") String passwd,
             Model model, HttpSession session) {
-        session.setAttribute("email", email);
-        session.setAttribute("passwd", passwd);
         System.out.println("email: " + email + ", passwd: " + passwd);
         Customer customer = loginService.findCustomerByEmail(email).orElse(null);
         if (customer == null) {
@@ -42,6 +40,10 @@ public class LoginController {
             return "login";
         } else if (customer.getPassword().equals(passwd)) {
             System.out.println("User Valid");// better store customer in redis for session management
+
+            session.setAttribute("email", email);
+            session.setAttribute("id", customer.getCustomerId());
+
             return "login";
         }
         System.out.println("password invalid: " + session.getAttribute("email"));
