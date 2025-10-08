@@ -4,7 +4,7 @@
  *
  * @author Sun Rui
  * @date 2025-10-08
- * @version 1.0
+ * @version 2.0
  */
 
 package sg.com.aori.controller;
@@ -31,9 +31,6 @@ public class CustomerController {
 
     /** Service handling the Create Account use case */
     private final ICreateAccount createAccountService;
-
-    /** Session key for logged-in customer id */
-    private static final String AUTH_CUSTOMER_ID = "AUTH_CUSTOMER_ID";
 
     public CustomerController(ICreateAccount createAccountService) {
         this.createAccountService = createAccountService;
