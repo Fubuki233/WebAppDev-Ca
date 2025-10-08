@@ -1,0 +1,497 @@
+.checkout-page {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+/* Header */
+.checkout-header {
+    background: white;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+}
+
+.back-button:hover {
+    transform: translateX(-3px);
+}
+
+.checkout-logo {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.checkout-logo h1 {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: #2d2d2d;
+    margin: 0;
+}
+
+.logo-subtitle {
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 2px;
+}
+
+/* Container */
+.checkout-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 50px 40px;
+}
+
+.checkout-content {
+    display: flex;
+    gap: 60px;
+}
+
+/* Left: Form Section */
+.checkout-form-section {
+    flex: 1;
+    max-width: 600px;
+}
+
+.checkout-title {
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    color: #2d2d2d;
+    margin: 0 0 40px 0;
+}
+
+/* Step Navigation */
+.step-navigation {
+    display: flex;
+    align-items: center;
+    margin-bottom: 50px;
+    gap: 10px;
+}
+
+.step-button {
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.3s;
+}
+
+.step-button.active {
+    color: #2d2d2d;
+    font-weight: 600;
+}
+
+.step-button.completed {
+    color: #2d2d2d;
+    cursor: pointer;
+}
+
+.step-button.completed:hover {
+    text-decoration: underline;
+}
+
+.step-separator {
+    width: 30px;
+    height: 1px;
+    background-color: #ddd;
+}
+
+/* Form */
+.form-step {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+}
+
+.form-section {
+    margin-bottom: 35px;
+}
+
+.form-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #2d2d2d;
+    margin: 0 0 20px 0;
+}
+
+.form-row {
+    margin-bottom: 15px;
+}
+
+.form-row.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #2d2d2d;
+    transition: border-color 0.3s;
+    background: #fafafa;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #2d2d2d;
+    background: white;
+}
+
+.form-input::placeholder {
+    color: #999;
+}
+
+.form-input.full-width {
+    width: 100%;
+}
+
+select.form-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23666' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    padding-right: 45px;
+}
+
+/* Shipping Options */
+.shipping-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.shipping-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.shipping-option:hover {
+    border-color: #2d2d2d;
+}
+
+.shipping-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #2d2d2d;
+}
+
+.shipping-info {
+    flex: 1;
+    margin: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.shipping-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #2d2d2d;
+}
+
+.shipping-time {
+    font-size: 13px;
+    color: #666;
+}
+
+.shipping-price {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d2d2d;
+}
+
+/* Payment Options */
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 15px;
+    color: #2d2d2d;
+}
+
+.payment-option:hover {
+    border-color: #2d2d2d;
+}
+
+.payment-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #2d2d2d;
+}
+
+/* Next Button */
+.next-button {
+    width: 100%;
+    padding: 16px;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.next-button:hover {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.submit-button {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.submit-button:hover {
+    background-color: #1a1a1a;
+}
+
+/* Right: Order Summary */
+.order-summary-section {
+    flex: 1;
+    max-width: 450px;
+    background: white;
+    padding: 35px;
+    border-radius: 8px;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.order-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.order-summary-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #2d2d2d;
+    margin: 0;
+}
+
+.items-count {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Order Items */
+.order-items {
+    margin-bottom: 30px;
+}
+
+.order-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-image {
+    width: 90px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #f5f5f5;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #2d2d2d;
+    margin: 0 0 8px 0;
+}
+
+.item-variant {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 10px 0;
+}
+
+.item-quantity-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-quantity {
+    font-size: 13px;
+    color: #666;
+}
+
+.item-price {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d2d2d;
+}
+
+.change-link {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 13px;
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.change-link:hover {
+    color: #2d2d2d;
+}
+
+/* Order Totals */
+.order-totals {
+    padding-top: 25px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+.total-row .amount {
+    font-weight: 600;
+    color: #2d2d2d;
+}
+
+.shipping-note {
+    font-size: 11px;
+    color: #999;
+    letter-spacing: 0.5px;
+}
+
+.total-row.final-total {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d2d2d;
+}
+
+.total-row.final-total .amount {
+    font-size: 18px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .checkout-content {
+        flex-direction: column;
+    }
+
+    .checkout-form-section,
+    .order-summary-section {
+        max-width: 100%;
+    }
+
+    .order-summary-section {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .checkout-header {
+        padding: 15px 20px;
+    }
+
+    .checkout-container {
+        padding: 30px 20px;
+    }
+
+    .checkout-title {
+        font-size: 28px;
+        letter-spacing: 4px;
+    }
+
+    .form-step {
+        padding: 25px;
+    }
+
+    .form-row.two-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .order-summary-section {
+        padding: 25px;
+    }
+
+    .step-navigation {
+        flex-wrap: wrap;
+    }
+
+    .step-button {
+        font-size: 12px;
+    }
+}

@@ -1,0 +1,97 @@
+.navbar {
+    background-color: #e8e8e8;
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: baseline;
+}
+
+.navbar-logo h1 {
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    color: #2d2d2d;
+    margin: 0;
+}
+
+.logo-subtitle {
+    font-size: 12px;
+    color: #666;
+    margin-left: 5px;
+    letter-spacing: 2px;
+}
+
+.navbar-menu {
+    display: flex;
+    gap: 50px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #2d2d2d;
+    font-size: 16px;
+    font-weight: 400;
+    transition: color 0.3s;
+    letter-spacing: 1px;
+}
+
+.nav-link:hover {
+    color: #666;
+}
+
+.navbar-icons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2d2d2d;
+}
+
+.icon-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.cart-button {
+    background-color: #2d2d2d;
+    color: white;
+    border-radius: 25px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-button:hover {
+    background-color: #1a1a1a;
+}
+
+.cart-text {
+    font-size: 14px;
+    letter-spacing: 1px;
+}

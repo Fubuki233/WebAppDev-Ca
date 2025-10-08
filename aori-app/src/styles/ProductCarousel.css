@@ -1,0 +1,173 @@
+.carousel-container {
+    flex: 1;
+    background-color: #e8e8e8;
+    padding: 40px;
+    overflow: hidden;
+}
+
+.carousel-content {
+    display: flex;
+    align-items: center;
+    gap: 120px;
+    position: relative;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.carousel-text {
+    flex-shrink: 0;
+    max-width: 300px;
+    position: relative;
+    z-index: 10;
+}
+
+.carousel-title {
+    font-size: 72px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    color: #2d2d2d;
+    line-height: 1;
+    margin: 0;
+}
+
+.carousel-season {
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: #666;
+    margin-top: 20px;
+    margin-bottom: 5px;
+}
+
+.carousel-year {
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: #666;
+    margin-bottom: 40px;
+}
+
+.shop-button {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: #2d2d2d;
+    cursor: pointer;
+    padding: 15px 0;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+
+.shop-button:hover {
+    transform: translateX(5px);
+}
+
+.carousel-images {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 500px;
+    margin-left: 50px;
+    /* 图片往右移动,避免在文字下面 */
+}
+
+.carousel-track {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.5s ease-in-out;
+    height: 100%;
+}
+
+.carousel-slide {
+    flex-shrink: 0;
+    width: 350px;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.carousel-slide:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.carousel-slide:hover img {
+    transform: scale(1.05);
+}
+
+.carousel-slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.carousel-slide:hover .carousel-slide-overlay {
+    opacity: 1;
+}
+
+.view-details {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 12px 30px;
+    border: 2px solid white;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.carousel-controls {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    display: flex;
+    gap: 10px;
+    z-index: 20;
+    /* 确保控制按钮在所有内容上方 */
+}
+
+.carousel-button {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #2d2d2d;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.carousel-button:hover {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.carousel-button svg {
+    stroke: currentColor;
+}
