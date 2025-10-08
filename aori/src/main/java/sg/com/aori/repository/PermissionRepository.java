@@ -2,6 +2,8 @@ package sg.com.aori.repository;
 
 import sg.com.aori.model.Permission;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -12,5 +14,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @version 1.0
  */
 public interface PermissionRepository extends JpaRepository<Permission, String> {
-
+    Optional<Permission> findByPermissionName(String permissionName);
 }

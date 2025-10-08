@@ -1,5 +1,7 @@
 package sg.com.aori.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import sg.com.aori.model.Role;
 
@@ -12,5 +14,5 @@ import sg.com.aori.model.Role;
  */
 
 public interface RoleRepository extends JpaRepository<Role, String> {
-
+    Optional<Role> findByRoleName(String roleName);
 }

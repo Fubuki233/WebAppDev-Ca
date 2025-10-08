@@ -15,7 +15,6 @@ import sg.com.aori.model.Role;
 import sg.com.aori.model.Permission;
 import sg.com.aori.repository.RoleRepository;
 import sg.com.aori.repository.PermissionRepository;
-import sg.com.aori.repository.RolePermissionRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +28,7 @@ public class RoleService implements IRole {
 
     public RoleService(
             RoleRepository roleRepository,
-            PermissionRepository permissionRepository,
-            RolePermissionRepository rolePermissionRepository) {
+            PermissionRepository permissionRepository) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
 
