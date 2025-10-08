@@ -5,7 +5,7 @@
  * @author Ying Chun
  * @date 2025-10-08
  * @version 1.0 - previously known as CustomerProfileController; renamed to cover different sub-services
- * @version 2.0 - Renamed to CustomerAccountController
+ * @version 2.0 - Renamed to CustomerAccountController. Introduce Http Session to authenticate users before they can perform actions.
  * 
  */
 
@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,7 +38,7 @@ public class CustomerAccountController {
 	
 	private final ICustomerAccount manageCustAccount;
 	
-	@Autowired
+	// dependency injection; no need to use @Autowired as it is not needed in this version
 	public CustomerAccountController(ICustomerAccount manageCustAccount) {
 		this.manageCustAccount = manageCustAccount;
 	}

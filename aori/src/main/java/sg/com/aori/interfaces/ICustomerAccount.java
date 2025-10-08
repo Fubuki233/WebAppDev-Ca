@@ -5,7 +5,7 @@
  * @author Ying Chun
  * @date 2025-10-08
  * @version 1.0 - previously known as ICustomerProfile
- * @version 2.0 - Renamed to ICustomerAccount
+ * @version 2.0 - Renamed to ICustomerAccount. Added the updating of addresses.
  */
 
 package sg.com.aori.interfaces;
