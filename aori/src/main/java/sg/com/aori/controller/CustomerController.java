@@ -26,7 +26,7 @@ import sg.com.aori.interfaces.ICreateAccount;
  * CustomerAddress.
  */
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/customers") 
 public class CustomerController {
 
     /** Service handling the Create Account use case */

@@ -1,29 +1,27 @@
 /**
  * v1.1: REST API applied
+ * v1.2: Session applied
  * @author Jiang
- * @date 2025-10-07
- * @version 1.1
+ * @date 2025-10-08
+ * @version 1.2
  */
 
 package sg.com.aori.controller;
 
 import sg.com.aori.interfaces.ICart;
+import sg.com.aori.model.Customer;
 import sg.com.aori.model.ShoppingCart;
-// import sg.com.aori.service.CartService;
+import sg.com.aori.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.stereotype.Controller;
-// import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-// import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jakarta.servlet.http.HttpSession;
 
-// @Controller
-// @RequestMapping("/cart")
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
@@ -31,30 +29,29 @@ public class CartController {
     @Autowired
     private ICart cartService;
 
-    // ----- Display shopping cart page
+    @Autowired
+    private CustomerService customerService;
 
-    // @GetMapping
-    // public String viewCart(Model model) {
-    //     // For demo purposes, using a fixed customer ID
-    //     // ***** Must be modified
-    //     String customerId = "demo-customer-id";
-        
-    //     List<ShoppingCart> cartItems = cartService.findCartByCustomerId(customerId);
-    //     BigDecimal totalAmount = cartService.calculateTotal(cartItems);
-        
-    //     model.addAttribute("cartItems", cartItems);
-    //     model.addAttribute("totalAmount", totalAmount);
-        
-    //     return "Cart";
-    // }
+    private String getCustomerIdFromSession(HttpSession session) {
+        String email = (String) session.getAttribute("email");
+        if (email == null) 
+            return null;
+        Customer customer = customerService.findCustomerByEmail(email).orElse(null);
+        return customer != null ? customer.getCustomerId() : null;
+        // ***** Use the statement below if customerId is stored in session
+        // return (String) session.getAttribute("customerId");
+    }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getCart() {
+    public ResponseEntity<Map<String, Object>> getCart(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // For demo purposes, using a fixed customer ID
-            // ***** Must be modified
-            String customerId = "demo-customer-id";
+            String customerId = getCustomerIdFromSession(session);
+             if (customerId == null) {
+                response.put("success", false);
+                response.put("message", "User not logged in");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
             List<ShoppingCart> cartItems = cartService.findCartByCustomerId(customerId);
             BigDecimal totalAmount = cartService.calculateTotal(cartItems);
             
@@ -70,38 +67,17 @@ public class CartController {
         }
     }
 
-    // ----- Process checkout request
-
-    // @PostMapping("/checkout")
-    // public String checkout(RedirectAttributes redirectAttributes) {
-    //     try {
-    //         // ***** Must be modified
-    //         String customerId = "demo-customer-id";
-            
-    //         // Check inventory for all items in cart
-    //         boolean inventoryAvailable = cartService.checkInventory(customerId);
-    //         if (!inventoryAvailable) {
-    //             redirectAttributes.addFlashAttribute("error", "Insufficient inventory for some items");
-    //             return "redirect:/cart";
-    //         }
-            
-    //         // Create order
-    //         String orderId = cartService.createOrder(customerId);
-            
-    //         redirectAttributes.addFlashAttribute("success", "Order created successfully");
-    //         return "redirect:/order/" + orderId;
-            
-    //     } catch (Exception e) {
-    //         redirectAttributes.addFlashAttribute("error", "Checkout failed: " + e.getMessage());
-    //         return "redirect:/cart";
-    //     }
-    // }
-
+    // Process checkout request
     @PostMapping("/checkout")
-    public ResponseEntity<Map<String, Object>> checkout() {
+    public ResponseEntity<Map<String, Object>> checkout(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = "demo-customer-id";
+            String customerId = getCustomerIdFromSession(session);
+            if (customerId == null) {
+                response.put("success", false);
+                response.put("message", "User not logged in");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
             
             boolean inventoryAvailable = cartService.checkInventory(customerId);
             if (!inventoryAvailable) {
@@ -124,27 +100,18 @@ public class CartController {
         }
     }
 
-    // ----- Add item to cart
-
-    // @PostMapping("/add")
-    // public String addToCart(@RequestParam String variantId, 
-    //                        @RequestParam Integer quantity,
-    //                        RedirectAttributes redirectAttributes) {
-    //     try {
-    //         String customerId = "demo-customer-id";
-    //         cartService.addToCart(customerId, variantId, quantity);
-    //         redirectAttributes.addFlashAttribute("success", "Product added to cart");
-    //     } catch (Exception e) {
-    //         redirectAttributes.addFlashAttribute("error", "Failed to add product: " + e.getMessage());
-    //     }
-    //     return "redirect:/products";
-    // }
-
+    // Add item to cart
     @PostMapping("/items")
-    public ResponseEntity<Map<String, Object>> addToCart(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<Map<String, Object>> addToCart(@RequestBody Map<String, Object> request, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = "demo-customer-id";
+            String customerId = getCustomerIdFromSession(session);
+            if (customerId == null) {
+                response.put("success", false);
+                response.put("message", "User not logged in");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
             String variantId = (String) request.get("variantId");
             Integer quantity = (Integer) request.get("quantity");
             
@@ -161,23 +128,18 @@ public class CartController {
         }
     }
 
-    // ----- Remove item from cart
-
-    // @PostMapping("/remove")
-    // public String removeFromCart(@RequestParam String cartId, RedirectAttributes redirectAttributes) {
-    //     try {
-    //         cartService.removeFromCart(cartId);
-    //         redirectAttributes.addFlashAttribute("success", "Item removed from cart");
-    //     } catch (Exception e) {
-    //         redirectAttributes.addFlashAttribute("error", "Failed to remove item: " + e.getMessage());
-    //     }
-    //     return "redirect:/cart";
-    // }
-
+    // Remove item from cart
     @DeleteMapping("/items/{cartId}")
-    public ResponseEntity<Map<String, Object>> removeFromCart(@PathVariable String cartId) {
+    public ResponseEntity<Map<String, Object>> removeFromCart(@PathVariable String cartId, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
+            String customerId = getCustomerIdFromSession(session);
+            if (customerId == null) {
+                response.put("success", false);
+                response.put("message", "User not logged in");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
             cartService.removeFromCart(cartId);
             
             response.put("success", true);
@@ -191,3 +153,7 @@ public class CartController {
         }
     }
 }
+
+
+
+
