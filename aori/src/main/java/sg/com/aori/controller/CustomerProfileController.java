@@ -55,7 +55,7 @@ public class CustomerProfileController {
 			@PathVariable String email,
 			@RequestBody Customer customerUpdateData) {
 		
-		Customer updatedProfile = manageCustProfile.updateCustomerProfile(email, customerUpdateData);
+		//Customer updatedProfile = manageCustProfile.updateCustomerProfile(email, customerUpdateData);
 		return ResponseEntity.ok(updatedProfile);
 	}
 	

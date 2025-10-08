@@ -8,17 +8,39 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Entity representing a product in the system.
- *
+ * Updated entity
+ * 
+ * JSON example:
+ * {
+ * "productCode": "PROD-000001",
+ * "productName": "Classic Polo Shirt",
+ * "description": "High quality polo shirt",
+ * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
+ * "collection": "Summer 2025",
+ * "material": "Cotton",
+ * "season": "Summer",
+ * "careInstructions": "Machine wash cold",
+ * "colors": "[\"#000000\", \"#FFFFFF\", \"#000080\"]",
+ * "image":
+ * "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=600&fit=crop",
+ * "price": 249,
+ * "inStock": "true",
+ * "size": "[\"XS\", \"S\", \"M\", \"L\", \"XL\"]",
+ * "rating": 4.7,
+ * "tags": "best-seller"
+ * }
+ * 
  * @author Yunhe
- * @date 2025-10-07
- * @version 1.0
+ * @date 2025-10-08
+ * @version 2.1
  */
 @Entity
-@Table(name = "Product")
+@Table(name = "product")
 public class Product {
 
     @Id
     @Column(name = "product_id", length = 36, nullable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String productId;
 
     @Column(name = "product_code", length = 20, nullable = false, unique = true)
@@ -47,10 +69,33 @@ public class Product {
     private String careInstructions;
 
     @Column(name = "created_at", updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime updatedAt;
+
+    @Column(name = "colors", columnDefinition = "JSON", nullable = false)
+    private String colors; // JSON array: ["#000000", "#FFFFFF"]
+
+    @Column(name = "image", length = 255)
+    private String image;
+
+    @Column(name = "price", nullable = false)
+    private Short price;
+
+    @Column(name = "inStock", length = 255)
+    private String inStock = "true";
+
+    @Column(name = "size", columnDefinition = "JSON")
+    private String size; // JSON array: ["XS", "S", "M", "L", "XL"]
+
+    @Column(name = "rating")
+    private Float rating = 5.0f;
+
+    @Column(name = "tags", length = 255)
+    private String tags;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
@@ -183,20 +228,83 @@ public class Product {
         this.category = category;
     }
 
+    public String getColors() {
+        return colors;
+    }
+
+    public void setColors(String colors) {
+        this.colors = colors;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public Short getPrice() {
+        return price;
+    }
+
+    public void setPrice(Short price) {
+        this.price = price;
+    }
+
+    public String getInStock() {
+        return inStock;
+    }
+
+    public void setInStock(String inStock) {
+        this.inStock = inStock;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public Float getRating() {
+        return rating;
+    }
+
+    public void setRating(Float rating) {
+        this.rating = rating;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     @Override
     public String toString() {
         return "{" +
-                "productId='" + productId + '\'' +
-                ", productCode='" + productCode + '\'' +
-                ", productName='" + productName + '\'' +
-                ", description='" + description + '\'' +
-                ", categoryId='" + categoryId + '\'' +
-                ", collection='" + collection + '\'' +
-                ", material='" + material + '\'' +
-                ", season=" + season +
-                ", careInstructions='" + careInstructions + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                "\"productId\":\"" + productId + "\"" +
+                ", \"productCode\":\"" + productCode + "\"" +
+                ", \"productName\":\"" + productName + "\"" +
+                ", \"description\":\"" + description + "\"" +
+                ", \"categoryId\":\"" + categoryId + "\"" +
+                ", \"collection\":\"" + collection + "\"" +
+                ", \"material\":\"" + material + "\"" +
+                ", \"season\":\"" + season + "\"" +
+                ", \"careInstructions\":\"" + careInstructions + "\"" +
+                ", \"colors\":" + colors +
+                ", \"image\":\"" + image + "\"" +
+                ", \"price\":" + price +
+                ", \"inStock\":\"" + inStock + "\"" +
+                ", \"size\":" + size +
+                ", \"rating\":" + rating +
+                ", \"tags\":\"" + tags + "\"" +
+                ", \"createdAt\":\"" + createdAt + "\"" +
+                ", \"updatedAt\":\"" + updatedAt + "\"" +
                 '}';
     }
 }
