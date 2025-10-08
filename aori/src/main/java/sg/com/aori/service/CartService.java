@@ -128,6 +128,7 @@ public class CartService implements ICart {
             // Create new cart item
             ShoppingCart cartItem = new ShoppingCart();
             // ***** Check if we need this UUID
+            // ***** It is more likely needed?
             cartItem.setCartId(java.util.UUID.randomUUID().toString());
             
             Customer customer = new Customer();
