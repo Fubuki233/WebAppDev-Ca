@@ -1,17 +1,19 @@
 /**
  * v1.1: REST API applied
  * v1.2: Session applied
+ * v1.3: Provide reference of how to get customerId from session
  * @author Jiang
  * @date 2025-10-08
- * @version 1.2
+ * @version 1.3
  */
 
 package sg.com.aori.controller;
 
+import sg.com.aori.utils.getSession;
 import sg.com.aori.interfaces.ICart;
-import sg.com.aori.model.Customer;
+// import sg.com.aori.model.Customer;
 import sg.com.aori.model.ShoppingCart;
-import sg.com.aori.service.CustomerService;
+// import sg.com.aori.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,24 +31,25 @@ public class CartController {
     @Autowired
     private ICart cartService;
 
-    @Autowired
-    private CustomerService customerService;
+    // @Autowired
+    // private CustomerService customerService;
 
-    private String getCustomerIdFromSession(HttpSession session) {
-        String email = (String) session.getAttribute("email");
-        if (email == null) 
-            return null;
-        Customer customer = customerService.findCustomerByEmail(email).orElse(null);
-        return customer != null ? customer.getCustomerId() : null;
-        // ***** Use the statement below if customerId is stored in session
-        // return (String) session.getAttribute("customerId");
-    }
+    // private String getCustomerIdFromSession(HttpSession session) {
+    //     String email = (String) session.getAttribute("email");
+    //     if (email == null) 
+    //         return null;
+    //     Customer customer = customerService.findCustomerByEmail(email).orElse(null);
+    //     return customer != null ? customer.getCustomerId() : null;
+    //     // ***** Use the statement below if customerId is stored in session
+    //     // return (String) session.getAttribute("customerId");
+    // }
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getCart(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = getCustomerIdFromSession(session);
+            // ***** Syntax for tapping onto 'utils'
+            String customerId = getSession.getCustomerId(session);
              if (customerId == null) {
                 response.put("success", false);
                 response.put("message", "User not logged in");
@@ -72,7 +75,7 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> checkout(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = getCustomerIdFromSession(session);
+            String customerId = getSession.getCustomerId(session);
             if (customerId == null) {
                 response.put("success", false);
                 response.put("message", "User not logged in");
@@ -105,7 +108,7 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> addToCart(@RequestBody Map<String, Object> request, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = getCustomerIdFromSession(session);
+            String customerId = getSession.getCustomerId(session);
             if (customerId == null) {
                 response.put("success", false);
                 response.put("message", "User not logged in");
@@ -133,7 +136,8 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> removeFromCart(@PathVariable String cartId, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = getCustomerIdFromSession(session);
+            // ***** To reference session and get customerId
+            String customerId = (String) session.getAttribute("customerId");
             if (customerId == null) {
                 response.put("success", false);
                 response.put("message", "User not logged in");
