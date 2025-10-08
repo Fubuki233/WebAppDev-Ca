@@ -28,7 +28,7 @@ import sg.com.aori.service.CustomerProfileService;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/profile")
+@RequestMapping("/api/account/profile")
 public class CustomerProfileController {
 
 	@Autowired
