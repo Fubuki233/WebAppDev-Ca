@@ -38,6 +38,8 @@ public class CustomerProfileController {
 	public CustomerProfileController(ICustomerProfile manageCustProfile) {
 		this.manageCustProfile = manageCustProfile;
 	}
+
+	// getSession -->
 	
 	//Retrieve profile info for a specific user by email
 	//@param email The email of the customer, passed in the URL
