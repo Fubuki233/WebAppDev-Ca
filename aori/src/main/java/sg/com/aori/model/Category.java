@@ -1,3 +1,11 @@
+/**
+ * Entity representing a category for a product in the system.
+ * Updated entity - simplified broad categories to 3 types only
+ * @author tangyingchun
+ * @date 2025-10-08
+ * @version 2.0
+ */
+
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
@@ -12,8 +20,6 @@ public class Category {
     public enum BroadCategory {
         Men,
         Women,
-        Girls,
-        Boys,
         Unisex
     }
 

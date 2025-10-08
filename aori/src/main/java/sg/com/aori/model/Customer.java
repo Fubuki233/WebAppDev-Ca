@@ -1,9 +1,24 @@
+
+/**
+ * Detailed description of the class.
+ *
+ * @author YunHe / SunRui
+ * @date 2025-10-08
+ * @version 1.1
+ */
+
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Customer")
@@ -20,18 +35,31 @@ public class Customer {
     @Column(name = "customer_id", nullable = false, length = 36)
     private String customerId = UUID.randomUUID().toString();
 
+    @NotBlank
+    @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain alphabets only")
+    @Length(max = 50)
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
+    @NotBlank
+    @Pattern(regexp = "^[A-Za-z]+$", message = "Last name must contain alphabets only")
+    @Length(max = 50)
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
+    @NotBlank
+    @Email
+    @Length(max = 255)
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
+    @NotBlank
+    @Length(min = 8, max = 255) 
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Phone must follow E.164")
+    @Length(max = 15)
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
 
@@ -39,6 +67,7 @@ public class Customer {
     @Column(name = "gender")
     private Gender gender;
 
+    @NotNull
     @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
@@ -70,6 +99,8 @@ public class Customer {
         this.dateOfBirth = dateOfBirth;
     }
 
+    
+    //getters and setters
     public String getCustomerId() {
         return customerId;
     }
