@@ -45,9 +45,10 @@ public class Wishlist {
     public Wishlist() {
     }
 
-    public Wishlist(String productId, String customerId) {
+    public Wishlist(String customerId, String productId) {
+    	this.customerId = customerId;
         this.productId = productId;
-        this.customerId = customerId;
+        
     }
 
     public String getProductId() {
