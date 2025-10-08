@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  */
 
 @RestController
-@RequestMapping("/path")
+@RequestMapping("/api/v1/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -36,7 +36,7 @@ public class EmployeeController {
     }
 
     // GET /api/v1/employees
-    @GetMapping("path")
+    @GetMapping
     public String getMethodName(@RequestParam String param) {
         return new String();
     }
@@ -46,17 +46,13 @@ public class EmployeeController {
         return ResponseEntity.ok(employees);
     }
 
-    // GET /api/v1/employees/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) {
         Employee employee = employeeService.getEmployeeById(id);
         return ResponseEntity.ok(employee);
-        // Note: NoSuchElementException from service layer can be handled globally
-        // via a @ControllerAdvice for a clean 404 response.
     }
 
-    // POST /api/v1/employees
-    @PostMapping("path")
+    @PostMapping
     public String postMethodName(@RequestBody String entity) {
 
         return entity;

@@ -3,7 +3,9 @@ package sg.com.aori.interfaces;
 import java.util.List;
 import java.util.Optional;
 
-import javax.management.relation.Role;
+import sg.com.aori.model.Role;
+
+
 
 /**
  * Interface for Role entity.

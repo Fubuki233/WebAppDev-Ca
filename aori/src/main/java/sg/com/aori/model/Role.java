@@ -49,8 +49,7 @@ public class Role {
 
     public void addPermission(Permission permission) {
         this.permissions.add(permission);
-        // It's good practice to manage both sides of the relationship if possible
-        // permission.getRoles().add(this); // requires a setter/adder in Permission
+
     }
 
     // remove permission
