@@ -20,18 +20,29 @@ import sg.com.aori.service.CategoryService;
  * @version 1.1
  */
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/api/categories")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
+    /**
+     * Get all categories.
+     * 
+     * @return The list of all categories.
+     */
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
         List<Category> categories = categoryService.getAllCategories();
         return ResponseEntity.ok(categories);
     }
 
+    /**
+     * Get category by ID.
+     * 
+     * @param id The ID of the category to retrieve.
+     * @return The category with the specified ID.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable String id) {
         Optional<Category> category = categoryService.findCategoryById(id);
@@ -39,6 +50,12 @@ public class CategoryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Get category by name.
+     * 
+     * @param name The name of the category to retrieve.
+     * @return The category with the specified name.
+     */
     @GetMapping("/name/{name}")
     public ResponseEntity<Category> getCategoryByName(@PathVariable String name) {
         Optional<Category> category = categoryService.findCategoryByName(name);
@@ -46,6 +63,12 @@ public class CategoryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Get category by code.
+     * 
+     * @param code The code of the category to retrieve.
+     * @return The category with the specified code.
+     */
     @GetMapping("/code/{code}")
     public ResponseEntity<Category> getCategoryByCode(@PathVariable String code) {
         Optional<Category> category = categoryService.findCategoryByCode(code);
@@ -53,6 +76,12 @@ public class CategoryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Get category by slug.
+     * 
+     * @param slug The slug of the category to retrieve.
+     * @return The category with the specified slug.
+     */
     @GetMapping("/slug/{slug}")
     public ResponseEntity<Category> getCategoryBySlug(@PathVariable String slug) {
         Optional<Category> category = categoryService.findCategoryBySlug(slug);
@@ -60,6 +89,12 @@ public class CategoryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Create a new category.
+     * 
+     * @param category The category to create.
+     * @return The created category.
+     */
     @PostMapping
     public ResponseEntity<?> createCategory(@RequestBody Category category) {
         try {
@@ -76,6 +111,13 @@ public class CategoryController {
         }
     }
 
+    /**
+     * Update an existing category.
+     * 
+     * @param id       The ID of the category to update.
+     * @param category The updated category data.
+     * @return The updated category.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCategory(@PathVariable String id, @RequestBody Category category) {
         try {
@@ -89,6 +131,12 @@ public class CategoryController {
         }
     }
 
+    /**
+     * Delete a category by ID.
+     * 
+     * @param id The ID of the category to delete.
+     * @return The deleted category.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable String id) {
         try {

@@ -1,0 +1,70 @@
+/**
+ * Sidebar Styles
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ */
+.sidebar {
+    width: 350px;
+    background-color: #e8e8e8;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.category-link {
+    text-decoration: none;
+    color: #2d2d2d;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    padding: 10px 0;
+}
+
+.category-link:hover {
+    color: #666;
+    transform: translateX(5px);
+}
+
+.search-container {
+    position: relative;
+    margin-top: 20px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 12px 12px 35px;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    background: transparent;
+    font-size: 14px;
+    letter-spacing: 2px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-input::placeholder {
+    color: #999;
+    letter-spacing: 2px;
+}
+
+.search-input:focus {
+    border-bottom-color: #2d2d2d;
+}

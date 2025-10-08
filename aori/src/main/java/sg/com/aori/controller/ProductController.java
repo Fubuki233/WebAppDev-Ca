@@ -41,19 +41,68 @@ public class ProductController {
      * @return The created product.
      */
 
-    @PostMapping("/products")
+    @PostMapping("/api/products")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         if (product.getProductId() == null || product.getProductId().isEmpty()) {
             product.setProductId(java.util.UUID.randomUUID().toString());
         }
 
         Product createdProduct = crudProductService.createProduct(product);
+        System.out.println("Created product: " + createdProduct);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
-    @GetMapping("products")
+    @GetMapping("/api/products")
     public Optional<List<Product>> getAllProducts() {
-        return crudProductService.getAllProducts();
+        Optional<List<Product>> products = crudProductService.getAllProducts();
+        System.out.println("Fetching all products: " + products);
+        return products;
+    }
+
+    /**
+     * Get a product by ID.
+     * 
+     * sample output:
+     * {
+     * "productId": "6a5f02fe-5f52-45c8-9d2d-b50f47e13a38",
+     * "productCode": "PROD-000001",
+     * "productName": "Classic Polo Shirt",
+     * "description": "High quality polo shirt",
+     * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
+     * "collection": "Summer 2025",
+     * "material": "Cotton",
+     * "season": "Summer",
+     * "careInstructions": "Machine wash cold",
+     * "createdAt": "2025-10-08T16:47:48.406149",
+     * "updatedAt": "2025-10-08T16:47:48.406149",
+     * "colors": "[\"#000000\", \"#FFFFFF\", \"#000080\"]",
+     * "image":
+     * "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=600&fit=crop",
+     * "price": 249,
+     * "inStock": "true",
+     * "size": "[\"XS\", \"S\", \"M\", \"L\", \"XL\"]",
+     * "rating": 4.7,
+     * "tags": "best-seller",
+     * "category": {
+     * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
+     * "categoryCode": "CAT-M-001",
+     * "categoryName": "Shirts-updated",
+     * "broadCategoryId": "Men",
+     * "slug": "mens-shirts",
+     * "hibernateLazyInitializer": {}
+     * }
+     * }
+     * 
+     * @param id The product ID.
+     * @return The product with the specified ID.
+     */
+    @GetMapping("/api/products/{id}")
+    public ResponseEntity<Product> getProductById(@PathVariable String id) {
+        System.out.println("Fetching product with ID: " + id);
+        Optional<Product> product = crudProductService.getProductById(id);
+
+        return product.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -82,16 +131,18 @@ public class ProductController {
      * @param product The product to create.
      * @return The created product.
      */
-    @PutMapping("/products/{id}")
+    @PutMapping("/api/products/{id}")
 
     public ResponseEntity<Product> updateProduct(@PathVariable("id") String id, @RequestBody Product product) {
 
         Product updatedProduct = crudProductService.updateProduct(id, product);
+        System.out.println("Updated product: " + updatedProduct);
         return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
 
-    @DeleteMapping("/products/{productId}")
+    @DeleteMapping("/api/products/{productId}")
     public ResponseEntity<Product> deleteProduct(@PathVariable String productId) {
+        System.out.println("Deleting product with ID: " + productId);
         Product deletedProduct = crudProductService.deleteProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
     }

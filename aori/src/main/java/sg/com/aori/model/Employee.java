@@ -1,3 +1,11 @@
+/**
+ * Entity of Employee.
+ *
+ * @author YunHe / SunRui
+ * @date 2025-10-08
+ * @version 1.1
+ */
+
 package sg.com.aori.model;
 
 import java.time.LocalDateTime;
@@ -14,6 +22,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Employee")
@@ -25,37 +35,53 @@ public class Employee {
     private String employeeId;
 
     // first_name VARCHAR(50) NOT NULL,
+    @NotBlank
+    @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain alphabets only")
+    @Length(max = 50)
     @Column(name = "first_name", length = 50, nullable = false)
     private String firstName;
 
     // last_name VARCHAR(50) NOT NULL,
+    @NotBlank
+    @Pattern(regexp = "^[A-Za-z]+$", message = "Last name must contain alphabets only")
+    @Length(max = 50)
     @Column(name = "last_name", length = 50, nullable = false)
     private String lastName;
 
     // email VARCHAR(255) UNIQUE NOT NULL,
+    @NotBlank
+    @Email
+    @Length(max = 255)
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     // password_hash VARCHAR(255) NOT NULL,
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @NotBlank(message = "Password is required")
+    @Length(min = 8, max = 255)
+    @Column(name = "password", nullable = false)
+    private String password;
 
     // phone_number VARCHAR(15),
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Phone must follow E.164")
+    @Length(max = 15)
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
 
     // role_id VARCHAR(36) NOT NULL,
     // Many-to-one relationship with Role entity
+    @NotNull(message = "Role is required")
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
     // status ENUM('Active', 'Inactive', 'Suspended') NOT NULL,
+    @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private EmployeeStatus status;
 
     // created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -81,7 +107,7 @@ public class Employee {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.phoneNumber = phoneNumber;
         this.role = role;
         this.status = status;
@@ -121,12 +147,12 @@ public class Employee {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String passwordHash) {
+        this.password = passwordHash;
     }
 
     public String getPhoneNumber() {

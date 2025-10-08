@@ -4,14 +4,14 @@
  *
  * @author Sun Rui
  * @date 2025-10-08
- * @version 2.0
+ * @version 1.2
  */
 
 package sg.com.aori.controller;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
+import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,7 @@ import sg.com.aori.interfaces.ICreateAccount;
  * CustomerAddress.
  */
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/customers") 
 public class CustomerController {
 
     /** Service handling the Create Account use case */
@@ -46,25 +46,11 @@ public class CustomerController {
      * throws: IllegalArgumentException if input is invalid.
      */
     @PostMapping
-    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
         Customer saved = createAccountService.createCustomer(customer);
         return ResponseEntity
                 .created(URI.create("/api/customers/" + saved.getCustomerId()))
                 .body(saved);
-    }
-
-    /**
-     * Get a customer by id.
-     *
-     * param: customerId The Customer primary key (String UUID).
-     * return: 200 OK with Customer if found, otherwise 404 Not Found.
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    @GetMapping("/{customerId}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable String customerId) {
-        Optional<Customer> opt = createAccountService.getCustomerById(customerId);
-        return opt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -94,26 +80,12 @@ public class CustomerController {
      */
     @PostMapping("/{customerId}/addresses")
     public ResponseEntity<CustomerAddress> addInitialAddress(@PathVariable String customerId,
-            @RequestBody CustomerAddress address) {
+            @Valid @RequestBody CustomerAddress address) {
         // 以路径变量为准，避免与 body 内不一致
         address.setCustomerId(customerId);
         CustomerAddress saved = createAccountService.addInitialAddress(address);
         return ResponseEntity
                 .created(URI.create("/api/customers/" + customerId + "/addresses"))
                 .body(saved);
-    }
-
-    /**
-     * List all addresses of a customer (newest first).
-     *
-     * param: customerId The Customer primary key (String UUID).
-     * return: 200 OK with a list of CustomerAddress ordered by createdAt descending
-     * (possibly empty).
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    @GetMapping("/{customerId}/addresses")
-    public ResponseEntity<List<CustomerAddress>> listAddresses(@PathVariable String customerId) {
-        List<CustomerAddress> list = createAccountService.listAddresses(customerId);
-        return ResponseEntity.ok(list);
     }
 }

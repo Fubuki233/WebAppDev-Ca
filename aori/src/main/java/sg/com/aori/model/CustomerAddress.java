@@ -1,8 +1,19 @@
+/**
+ * Entity of Customer Address.
+ *
+ * @author YunHe / SunRui
+ * @date 2025-10-08
+ * @version 1.1
+ */
+
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Customer_Address")
@@ -15,24 +26,34 @@ public class CustomerAddress {
     @Column(name = "customer_id", length = 36, nullable = false)
     private String customerId;
 
+    @NotBlank
+    @Length(max = 100)
     @Column(name = "recipient_name", length = 100, nullable = false)
     private String recipientName;
 
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
 
+    @NotBlank
+    @Length(max = 255)
     @Column(name = "address_line1", length = 255, nullable = false)
     private String addressLine1;
 
     @Column(name = "address_line2", length = 255)
     private String addressLine2;
 
+    @NotBlank
+    @Length(max = 100)
     @Column(name = "city", length = 100, nullable = false)
     private String city;
 
+    @NotBlank
+    @Length(max = 20)
     @Column(name = "postal_code", length = 20, nullable = false)
     private String postalCode;
 
+    @NotBlank
+    @Length(max = 100)
     @Column(name = "country", length = 100, nullable = false)
     private String country;
 
