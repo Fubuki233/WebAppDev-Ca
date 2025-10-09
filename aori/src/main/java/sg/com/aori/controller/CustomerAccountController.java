@@ -86,6 +86,7 @@ public class CustomerAccountController {
 
 	@PutMapping("/profile/edit")
 	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Customer profileData, HttpSession session) {
+	    System.out.println("Data received from frontend: " + profileData.toString());
 		Map<String, Object> response = new HashMap<>();
 		try {
 			String customerId = getCustomerIdFromSession(session);
