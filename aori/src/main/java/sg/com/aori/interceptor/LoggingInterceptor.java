@@ -13,13 +13,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import sg.com.aori.utils.AuthFilter;
+import sg.com.aori.config.DebugMode;
 
 /**
  * Interceptor to log and validate user sessions.
  *
  * @author Yunhe
  * @date 2025-10-07
- * @version 1.0
+ * @version 1.0 basic version
+ * @date 2025-10-09
+ * @version 2.0 introduced AuthFilter for bypass rules, now works well, but
+ *          haven't introduced role-based access control yet
  */
 
 @Component
@@ -30,6 +34,10 @@ public class LoggingInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request,
             HttpServletResponse response, Object handler) {
+        if (DebugMode.DEBUG) {
+            System.out.println("[LoggingInterceptor] Debug mode ON - bypassing all checks");
+            return true;
+        }
         String method = request.getMethod();
         String path = request.getRequestURI();
         Map<String, String> requestMap = Map.of(
@@ -48,7 +56,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
         // Check if user ID exists in session
         if (id == null || id.isEmpty()) {
-            System.out.println("[LoggingInterceptor] No user ID in session - treating as guest");
+            System.out.println("[LoggingInterceptor] No user ID in session - treating as guest, action is cancelled");
             return false;
 
         }
