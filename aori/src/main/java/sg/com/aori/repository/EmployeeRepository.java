@@ -40,6 +40,17 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
     @Query("SELECT e FROM Employee e JOIN e.role r WHERE r.roleName = :roleName")
     List<Employee> findEmployeesByRoleName(@Param("roleName") String roleName);
 
+    /**
+     * Fetches an Employee and eagerly loads their single assigned Role and the
+     * Permissions associated with that Role.
+     * Structure: Employee -> Role -> Permissions
+     */
+    @Query("SELECT e FROM Employee e " +
+            "JOIN FETCH e.role r " + // Eagerly fetch the single Role (e.role)
+            "LEFT JOIN FETCH r.permissions p " + // Eagerly fetch the Permissions of that Role
+            "WHERE e.employeeId = :employeeId")
+    Optional<Employee> findEmployeeWithRoleAndPermissions(@Param("employeeId") String employeeId);
+
     @Query("SELECT e FROM Employee e WHERE e.email = :email")
     Optional<Employee> findEmployeeByEmail(@Param("email") String email);
 
@@ -62,7 +73,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, String> {
     int unassignRoleFromEmployees(@Param("roleId") String roleId);
 
     boolean existsByEmail(String email); // Check for duplicates when creating
-    
+
     boolean existsByEmailAndEmployeeIdNot(String email, String employeeId); // Exclude yourself when checking if the
                                                                             // mailbox is occupied
 }

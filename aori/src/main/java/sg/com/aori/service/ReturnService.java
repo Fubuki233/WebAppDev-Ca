@@ -9,18 +9,19 @@
 package sg.com.aori.service;
 
 import sg.com.aori.model.Orders;
+import sg.com.aori.interfaces.IReturn;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.ReturnRequest;
 import sg.com.aori.repository.OrderRepository;
 import sg.com.aori.repository.ReturnRepository;
-
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ReturnService {
+public class ReturnService implements IReturn {
     @Autowired
     private final OrderRepository orderRepository;
     @Autowired
@@ -38,7 +39,7 @@ public class ReturnService {
     @Transactional
     public String processReturnRequest(ReturnRequest requestEntity, String userId) {
 
-        // --- Step 5: Find OrderItem and Check Eligibility ---
+        // --- Find OrderItem and Check Eligibility ---
         OrderItem itemToReturn = orderRepository.findOrderItemForReturn(
                 requestEntity.getOrderId(),
                 requestEntity.getProductId(),
@@ -70,5 +71,23 @@ public class ReturnService {
 
         // --- Return Confirmation ---
         return "Return Confirmed. Instructions and Refund Processed.";
+    }
+
+    @Override
+    public Optional<ReturnRequest> findReturnById(String returnId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findReturnById'");
+    }
+
+    @Override
+    public boolean checkEligibility(String orderId, String productId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'checkEligibility'");
+    }
+
+    @Override
+    public String getReturnInstructions(String returnId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getReturnInstructions'");
     }
 }

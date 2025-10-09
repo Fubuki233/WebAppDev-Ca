@@ -1,21 +1,15 @@
 package sg.com.aori.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import sg.com.aori.model.Employee;
 import sg.com.aori.service.EmployeeService;
 
 import java.util.List;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller for Employee entity.
@@ -25,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @version 1.1
  */
 
-@RestController
-@RequestMapping("/api/employees")
+@Controller // This enables Spring to resolve view names (e.g., "employee-list")
+@RequestMapping("/admin/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -35,41 +29,62 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    // GET /api/employees
-    @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
+    // --- SHOW ALL EMPLOYEES (Read) ---
+    // GET /admin/employees
+    @GetMapping("/")
+    public String listEmployees(Model model) {
         List<Employee> employees = employeeService.getAllEmployees();
-        return ResponseEntity.ok(employees);
+
+        // Pass the list of employees to the view template
+        model.addAttribute("employees", employees);
+
+        // Return the name of the Thymeleaf template
+        return "employee-list";
     }
 
-    // GET /api/employees/{id}
-    @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable String id) {
+    // --- RENDER FORM FOR NEW EMPLOYEE (Create - GET) ---
+    // GET /admin/employees/new
+    @GetMapping("/new")
+    public String showCreateForm(Model model) {
+        model.addAttribute("employee", new Employee());
+        return "employee-form"; // Use the same form template for create and update
+    }
+
+    // --- PROCESS NEW EMPLOYEE (Create - POST) ---
+    // POST /admin/employees
+    @PostMapping("/")
+    public String createEmployee(@Valid @ModelAttribute("employee") Employee employee) {
+        employeeService.createEmployee(employee);
+        // Redirect to the list view after successful creation
+        return "redirect:/admin/employees";
+    }
+
+    // --- RENDER FORM TO EDIT EMPLOYEE (Update - GET) ---
+    // GET /admin/employees/{id}/edit
+    @GetMapping("/{id}/edit")
+    public String showEditForm(@PathVariable String id, Model model) {
         Employee employee = employeeService.getEmployeeById(id);
-        return ResponseEntity.ok(employee);
-        // Note: NoSuchElementException from service layer can be handled globally
-        // via a @ControllerAdvice for a clean 404 response.
+
+        // Pass the existing Employee data to pre-populate the form
+        model.addAttribute("employee", employee);
+        return "employee-form";
     }
 
-    // POST /api/employees
-    @PostMapping
-    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
-        Employee createdEmployee = employeeService.createEmployee(employee);
-        return new ResponseEntity<>(createdEmployee, HttpStatus.CREATED);
+    // --- PROCESS EDITED EMPLOYEE (Update - POST/PUT) ---
+    // POST /employees/{id} (Often used instead of PUT in pure form submissions for
+    // simplicity)
+    @PostMapping("/{id}")
+    public String updateEmployee(@PathVariable String id,
+            @Valid @ModelAttribute("employee") Employee employeeDetails) {
+        employeeService.updateEmployee(id, employeeDetails);
+        return "redirect:/admin/employees";
     }
 
-    // PUT /api/employees/{id}
-    @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable String id, 
-            @Valid @RequestBody Employee employeeDetails) {
-        Employee updatedEmployee = employeeService.updateEmployee(id, employeeDetails);
-        return ResponseEntity.ok(updatedEmployee);
-    }
-
-    // DELETE /api/employees/{id}
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable String id) {
+    // --- DELETE EMPLOYEE ---
+    // GET /employees/{id}/delete (Simple method often used for quick UI links)
+    @GetMapping("/{id}/delete")
+    public String deleteEmployee(@PathVariable String id) {
         employeeService.deleteEmployee(id);
-        return ResponseEntity.noContent().build();
+        return "redirect:/admin/employees";
     }
 }
