@@ -1,7 +1,8 @@
 /**
+ * v1.1: Added method findByOrderId
  * @author Jiang
  * @date 2025-10-07
- * @version 1.0
+ * @version 1.1
  */
 
 package sg.com.aori.repository;
@@ -21,6 +22,8 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
 
     // Find all orders by customer ID
     List<Orders> findByCustomerId(String customerId);
+
+    List<Orders> findByOrderId(String orderId);
 
     // Find latest order by customer ID
     Orders findTopByCustomerIdOrderByCreatedAtDesc(String customerId);

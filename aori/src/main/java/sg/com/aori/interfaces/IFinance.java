@@ -1,14 +1,18 @@
 /**
+ * v1.1: Cooperate with FinanceService
  * @author Jiang
- * @date 2025-10-07
- * @version 1.0
+ * @date 2025-10-10
+ * @version 1.1
  */
 
 package sg.com.aori.interfaces;
 
+import sg.com.aori.service.FinanceService;
+
 public interface IFinance {
     Boolean verifyPayment(String orderId);
-    boolean processRefund(String orderId, Double amount);
+    // boolean processRefund(String orderId, Double amount);
     Boolean getPaymentStatus(String orderId);
-    boolean isPaymentGatewayAvailable();
+    Boolean isPaymentGatewayAvailable();
+    FinanceService.PaymentStatusDetail getPaymentStatusDetail(String orderId);
 }

@@ -1,8 +1,9 @@
 /**
- * v1.1(10-09): Removed variant, modified it into product
+ * v1.1: Removed variant, modified it into product
+ * v1.2: Timeout limit 60s -> 10s
  * @author Jiang
- * @date 2025-10-07
- * @version 1.1
+ * @date 2025-10-10
+ * @version 1.2
  */
 
 package sg.com.aori.service;
@@ -68,8 +69,9 @@ public class OrderService implements IOrder {
             try {
                 // Simulate payment processing with FinanceService
                 // ***** Timeout limit can be modified here
-                for (int i = 0; i < 60; i++) {
+                for (int i = 0; i < 10; i++) {
                     Boolean paymentResult = financeService.verifyPayment(orderId);
+                    System.out.println(i + "s, paymentResult=" + paymentResult);
                     if (paymentResult != null && paymentResult) {
                         return true;
                     }
@@ -85,7 +87,7 @@ public class OrderService implements IOrder {
         try {
             // Wait for payment result with timeout
             Boolean paymentSuccess = paymentFuture.get(65, TimeUnit.SECONDS);
-
+            
             if (paymentSuccess) {
                 // Update order status
                 order.setOrderStatus(Orders.OrderStatus.Paid);
@@ -101,7 +103,7 @@ public class OrderService implements IOrder {
                 restoreInventory(orderId);
                 return false;
             }
-
+            
         } catch (Exception e) {
             // Payment timeout or error - restore inventory
             order.setPaymentStatus(Orders.PaymentStatus.Failed);
@@ -134,7 +136,7 @@ public class OrderService implements IOrder {
     // Restore inventory when order is cancelled or payment fails
     private void restoreInventory(String orderId) {
         List<OrderItem> orderItems = findOrderItemsByOrderId(orderId);
-
+        
         for (OrderItem item : orderItems) {
             Product product = item.getProduct();
             product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
@@ -154,9 +156,9 @@ public class OrderService implements IOrder {
 
     // Validate order data
     public boolean validateOrderData(Orders order) {
-        return order != null &&
-                order.getTotalAmount() != null &&
-                order.getTotalAmount().compareTo(BigDecimal.ZERO) > 0 &&
-                order.getCustomer() != null;
+        return order != null && 
+               order.getTotalAmount() != null &&
+               order.getTotalAmount().compareTo(BigDecimal.ZERO) > 0 &&
+               order.getCustomer() != null;
     }
 }
