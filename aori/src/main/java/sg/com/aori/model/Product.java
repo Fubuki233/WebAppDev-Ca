@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * "image":
  * "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=600&fit=crop",
  * "price": 249,
- * "inStock": "true",
  * "stockQuantity": 20,
  * "size": "[\"XS\", \"S\", \"M\", \"L\", \"XL\"]",
  * "rating": 4.7,
