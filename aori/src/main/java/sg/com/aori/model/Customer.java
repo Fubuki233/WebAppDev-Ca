@@ -33,7 +33,7 @@ public class Customer {
 
     @Id
     @Column(name = "customer_id", nullable = false, length = 36)
-    private String customerId = UUID.randomUUID().toString();
+    private String customerId;
 
     @NotBlank
     @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain alphabets only")
