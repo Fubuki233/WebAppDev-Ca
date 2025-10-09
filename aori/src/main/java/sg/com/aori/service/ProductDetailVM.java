@@ -24,17 +24,15 @@ public class ProductDetailVM {
     private BigDecimal price;
     private Integer stockQuantity;
 
-
     private String collection;
     private String material;
     private String season;
     private String careInstructions;
 
-
     private String categoryId;
     private String categoryName;
     private String broadCategory;
-    private String categorySlug;  
+    private String categorySlug;
 
     private Double ratingAvg;
     private Long reviewCount;
