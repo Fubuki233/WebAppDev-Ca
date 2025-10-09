@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Search Products</title>
+  <script>
+    async function searchProducts() {
+      const keyword = document.getElementById("keyword").value.trim();
+      const category = document.getElementById("category").value.trim();
+      const url = `/api/products/search?keyword=${keyword}&category=${category}`;
+      
+      const res = await fetch(url);
+      const data = await res.json();
+      const container = document.getElementById("results");
+      container.innerHTML = "";
+
+      if (!data.content || data.content.length === 0) {
+        container.innerHTML = "<p>No products found.</p>";
+        return;
+      }
+
+      data.content.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "product-card";
+        div.innerHTML = `
+          <h3>${p.productName}</h3>
+          <p>Category: ${p.categoryId}</p>
+          <p>${p.description || ""}</p>
+          <button onclick="viewDetail('${p.productId}')">View Details</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function viewDetail(id) {
+      window.location.href = `detail.html?id=${id}`;
+    }
+  </script>
+</head>
+<body>
+  <h1>Search Products</h1>
+
+  <div>
+    <input type="text" id="keyword" placeholder="Enter product name..." />
+    <input type="text" id="category" placeholder="Category ID (optional)" />
+    <button onclick="searchProducts()">Search</button>
+  </div>
+
+  <hr />
+  <div id="results"></div>
+</body>
+</html>
