@@ -33,7 +33,9 @@ public class LoggingInterceptor implements HandlerInterceptor {
         String method = request.getMethod();
         String path = request.getRequestURI();
         Map<String, String> requestMap = Map.of(
-                path, method);
+                "path", path,
+                "method", method);
+        System.out.println("[LoggingInterceptor] Request map: " + requestMap);
         if (AuthFilter.isAuthorized(requestMap)) {
             System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
             return true;
