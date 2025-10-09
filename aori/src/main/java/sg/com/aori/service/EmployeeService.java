@@ -4,6 +4,8 @@ import java.util.List;
 
 import sg.com.aori.interfaces.IEmployee;
 import sg.com.aori.model.Employee;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,7 @@ import java.util.NoSuchElementException;
 
 @Service
 public class EmployeeService implements IEmployee { // Note: Implement your interface here
-
+    @Autowired
     private final EmployeeRepository employeeRepository;
     // You'd typically inject a PasswordEncoder here for security
 
@@ -41,7 +43,7 @@ public class EmployeeService implements IEmployee { // Note: Implement your inte
     @Transactional
     public Employee createEmployee(Employee employee) {
         validateOnCreate(employee); // Business verification (uniqueness/password complexity/role basicity)
-       
+
         return employeeRepository.save(employee);
     }
 
@@ -169,6 +171,5 @@ public class EmployeeService implements IEmployee { // Note: Implement your inte
         boolean hasSymbol = pwd.matches(".*[^A-Za-z0-9].*");
         return hasUpper && hasLower && hasDigit && hasSymbol && pwd.length() >= 8;
     }
-
 
 }

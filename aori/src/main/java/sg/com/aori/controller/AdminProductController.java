@@ -25,7 +25,7 @@ import sg.com.aori.repository.ProductRepository;
  */
 
 @Controller
-@RequestMapping("/admin/products")
+@RequestMapping("/api/admin/products")
 public class AdminProductController {
 
 	@Autowired

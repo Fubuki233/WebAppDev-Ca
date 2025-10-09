@@ -29,15 +29,15 @@ public class ProductSearchController {
 
     @GetMapping("/search")
     public Page<Product> search(@RequestParam(required = false) String keyword,
-                                @RequestParam(required = false, name = "category") List<String> categoryIds,
-                                @RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "12") int size,
-                                @RequestParam(required = false) String sort) {
+            @RequestParam(required = false, name = "category") List<String> categoryIds,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) String sort) {
         return searchService.search(keyword, categoryIds, page, size, sort);
     }
 
-    @GetMapping("/{id}")
-    public ProductDetailVM detail(@PathVariable String id) {
-        return detailService.getDetail(id);
-    }
+    // @GetMapping("/{id}")
+    // public ProductDetailVM detail(@PathVariable String id) {
+    // return detailService.getDetail(id);
+    // }
 }

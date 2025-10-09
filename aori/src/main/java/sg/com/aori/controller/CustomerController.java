@@ -12,10 +12,12 @@ package sg.com.aori.controller;
 import java.net.URI;
 import java.util.Optional;
 import jakarta.validation.Valid;
+import jakarta.websocket.Session;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import sg.com.aori.service.CustomerService;
 import sg.com.aori.model.Customer;
 import sg.com.aori.model.CustomerAddress;
 import sg.com.aori.interfaces.ICreateAccount;
@@ -26,14 +28,17 @@ import sg.com.aori.interfaces.ICreateAccount;
  * CustomerAddress.
  */
 @RestController
-@RequestMapping("/api/customers") 
+@RequestMapping("/api/customers")
 public class CustomerController {
 
     /** Service handling the Create Account use case */
     private final ICreateAccount createAccountService;
 
-    public CustomerController(ICreateAccount createAccountService) {
+    private final CustomerService customerService;
+
+    public CustomerController(ICreateAccount createAccountService, CustomerService customerService) {
         this.createAccountService = createAccountService;
+        this.customerService = customerService;
     }
 
     /**
@@ -47,6 +52,7 @@ public class CustomerController {
      */
     @PostMapping
     public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
+        customer.setCustomerId(java.util.UUID.randomUUID().toString());
         Customer saved = createAccountService.createCustomer(customer);
         return ResponseEntity
                 .created(URI.create("/api/customers/" + saved.getCustomerId()))
@@ -73,7 +79,8 @@ public class CustomerController {
      * default.
      *
      * param: customerId The Customer primary key (String UUID) from the path.
-     * param: address The address payload; its customerId will be enforced to match path variable.
+     * param: address The address payload; its customerId will be enforced to match
+     * path variable.
      * return: 201 Created with the persisted CustomerAddress in body and Location
      * header pointing to /api/customers/{id}/addresses.
      * throws: IllegalArgumentException if input is invalid.
@@ -88,4 +95,12 @@ public class CustomerController {
                 .created(URI.create("/api/customers/" + customerId + "/addresses"))
                 .body(saved);
     }
+
+    @GetMapping("/{customerId}")
+    public ResponseEntity<Customer> getCustomerById(@PathVariable String customerId) {
+        Optional<Customer> customer = customerService.findCustomerById(customerId);
+        return customer.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
 }

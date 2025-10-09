@@ -1,16 +1,68 @@
 /**
- * Favourites API module for managing user favourites.
+ * Favourites API module for managing user favourites (Wishlist).
+ * 
+ * Backend Wishlist Entity (Composite Key):
+ * - productId (String, UUID) - Part of composite key
+ * - customerId (String, UUID) - Part of composite key
+ * - createdAt (LocalDateTime)
+ * - updatedAt (LocalDateTime)
+ * - product (Product object with full details)
+ * - customer (Customer object)
  * 
  * @author Yunhe
  * @date 2025-10-08
- * @version 1.0
+ * @version 1.1
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
 const FAVOURITES_KEY = 'aori_favourites';
+const TEMP_CUSTOMER_ID = 'temp-customer-id'; // Temporary customer ID for guest users
 
 
-export const getFavourites = async (useMock = API_CONFIG.USE_MOCK) => {
+/**
+ * Transform backend wishlist item to frontend format
+ */
+const transformWishlistItem = (backendItem) => {
+    if (!backendItem) return null;
+
+    try {
+        const product = backendItem.product || {};
+
+        return {
+            productId: backendItem.productId,
+            customerId: backendItem.customerId,
+            createdAt: backendItem.createdAt,
+            updatedAt: backendItem.updatedAt,
+
+            // Frontend fields from product
+            id: product.productId || backendItem.productId,
+            name: product.productName,
+            productName: product.productName,
+            productCode: product.productCode,
+            description: product.description,
+            price: product.price || 0,
+            image: product.image,
+            images: product.images || (product.image ? [product.image] : []),
+            colors: typeof product.colors === 'string' ? JSON.parse(product.colors) : product.colors,
+            size: typeof product.size === 'string' ? JSON.parse(product.size) : product.size,
+            rating: product.rating,
+            inStock: product.inStock === 'true' || product.inStock === true,
+            tags: typeof product.tags === 'string' ? product.tags.split(',') : product.tags,
+
+            // Category info
+            categoryId: product.categoryId,
+            category: product.category,
+
+            // Full product object
+            product: product,
+        };
+    } catch (error) {
+        console.error('Error transforming wishlist item:', error);
+        return null;
+    }
+};
+
+export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) => {
     if (useMock) {
         try {
             const favourites = localStorage.getItem(FAVOURITES_KEY);
@@ -22,7 +74,11 @@ export const getFavourites = async (useMock = API_CONFIG.USE_MOCK) => {
     }
 
     try {
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}`, {
+        const custId = customerId || TEMP_CUSTOMER_ID;
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}`;
+        console.log('Fetching wishlist from:', url);
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -34,24 +90,30 @@ export const getFavourites = async (useMock = API_CONFIG.USE_MOCK) => {
         }
 
         const data = await response.json();
-        return data.favourites || [];
+        console.log('Wishlist data from API:', data);
+
+        // Transform backend wishlist items to frontend format
+        if (Array.isArray(data)) {
+            return data.map(transformWishlistItem).filter(item => item !== null);
+        } else if (data.favourites && Array.isArray(data.favourites)) {
+            return data.favourites.map(transformWishlistItem).filter(item => item !== null);
+        }
+
+        return [];
     } catch (error) {
         console.error('Failed to get favourites from API:', error);
+        console.error('Falling back to localStorage');
         const favourites = localStorage.getItem(FAVOURITES_KEY);
         return favourites ? JSON.parse(favourites) : [];
     }
 };
 
 
-export const addToFavourites = async (item, useMock = API_CONFIG.USE_MOCK) => {
+export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE_MOCK) => {
     if (useMock) {
         try {
-            const favourites = await getFavourites(true);
-            const exists = favourites.some(
-                fav => fav.productId === item.productId &&
-                    fav.size === item.size &&
-                    fav.color === item.color
-            );
+            const favourites = await getFavourites(null, true);
+            const exists = favourites.some(fav => fav.productId === item.productId);
 
             if (exists) {
                 return { success: false, message: 'Item already in favourites' };
@@ -59,6 +121,7 @@ export const addToFavourites = async (item, useMock = API_CONFIG.USE_MOCK) => {
 
             const newItem = {
                 ...item,
+                customerId: customerId || TEMP_CUSTOMER_ID,
                 addedAt: new Date().toISOString()
             };
 
@@ -73,12 +136,19 @@ export const addToFavourites = async (item, useMock = API_CONFIG.USE_MOCK) => {
     }
 
     try {
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES_ADD}`, {
+        // Backend expects: { customerId, productId }
+        const wishlistItem = {
+            customerId: "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+            productId: item.productId || item.id,
+        };
+
+        console.log('Adding to wishlist:', wishlistItem);
+
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES_ADD}?customerId=${wishlistItem.customerId}&productId=${wishlistItem.productId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(item),
         });
 
         if (!response.ok) {
@@ -86,25 +156,27 @@ export const addToFavourites = async (item, useMock = API_CONFIG.USE_MOCK) => {
         }
 
         const data = await response.json();
-        return data;
+        console.log('Added to wishlist:', data);
+        return { success: true, message: 'Added to favourites', data };
     } catch (error) {
         console.error('Failed to add to favourites via API:', error);
-        return { success: false, message: 'Failed to add to favourites' };
+        console.error('Falling back to localStorage');
+        return addToFavourites(item, customerId, true);
     }
 };
 
-export const removeFromFavourites = async (index, useMock = API_CONFIG.USE_MOCK) => {
+export const removeFromFavourites = async (productId, customerId, useMock = API_CONFIG.USE_MOCK) => {
     if (useMock) {
         try {
-            const favourites = await getFavourites(true);
+            const favourites = await getFavourites(null, true);
+            const filtered = favourites.filter(fav => fav.productId !== productId);
 
-            if (index >= 0 && index < favourites.length) {
-                favourites.splice(index, 1);
-                localStorage.setItem(FAVOURITES_KEY, JSON.stringify(favourites));
+            if (filtered.length < favourites.length) {
+                localStorage.setItem(FAVOURITES_KEY, JSON.stringify(filtered));
                 return { success: true, message: 'Removed from favourites' };
             }
 
-            return { success: false, message: 'Invalid index' };
+            return { success: false, message: 'Item not found in favourites' };
         } catch (error) {
             console.error('Failed to remove from favourites:', error);
             return { success: false, message: 'Failed to remove from favourites' };
@@ -112,13 +184,12 @@ export const removeFromFavourites = async (index, useMock = API_CONFIG.USE_MOCK)
     }
 
     try {
-        const favourites = await getFavourites(false);
-        const item = favourites[index];
-        if (!item) {
-            return { success: false, message: 'Invalid index' };
-        }
+        // Backend DELETE expects composite key: customerId and productId as query params
+        const custId = customerId || TEMP_CUSTOMER_ID;
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES_REMOVE}?customerId=${custId}&productId=${productId}`;
+        console.log('Removing from wishlist:', url);
 
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES_REMOVE}/${item.id}`, {
+        const response = await fetch(url, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -130,10 +201,12 @@ export const removeFromFavourites = async (index, useMock = API_CONFIG.USE_MOCK)
         }
 
         const data = await response.json();
-        return data;
+        console.log('Removed from wishlist:', data);
+        return { success: true, message: 'Removed from favourites', data };
     } catch (error) {
         console.error('Failed to remove from favourites via API:', error);
-        return { success: false, message: 'Failed to remove from favourites' };
+        console.error('Falling back to localStorage');
+        return removeFromFavourites(productId, customerId, true);
     }
 };
 
@@ -162,12 +235,13 @@ export const removeFromFavouritesByProduct = async (productId, size = null, colo
 
     try {
         const params = new URLSearchParams();
+        params.append('customerId', "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a");
         params.append('productId', productId);
-        if (size) params.append('size', size);
-        if (color) params.append('color', color);
+        console.log('Removing from wishlist with params:', params.toString());
 
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES_REMOVE}?${params.toString()}`, {
-            method: 'DELETE',
+
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?${params.toString()}`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -186,19 +260,47 @@ export const removeFromFavouritesByProduct = async (productId, size = null, colo
 };
 
 
-export const isInFavourites = async (productId, size = null, color = null, useMock = API_CONFIG.USE_MOCK) => {
-    try {
-        const favourites = await getFavourites(useMock);
+export const isInFavourites = async (productId, customerId, useMock = false) => {
+    if (useMock) {
+        try {
+            const favourites = await getFavourites(null, true);
+            return favourites.some(item => item.productId === productId);
+        } catch (error) {
+            console.error('Failed to check favourites:', error);
+            return false;
+        }
+    }
 
-        return favourites.some(item => {
-            if (item.productId !== productId) return false;
-            if (size && item.size !== size) return false;
-            if (color && item.color !== color) return false;
-            return true;
+    try {
+        // Call backend /exists endpoint
+        const custId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}/exists?customerId=${custId}&productId=${productId}`;
+        console.log('Checking if in wishlist:', url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Wishlist exists result:', data);
+        return data.exists || false;
     } catch (error) {
-        console.error('Failed to check favourites:', error);
-        return false;
+        console.error('Failed to check favourites via API:', error);
+        console.error('Falling back to localStorage');
+        // Fallback to localStorage
+        try {
+            const favourites = await getFavourites(null, true);
+            return favourites.some(item => item.productId === productId);
+        } catch (e) {
+            return false;
+        }
     }
 };
 
@@ -247,11 +349,46 @@ export const clearFavourites = async (useMock = API_CONFIG.USE_MOCK) => {
 };
 
 
-export const toggleFavourite = async (item, useMock = API_CONFIG.USE_MOCK) => {
-    const inFavourites = await isInFavourites(item.productId, item.size, item.color, useMock);
-    if (inFavourites) {
-        return await removeFromFavouritesByProduct(item.productId, item.size, item.color, useMock);
-    } else {
-        return await addToFavourites(item, useMock);
+export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE_MOCK) => {
+    if (useMock) {
+        const inFavourites = await isInFavourites(item.productId, customerId, true);
+        if (inFavourites) {
+            return await removeFromFavourites(item.productId, customerId, true);
+        } else {
+            return await addToFavourites(item, customerId, true);
+        }
+    }
+
+    try {
+        // Use backend toggle endpoint
+        const custId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+        const productId = item.productId || item.id;
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}&productId=${productId}`;
+
+        console.log('Toggling wishlist:', url);
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Toggle result:', data);
+
+        // data.added: true = added, false = removed
+        return {
+            success: true,
+            added: data.added
+        };
+    } catch (error) {
+        console.error('Failed to toggle favourites via API:', error);
+        console.error('Falling back to localStorage');
+        return toggleFavourite(item, customerId, true);
     }
 };

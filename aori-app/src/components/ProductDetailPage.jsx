@@ -36,12 +36,13 @@ const ProductDetailPage = ({ productId }) => {
     useEffect(() => {
         const checkFavorite = async () => {
             if (product) {
-                const isFav = await isInFavourites(product.id, selectedSize, selectedColor);
+                // Check if product is in wishlist (no need for size/color in backend wishlist)
+                const isFav = await isInFavourites(product.id);
                 setIsFavorite(isFav);
             }
         };
         checkFavorite();
-    }, [product, selectedSize, selectedColor]);
+    }, [product]); // Only check when product changes, not size/color
 
     const handleAddToCart = async () => {
         if (!selectedSize) {
@@ -71,11 +72,6 @@ const ProductDetailPage = ({ productId }) => {
     };
 
     const handleToggleFavorite = async () => {
-        if (!selectedSize) {
-            alert('Please select a size before adding to favourites');
-            return;
-        }
-
         const favouriteItem = {
             productId: product.id,
             name: product.name,
@@ -88,8 +84,9 @@ const ProductDetailPage = ({ productId }) => {
         const result = await toggleFavourite(favouriteItem);
 
         if (result.success) {
-            setIsFavorite(!isFavorite);
-            alert(result.message);
+            // Use the 'added' field from backend to set the correct state
+            setIsFavorite(result.added);
+            // No alert - silent toggle
         }
     };
 

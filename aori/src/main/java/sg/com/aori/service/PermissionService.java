@@ -1,5 +1,6 @@
 package sg.com.aori.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Service for Permission entity.
  *
@@ -19,7 +20,7 @@ import java.util.NoSuchElementException;
 
 @Service
 public class PermissionService implements IPermission {
-
+    @Autowired
     private final PermissionRepository permissionRepository;
 
     public PermissionService(PermissionRepository permissionRepository) {
