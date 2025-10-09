@@ -1,5 +1,6 @@
 /**
- * Controller class for handling product-related requests.
+ * Controller class for handling product-related requests
+ * This class is coded using REST API to cater for future integration with mobile app.
  * Now, all the methods had been tested
  * 
  * @author Yunhe

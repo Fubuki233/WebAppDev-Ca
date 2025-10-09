@@ -1,3 +1,12 @@
+/**
+ * Controller for Product Management (CRUD operations)
+ * This controller is used by Aori employees to manage the products in the system.
+ * 
+ * @author Ying Chun
+ * @date 2025-10-07
+ * @version 1.0
+ */
+
 package sg.com.aori.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import sg.com.aori.model.Product;
 import sg.com.aori.repository.ProductRepository;
 
-/**
- * Admin Portal Controller Class for Aori employees managing product-related in
- * the system.
- * For now, I did not create the service implementation layer yet; need to sync
- * up with Yunhe.
- * To check if the productId should be String or UUID?
- * 
- * @author Ying Chun
- * @date 2025-10-07
- * @version 1.0
- */
+
 
 @Controller
 @RequestMapping("/api/admin/products")
