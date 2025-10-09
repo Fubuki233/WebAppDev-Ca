@@ -31,7 +31,7 @@ public class ProductReview {
     private String reviewId = UUID.randomUUID().toString();
 
     @Column(name = "product_id", length = 36, nullable = false)
-    private String product*Id;
+    private String productId;
 
     /* 
     @Column(name = "variant_id", length = 36)
