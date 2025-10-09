@@ -1,14 +1,27 @@
-/**
- * Jiang: Changed all variant to product
- * Line 24: length need to be checked again
- * @date 10-09
+
+ /**
+ *  Modified variant related code, Add constraints to entities 
+ * @author Jiang, Sun Rui
+ * @date 2025-10-09
+ * @version 1.3
  */
+
 
 package sg.com.aori.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "shopping_cart")
@@ -18,12 +31,15 @@ public class ShoppingCart {
     @Column(name = "cart_id", length = 36, nullable = false)
     private String cartId = UUID.randomUUID().toString();
 
+    @NotBlank(message = "customerId is required")
     @Column(name = "customer_id", length = 36, nullable = false)
     private String customerId;
 
+    @NotBlank(message = "productId is required")
     @Column(name = "product_id", length = 36, nullable = false)
     private String productId;
 
+    @Positive(message = "quantity must be greater than zero")
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 

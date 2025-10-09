@@ -6,19 +6,24 @@
 
 package sg.com.aori.service;
 
-import sg.com.aori.interfaces.ICart;
-import sg.com.aori.model.*;
-import sg.com.aori.repository.CartRepository;
-import sg.com.aori.repository.InventoryRepository;
-import sg.com.aori.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sg.com.aori.interfaces.ICart;
+import sg.com.aori.model.Customer;
+import sg.com.aori.model.OrderItem;
+import sg.com.aori.model.Orders;
+import sg.com.aori.model.Product;
+import sg.com.aori.model.ShoppingCart;
+import sg.com.aori.repository.CartRepository;
+import sg.com.aori.repository.InventoryRepository;
+import sg.com.aori.repository.OrderRepository;
 
 @Service
 @Transactional
@@ -140,6 +145,14 @@ public class CartService implements ICart {
             cartItem.setAddedAt(LocalDateTime.now());
             
             cartRepository.save(cartItem);
+        }
+       
+        // Basic validation, add defensive checks to prevent bypassing the controller
+        if (productId == null || productId.isBlank()) {
+        throw new IllegalArgumentException("productId is required");
+        }
+        if (quantity == null || quantity <= 0) {
+        throw new IllegalArgumentException("Quantity must be greater than zero");
         }
     }
 
