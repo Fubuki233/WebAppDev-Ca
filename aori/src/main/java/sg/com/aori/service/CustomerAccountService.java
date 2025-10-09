@@ -68,7 +68,8 @@ public class CustomerAccountService implements ICustomerAccount {
 			throw new EntityNotFoundException("Customer not found with ID: " + customerId);
 		}
 
-		// Update customer's profile details for each field, encapsulated by 'profileData' object
+		// Update customer's profile details for each field, encapsulated by
+		// 'profileData' object
 		existingCustomer.setFirstName(profileData.getFirstName());
 		existingCustomer.setLastName(profileData.getLastName());
 		existingCustomer.setPhoneNumber(profileData.getPhoneNumber());

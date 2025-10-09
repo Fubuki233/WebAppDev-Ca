@@ -29,7 +29,7 @@ public class Orders {
     @Column(name = "order_id", length = 36, nullable = false)
     private String orderId = UUID.randomUUID().toString();
 
-    @Column(name = "order_number", length = 30, nullable = false, unique = true)
+    @Column(name = "order_number", length = 50, nullable = false, unique = true)
     private String orderNumber;
 
     @Column(name = "customer_id", length = 36, nullable = false)

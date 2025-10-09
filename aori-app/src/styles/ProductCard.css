@@ -142,6 +142,34 @@
     border-color: #2d2d2d;
 }
 
+/* Product Rating */
+.product-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.product-rating .stars {
+    display: flex;
+    gap: 2px;
+}
+
+.product-rating .star {
+    font-size: 16px;
+    color: #ddd;
+}
+
+.product-rating .star.filled {
+    color: #ffa500;
+}
+
+.product-rating .rating-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+}
+
 .product-footer {
     display: flex;
     justify-content: space-between;

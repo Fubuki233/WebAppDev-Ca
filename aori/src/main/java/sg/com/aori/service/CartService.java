@@ -53,7 +53,7 @@ public class CartService implements ICart {
     // Check inventory for all items in cart
     public boolean checkInventory(String customerId) {
         List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
-        
+
         for (ShoppingCart item : cartItems) {
             Product product = item.getProduct();
             if (product.getStockQuantity() < item.getQuantity()) {
@@ -66,27 +66,27 @@ public class CartService implements ICart {
     // Create order from cart
     public String createOrder(String customerId) {
         List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
-        
+
         // Create order
         Orders order = new Orders();
         order.setOrderId(java.util.UUID.randomUUID().toString());
-        
+
         // Set customer (in real app, get from authenticated user)
         Customer customer = new Customer();
         customer.setCustomerId(customerId);
         order.setCustomer(customer);
-        
+
         order.setOrderStatus(Orders.OrderStatus.Pending);
         order.setPaymentStatus(Orders.PaymentStatus.Pending);
-        
+
         // Calculate total amount
         BigDecimal totalAmount = calculateTotal(cartItems);
         order.setTotalAmount(totalAmount);
         order.setCreatedAt(LocalDateTime.now());
-        
+
         // Save order
         Orders savedOrder = orderRepository.save(order);
-        
+
         // Create order items and update inventory
         for (ShoppingCart cartItem : cartItems) {
             OrderItem orderItem = new OrderItem();
@@ -96,16 +96,16 @@ public class CartService implements ICart {
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setPriceAtPurchase(cartItem.getProduct().getPrice());
             orderItem.setDiscountApplied(BigDecimal.ZERO);
-            
+
             // Update inventory
             Product product = cartItem.getProduct();
             product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
             inventoryRepository.save(product);
         }
-        
+
         // Clear cart
         cartRepository.deleteByCustomerId(customerId);
-        
+
         return savedOrder.getOrderId();
     }
 
@@ -115,15 +115,15 @@ public class CartService implements ICart {
         if (productOpt.isEmpty()) {
             throw new RuntimeException("Product not found");
         }
-        
+
         Product product = productOpt.get();
         if (product.getStockQuantity() < quantity) {
             throw new RuntimeException("Insufficient inventory");
         }
-        
+
         // Check if item already in cart
         Optional<ShoppingCart> existingCartItem = cartRepository.findByCustomerIdAndProductId(customerId, productId);
-        
+
         if (existingCartItem.isPresent()) {
             // Update quantity
             ShoppingCart cartItem = existingCartItem.get();
@@ -135,24 +135,24 @@ public class CartService implements ICart {
             // ***** Check if we need this UUID
             // ***** It is more likely needed?
             cartItem.setCartId(java.util.UUID.randomUUID().toString());
-            
+
             Customer customer = new Customer();
             customer.setCustomerId(customerId);
             cartItem.setCustomer(customer);
-            
+
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
             cartItem.setAddedAt(LocalDateTime.now());
-            
+
             cartRepository.save(cartItem);
         }
-       
+
         // Basic validation, add defensive checks to prevent bypassing the controller
         if (productId == null || productId.isBlank()) {
-        throw new IllegalArgumentException("productId is required");
+            throw new IllegalArgumentException("productId is required");
         }
         if (quantity == null || quantity <= 0) {
-        throw new IllegalArgumentException("Quantity must be greater than zero");
+            throw new IllegalArgumentException("Quantity must be greater than zero");
         }
     }
 

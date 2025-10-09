@@ -20,7 +20,8 @@ public class AuthFilter {
                 Map.of("path", "/api/products", "method", "GET"),
                 Map.of("path", "/api/categories", "method", "GET"),
                 Map.of("path", "/api/products/search", "method", "GET"),
-                Map.of("path", "/api/wishlist/exists", "method", "GET"));
+                Map.of("path", "/api/wishlist/exists", "method", "GET"),
+                Map.of("path", "/api/customers", "method", "POST")); // For registration
 
         // Extract path and method from requestMap
         System.out.println("[AuthFilter] checking requestMap: " + requestMap);
@@ -28,9 +29,21 @@ public class AuthFilter {
         String requestMethod = requestMap.get("method");
         System.out.println("[AuthFilter] checking path: " + requestPath + ", method: " + requestMethod);
 
+        // Always allow OPTIONS requests (CORS preflight)
+        if ("OPTIONS".equals(requestMethod)) {
+            System.out.println("[AuthFilter] OPTIONS request - allowing CORS preflight");
+            return true;
+        }
+
         // Always allow error page access (for all HTTP methods)
         if (requestPath != null && requestPath.equals("/error")) {
-            System.out.println("[AuthFilter] Error!");
+            System.out.println("[AuthFilter] Error page access allowed");
+            return true;
+        }
+
+        // Allow GET requests to individual products: /api/products/{productId}
+        if (requestPath != null && requestPath.startsWith("/api/products/") && "GET".equals(requestMethod)) {
+            System.out.println("[AuthFilter] Individual product GET request allowed: " + requestPath);
             return true;
         }
 

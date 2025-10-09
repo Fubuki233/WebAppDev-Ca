@@ -12,12 +12,12 @@
  * 
  * @author Yunhe
  * @date 2025-10-08
- * @version 1.1
+ * @version 1.2 - Updated to use getUserUuid() from apiUtils
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
+import { getUserUuid } from './apiUtils';
 
 const CART_STORAGE_KEY = 'aori_shopping_cart';
-const TEMP_CUSTOMER_ID = 'temp-customer-id'; // Temporary customer ID for guest users
 
 export const getCart = async (customerId, useMock = false) => {
     if (useMock) {
@@ -31,8 +31,13 @@ export const getCart = async (customerId, useMock = false) => {
     }
 
     try {
+        const custId = await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, using localStorage');
+            const cart = localStorage.getItem(CART_STORAGE_KEY);
+            return cart ? JSON.parse(cart) : [];
+        }
 
-        const custId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}?customerId=${custId}`;
         console.log('Fetching cart from:', url);
 
@@ -131,9 +136,15 @@ export const addToCart = async (item, useMock = false) => {
     }
 
     try {
+        const custId = await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, falling back to localStorage');
+            return addToCart(item, true);
+        }
+
         // Backend expects: { customerId, variantId, quantity }
         const cartItem = {
-            customerId: "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+            customerId: custId,
             variantId: item.variantId || item.variant_id,
             quantity: item.quantity || 1,
         };

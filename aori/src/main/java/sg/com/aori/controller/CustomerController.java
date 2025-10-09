@@ -25,6 +25,7 @@ import sg.com.aori.interfaces.ICreateAccount;
  * Endpoints focus on creating a Customer and (optionally) adding an initial
  * CustomerAddress.
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/customers")
 public class CustomerController {

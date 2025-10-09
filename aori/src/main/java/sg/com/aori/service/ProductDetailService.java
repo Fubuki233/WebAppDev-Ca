@@ -7,8 +7,10 @@ import sg.com.aori.model.Category;
 import sg.com.aori.model.Product;
 import sg.com.aori.repository.CategoryRepository;
 import sg.com.aori.repository.ProductRepository;
+
 /**
- * Service for fetching detailed product information along with review statistics.
+ * Service for fetching detailed product information along with review
+ * statistics.
  *
  * @author Simon Lei
  * @date 2025-10-08

@@ -17,7 +17,7 @@ import sg.com.aori.repository.EmployeeRepository;
 import sg.com.aori.model.Employee;
 
 @Service
-public class EmployeeProfileService implements IEmployeeProfile{
+public class EmployeeProfileService implements IEmployeeProfile {
 
     private final EmployeeRepository employeeRepository;
 
@@ -26,7 +26,7 @@ public class EmployeeProfileService implements IEmployeeProfile{
     }
 
     @Override
-    public Optional<Employee> getEmployeeByEmail(String email){
+    public Optional<Employee> getEmployeeByEmail(String email) {
         return employeeRepository.findByEmail(email);
     }
 

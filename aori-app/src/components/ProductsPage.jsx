@@ -20,23 +20,17 @@ const ProductsPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
     const [totalProducts, setTotalProducts] = useState(0);
+    const [categoryTabs, setCategoryTabs] = useState([]);
+    const [availableColors, setAvailableColors] = useState([]);
+    const [availableCollections, setAvailableCollections] = useState([]);
+    const [availableTags, setAvailableTags] = useState([]);
 
-    const categoryTabs = [
-        { id: 'new', label: 'NEW' },
-        { id: 'shirts', label: 'SHIRTS' },
-        { id: 'polo-shirts', label: 'POLO SHIRTS' },
-        { id: 'shorts', label: 'SHORTS' },
-        { id: 'suits', label: 'SUIT' },
-        { id: 'best-sellers', label: 'BEST SELLERS' },
-        { id: 't-shirts', label: 'T-SHIRTS' },
-        { id: 'jeans', label: 'JEANS' },
-        { id: 'jackets', label: 'JACKETS' },
-        { id: 'coats', label: 'COAT' },
-    ];
+    useEffect(() => {
+        loadCategories();
+    }, []);
 
     useEffect(() => {
         loadProducts();
-        loadCategories();
     }, [filters]);
 
     const loadProducts = async () => {
@@ -44,8 +38,12 @@ const ProductsPage = () => {
         try {
             const result = await fetchProducts(filters);
             console.log('Loaded products result:', result);
-            setProducts(result?.products || []);
+            const productsData = result?.products || [];
+            setProducts(productsData);
             setTotalProducts(result?.total || 0);
+
+            // Extract available colors, collections, and tags from products
+            extractFilterOptions(productsData);
         } catch (error) {
             console.error('Error loading products:', error);
             setProducts([]);
@@ -55,10 +53,49 @@ const ProductsPage = () => {
         }
     };
 
+    const extractFilterOptions = (productsData) => {
+        // Extract unique colors
+        const colorsSet = new Set();
+        productsData.forEach(product => {
+            if (product.colors && Array.isArray(product.colors)) {
+                product.colors.forEach(color => colorsSet.add(color));
+            }
+        });
+        setAvailableColors(Array.from(colorsSet));
+
+        // Extract unique collections
+        const collectionsSet = new Set();
+        productsData.forEach(product => {
+            if (product.collection) {
+                collectionsSet.add(product.collection);
+            }
+        });
+        setAvailableCollections(Array.from(collectionsSet).filter(c => c));
+
+        // Extract unique tags
+        const tagsSet = new Set();
+        productsData.forEach(product => {
+            if (product.tags && Array.isArray(product.tags)) {
+                product.tags.forEach(tag => tagsSet.add(tag));
+            }
+        });
+        setAvailableTags(Array.from(tagsSet).filter(t => t));
+    };
+
     const loadCategories = async () => {
         try {
             const cats = await fetchCategories();
             setCategories(cats);
+
+            // Generate category tabs from fetched categories
+            if (cats && cats.length > 0) {
+                const tabs = cats.map(cat => ({
+                    id: cat.slug || cat.category || cat.categoryId,
+                    label: (cat.categoryName || cat.name || '').toUpperCase(),
+                    categoryId: cat.categoryId,
+                }));
+                setCategoryTabs(tabs);
+            }
         } catch (error) {
             console.error('Error loading categories:', error);
         }
@@ -66,6 +103,11 @@ const ProductsPage = () => {
 
     const handleFilterChange = (newFilters) => {
         setFilters(prev => ({ ...prev, ...newFilters }));
+
+        // Sync activeCategory with filter category
+        if ('category' in newFilters) {
+            setActiveCategory(newFilters.category || 'all');
+        }
     };
 
     const handleSearch = (e) => {
@@ -100,6 +142,10 @@ const ProductsPage = () => {
                     <ProductFilters
                         onFilterChange={handleFilterChange}
                         categories={categories}
+                        activeCategory={activeCategory}
+                        availableColors={availableColors}
+                        availableCollections={availableCollections}
+                        availableTags={availableTags}
                     />
 
                     <div className="products-main">
@@ -118,6 +164,12 @@ const ProductsPage = () => {
                         </form>
 
                         <div className="category-tabs">
+                            <button
+                                className={`category-tab ${activeCategory === 'all' ? 'active' : ''}`}
+                                onClick={() => handleCategoryClick('all')}
+                            >
+                                ALL
+                            </button>
                             {categoryTabs.map((tab) => (
                                 <button
                                     key={tab.id}
