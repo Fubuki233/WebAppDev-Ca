@@ -26,7 +26,13 @@ export const API_ENDPOINTS = {
 
     USER_LOGIN: '/auth/login',
     USER_REGISTER: '/auth/register',
-    USER_PROFILE: '/user/profile',
+    USER_LOGOUT: '/auth/logout',
+    USER_PROFILE: '/account/profile',
+    USER_PROFILE_EDIT: '/account/profile/edit',
+    USER_ADDRESSES: '/account/addresses',
+
+    CUSTOMER: '/customers',
+    CUSTOMER_REGISTER: '/customers',
 
     CART: '/cart',
     CART_ADD: '/cart/add',
@@ -38,8 +44,6 @@ export const API_ENDPOINTS = {
 
     ORDERS: '/orders',
     ORDER_CREATE: '/orders/create',
-
-    CUSTOMER: '/customer',
 
 };
 

@@ -48,7 +48,7 @@ public class CustomerAccountController {
 	// to authenticate session via customer_id
 
 	private String getCustomerIdFromSession(HttpSession session) {
-		return (String) session.getAttribute("customerId");
+		return (String) session.getAttribute("id");
 	}
 
 	// View profile details
@@ -86,7 +86,7 @@ public class CustomerAccountController {
 
 	@PutMapping("/profile/edit")
 	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Customer profileData, HttpSession session) {
-	    System.out.println("Data received from frontend: " + profileData.toString());
+		System.out.println("Data received from frontend: " + profileData.toString());
 		Map<String, Object> response = new HashMap<>();
 		try {
 			String customerId = getCustomerIdFromSession(session);

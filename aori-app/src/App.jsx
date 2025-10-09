@@ -12,6 +12,9 @@ import ProductDetailPage from "./components/ProductDetailPage";
 import FavouritesPage from "./components/FavouritesPage";
 import CartPage from "./components/CartPage";
 import CheckoutPage from "./components/CheckoutPage";
+import LoginPage from "./components/LoginPage";
+import RegisterPage from "./components/RegisterPage";
+import ProfilePage from "./components/ProfilePage";
 import './styles/global.css';
 
 function App() {
@@ -25,6 +28,9 @@ function App() {
     if (hash === '#favourites') return { page: 'favourites' };
     if (hash === '#cart') return { page: 'cart' };
     if (hash === '#checkout') return { page: 'checkout' };
+    if (hash === '#login') return { page: 'login' };
+    if (hash === '#register') return { page: 'register' };
+    if (hash === '#profile') return { page: 'profile' };
     return { page: 'home' };
   };
 
@@ -52,6 +58,9 @@ function App() {
       {currentRoute.page === 'favourites' && <FavouritesPage />}
       {currentRoute.page === 'cart' && <CartPage />}
       {currentRoute.page === 'checkout' && <CheckoutPage />}
+      {currentRoute.page === 'login' && <LoginPage />}
+      {currentRoute.page === 'register' && <RegisterPage />}
+      {currentRoute.page === 'profile' && <ProfilePage />}
     </div>
   );
 }

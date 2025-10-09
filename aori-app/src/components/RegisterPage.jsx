@@ -6,12 +6,11 @@
  * @version 1.0
  */
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { register } from '../api/authApi';
+import Navbar from './Navbar';
 import '../styles/RegisterPage.css';
 
 const RegisterPage = () => {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -94,10 +93,8 @@ const RegisterPage = () => {
             });
 
             if (response.success) {
-                // Navigate to login page after successful registration
-                navigate('/login', {
-                    state: { message: 'Registration successful! Please sign in.' }
-                });
+                // Navigate to login page after successful registration using hash
+                window.location.hash = '#login';
             } else {
                 setErrors({ general: response.message || 'Registration failed. Please try again.' });
             }
@@ -110,11 +107,12 @@ const RegisterPage = () => {
     };
 
     const handleLoginRedirect = () => {
-        navigate('/login');
+        window.location.hash = '#login';
     };
 
     return (
         <div className="register-page">
+            <Navbar />
             <div className="register-container">
                 <div className="register-card">
                     <div className="register-header">

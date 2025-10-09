@@ -6,40 +6,47 @@
  * @version 1.0
  */
 
-import { API_BASE_URL } from './apiConfig';
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 /**
  * Login user
  * @param {string} email - User email
  * @param {string} password - User password
- * @returns {Promise<Object>} Response with user data and token
+ * @returns {Promise<Object>} Response with user data and session info
  */
 export const login = async (email, password) => {
     try {
-        const response = await fetch(`$${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_LOGIN}`, {
+        // Use query parameters as per API specification
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_LOGIN}?email=${encodeURIComponent(email)}&passwd=${encodeURIComponent(password)}`;
+
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             credentials: 'include', // Important for session cookies
-            body: JSON.stringify({ email, password }),
         });
 
-        if (!response.ok) {
-            throw new Error('Login failed');
-        }
-
         const data = await response.json();
-        return {
-            success: true,
-            user: data.customer || data.user,
-            message: 'Login successful'
-        };
+
+        // Backend returns { success, message, user, sessionId }
+        if (data.success) {
+            return {
+                success: true,
+                user: data.user,
+                sessionId: data.sessionId,
+                message: data.message || 'Login successful'
+            };
+        } else {
+            return {
+                success: false,
+                message: data.message || 'Login failed'
+            };
+        }
     } catch (error) {
         console.error('Login error:', error);
         return {
             success: false,
-            message: error.message || 'Login failed'
+            message: 'Network error. Please check your connection and try again.'
         };
     }
 };
@@ -51,7 +58,7 @@ export const login = async (email, password) => {
  */
 export const register = async (userData) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/customers`, {
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CUSTOMER_REGISTER}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -97,27 +104,27 @@ export const register = async (userData) => {
  */
 export const logout = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/logout`, {
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_LOGOUT}`, {
             method: 'POST',
             credentials: 'include',
         });
 
-        if (!response.ok) {
-            throw new Error('Logout failed');
-        }
+        const data = await response.json();
 
-        // Clear local storage
+        // Clear local storage regardless of response
         localStorage.removeItem('user');
 
         return {
-            success: true,
-            message: 'Logout successful'
+            success: data.success || false,
+            message: data.message || (data.success ? 'Logout successful' : 'Logout failed')
         };
     } catch (error) {
         console.error('Logout error:', error);
+        // Still clear local storage on error
+        localStorage.removeItem('user');
         return {
             success: false,
-            message: error.message || 'Logout failed'
+            message: 'Network error during logout'
         };
     }
 };
