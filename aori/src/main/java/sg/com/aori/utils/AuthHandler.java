@@ -11,7 +11,6 @@ package sg.com.aori.utils;
 
 import java.io.IOException;
 import java.util.Optional;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -22,20 +21,10 @@ import sg.com.aori.service.LoginService;
 
 public class AuthHandler {
 
-    private static EmployeeService employeeService;
-    private static LoginService loginService;
-
-    public static void setEmployeeService(EmployeeService service) {
-        employeeService = service;
-    }
-
-    public static void setLoginService(LoginService service) {
-        loginService = service;
-    }
-
     public static boolean handleEmployeeAccess(HttpServletRequest request,
             HttpServletResponse response,
-            Object handler) throws IOException {
+            Object handler,
+            EmployeeService employeeService) throws IOException {
 
         HttpSession session = request.getSession();
         String employeeId = (String) session.getAttribute("employeeId");
@@ -82,16 +71,39 @@ public class AuthHandler {
 
     // NEW HANDLER FOR CUSTOMER ACCESS (Encapsulates the old validation logic)
     public static boolean handleCustomerAccess(HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+            HttpServletResponse response,
+            LoginService loginService) throws IOException {
 
         HttpSession session = request.getSession();
-        String customerId = (String) session.getAttribute("customerId");
+        // Use "id" to match LoginController
+        String customerId = (String) session.getAttribute("id");
+
+        // Get the origin from request header to make redirect URL adaptive
+        String origin = request.getHeader("Origin");
+        if (origin == null || origin.isEmpty()) {
+            // Fallback to constructing URL from request
+            origin = request.getScheme() + "://" + request.getServerName() + ":5173";
+        }
+        String loginRedirectUrl = origin + "/#login";
 
         // Check if user ID exists in session
         if (customerId == null || customerId.isEmpty()) {
-            System.out.println("[CustomerAccess] No customer ID in session - redirecting to login.");
-            response.sendRedirect("/login");
-            return false;
+            System.out.println("[CustomerAccess] No customer ID in session - returning 401 Unauthorized " + customerId);
+
+            // For API requests, return JSON error instead of redirect
+            if (request.getRequestURI().startsWith("/api/")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(
+                        "{\"success\":false,\"message\":\"Authentication required\",\"redirectTo\":\""
+                                + loginRedirectUrl + "\"}");
+                return false;
+            } else {
+                // For non-API requests, redirect to frontend login page
+                response.sendRedirect(loginRedirectUrl);
+                return false;
+            }
         }
 
         // Validate customer exists in database
@@ -102,8 +114,21 @@ public class AuthHandler {
         } else {
             System.out.println("[CustomerAccess] Session invalid - user not found in database");
             session.invalidate();
-            response.sendRedirect("/login");
-            return false;
+
+            // For API requests, return JSON error instead of redirect
+            if (request.getRequestURI().startsWith("/api/")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(
+                        "{\"success\":false,\"message\":\"Invalid session\",\"redirectTo\":\"" + loginRedirectUrl
+                                + "\"}");
+                return false;
+            } else {
+                // For non-API requests, redirect to frontend login page
+                response.sendRedirect(loginRedirectUrl);
+                return false;
+            }
         }
     }
 }

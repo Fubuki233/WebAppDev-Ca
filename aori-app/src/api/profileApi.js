@@ -7,6 +7,7 @@
  */
 
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
+import { apiRequest } from './apiUtils';
 
 /**
  * Get current user's profile
@@ -14,15 +15,9 @@ import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
  */
 export const getProfile = async () => {
     try {
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_PROFILE}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include', // Important for session cookies
+        const data = await apiRequest(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_PROFILE}`, {
+            method: 'GET'
         });
-
-        const data = await response.json();
 
         if (data.success) {
             return {
@@ -52,16 +47,10 @@ export const getProfile = async () => {
  */
 export const updateProfile = async (profileData) => {
     try {
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_PROFILE_EDIT}`, {
+        const data = await apiRequest(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_PROFILE_EDIT}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(profileData),
+            body: JSON.stringify(profileData)
         });
-
-        const data = await response.json();
 
         if (data.success) {
             return {

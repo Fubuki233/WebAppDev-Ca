@@ -19,6 +19,7 @@ import sg.com.aori.service.CategoryService;
  * @date 2025-10-07
  * @version 1.1
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {

@@ -87,6 +87,19 @@ const ProductCard = ({ product }) => {
                     ))}
                 </div>
 
+                {product.rating && (
+                    <div className="product-rating">
+                        <div className="stars">
+                            {[...Array(5)].map((_, i) => (
+                                <span key={i} className={i < Math.floor(product.rating) ? 'star filled' : 'star'}>
+                                    ★
+                                </span>
+                            ))}
+                        </div>
+                        <span className="rating-value">{product.rating.toFixed(1)}</span>
+                    </div>
+                )}
+
                 <div className="product-footer">
                     <span className="product-price">$ {product.price}</span>
                     {product.tags.includes('new') && (

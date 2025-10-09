@@ -154,6 +154,64 @@ const mockProducts = [
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
+ * Apply client-side filters to products.
+ * Used for filters not supported by backend API.
+ */
+const applyClientSideFilters = (products, filters) => {
+    let filtered = [...products];
+
+    // Color filter
+    if (filters.colors && Array.isArray(filters.colors) && filters.colors.length > 0) {
+        filtered = filtered.filter(p =>
+            p.colors && Array.isArray(p.colors) &&
+            filters.colors.some(filterColor => p.colors.includes(filterColor))
+        );
+    }
+
+    // Collections filter
+    if (filters.collections && Array.isArray(filters.collections) && filters.collections.length > 0) {
+        filtered = filtered.filter(p =>
+            p.collection && filters.collections.includes(p.collection)
+        );
+    }
+
+    // Tags filter
+    if (filters.tags && Array.isArray(filters.tags) && filters.tags.length > 0) {
+        filtered = filtered.filter(p =>
+            p.tags && Array.isArray(p.tags) &&
+            filters.tags.some(filterTag => p.tags.includes(filterTag))
+        );
+    }
+
+    // Availability filter (inStock)
+    if (filters.inStock !== undefined) {
+        filtered = filtered.filter(p => p.inStock === filters.inStock);
+    }
+
+    // Price range filter
+    if (filters.priceMin !== undefined && filters.priceMin !== null && filters.priceMin !== '') {
+        const minPrice = parseFloat(filters.priceMin);
+        if (!isNaN(minPrice)) {
+            filtered = filtered.filter(p => p.price && p.price >= minPrice);
+        }
+    }
+
+    if (filters.priceMax !== undefined && filters.priceMax !== null && filters.priceMax !== '') {
+        const maxPrice = parseFloat(filters.priceMax);
+        if (!isNaN(maxPrice)) {
+            filtered = filtered.filter(p => p.price && p.price <= maxPrice);
+        }
+    }
+
+    // Rating filter (show products with rating >= selected rating)
+    if (filters.rating && filters.rating > 0) {
+        filtered = filtered.filter(p => p.rating && p.rating >= filters.rating);
+    }
+
+    return filtered;
+};
+
+/**
  * Transform backend product data to frontend format.
  * Backend fields:
  * - productId (String, UUID)
@@ -210,12 +268,20 @@ const transformBackendProduct = (item) => {
             }
         }
 
-        // Determine category name
-        let categoryName = 'other';
-        if (item.category && item.category.categoryName) {
-            categoryName = item.category.categoryName.toLowerCase().replace(/\s+/g, '-');
-        } else if (typeof item.category === 'string') {
-            categoryName = item.category.toLowerCase().replace(/\s+/g, '-');
+        // Determine category - prefer slug from backend
+        let categorySlug = 'other';
+        let categoryDisplayName = 'Other';
+
+        if (item.category) {
+            if (typeof item.category === 'object') {
+                // Backend returns Category object
+                categorySlug = item.category.slug || item.category.categoryName?.toLowerCase().replace(/\s+/g, '-') || 'other';
+                categoryDisplayName = item.category.categoryName || 'Other';
+            } else if (typeof item.category === 'string') {
+                // Legacy: category is just a string
+                categorySlug = item.category.toLowerCase().replace(/\s+/g, '-');
+                categoryDisplayName = item.category;
+            }
         }
 
         return {
@@ -229,8 +295,9 @@ const transformBackendProduct = (item) => {
             // Type field (use collection or material as fallback)
             type: item.collection || item.material || item.description || '',
 
-            // Category
-            category: categoryName,
+            // Category - use slug for filtering
+            category: categorySlug,
+            categoryName: categoryDisplayName,
             categoryId: item.categoryId,
             categoryData: item.category,
 
@@ -246,7 +313,7 @@ const transformBackendProduct = (item) => {
             price: item.price || 0,
 
             // Stock status
-            inStock: item.inStock === 'true' || item.inStock === true || item.inStock === 1,
+            inStock: item.stockQuantity > 0,
 
             // Sizes
             size: sizes,
@@ -365,35 +432,21 @@ export const fetchProducts = async (filters = {}, useMock = false) => {
 
         // Backend returns Optional<List<Product>>, which resolves to array directly
         if (Array.isArray(data)) {
-            const transformedProducts = data.map(transformBackendProduct).filter(p => p !== null);
+            let transformedProducts = data.map(transformBackendProduct).filter(p => p !== null);
+
+            console.log('[productApi] Transformed products:', transformedProducts.length);
+
+            // Apply client-side filtering for features not supported by backend
+            transformedProducts = applyClientSideFilters(transformedProducts, filters);
+
             const page = filters.page || 1;
             const limit = filters.limit || 12;
 
-            // Apply client-side filtering if backend doesn't support it
-            let filtered = transformedProducts;
-
-            if (filters.category && filters.category !== 'all') {
-                filtered = filtered.filter(p => p.category === filters.category);
-            }
-
-            if (filters.search) {
-                const search = filters.search.toLowerCase();
-                filtered = filtered.filter(p =>
-                    p.name.toLowerCase().includes(search) ||
-                    p.description.toLowerCase().includes(search)
-                );
-            }
-
-            // Pagination
-            const start = (page - 1) * limit;
-            const end = start + limit;
-            const paginatedProducts = filtered.slice(start, end);
-
             return {
-                products: paginatedProducts,
-                total: filtered.length,
+                products: transformedProducts,
+                total: transformedProducts.length,
                 page: page,
-                totalPages: Math.ceil(filtered.length / limit),
+                totalPages: Math.ceil(transformedProducts.length / limit),
             };
         } else if (data.products) {
             // If backend returns object with products array
@@ -444,7 +497,25 @@ export const fetchProductById = async (id, useMock = false) => {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include', // Include session cookies
         });
+
+        // Handle authentication required
+        if (response.status === 401) {
+            try {
+                const errorData = await response.json();
+                if (errorData.redirectTo) {
+                    console.log('Authentication required, redirecting to:', errorData.redirectTo);
+                    window.location.href = errorData.redirectTo;
+                    return null;
+                }
+            } catch (e) {
+                // If response is not JSON, just redirect to login
+                console.log('Authentication required, redirecting to login');
+                window.location.hash = '#login';
+                return null;
+            }
+        }
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -497,6 +568,7 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -507,29 +579,40 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
         console.log('Fetched categories from API:', data);
 
         // Transform backend category format to frontend format
-        if (Array.isArray(data)) {
-            return data.map(cat => ({
-                id: cat.categoryId || cat.id,
-                categoryId: cat.categoryId,
-                categoryCode: cat.categoryCode,
-                name: cat.categoryName,
-                categoryName: cat.categoryName,
-                broadCategoryId: cat.broadCategoryId,
-                slug: cat.slug,
-                // Frontend compatible fields
-                category: cat.slug || cat.categoryName.toLowerCase().replace(/\s+/g, '-'),
-                count: 0, // Backend doesn't provide count, need separate endpoint
-            }));
+        if (Array.isArray(data) && data.length > 0) {
+            return data.map(cat => {
+                // Generate slug if not provided by backend
+                const slug = cat.slug || cat.categoryName?.toLowerCase().replace(/\s+/g, '-') || '';
+
+                return {
+                    // Backend fields
+                    categoryId: cat.categoryId,
+                    categoryCode: cat.categoryCode,
+                    categoryName: cat.categoryName,
+                    broadCategoryId: cat.broadCategoryId,
+                    slug: slug,
+
+                    // Frontend compatible fields
+                    id: cat.categoryId,
+                    name: cat.categoryName,
+                    category: slug,
+                    count: 0,
+                };
+            });
         }
 
-        return data;
+        return [];
     } catch (error) {
         console.error('Error fetching categories from API:', error);
         console.error('Falling back to mock categories');
         const categories = [...new Set(mockProducts.map(p => p.category))];
         return categories.map(cat => ({
             id: cat,
+            categoryId: cat,
             name: cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' '),
+            categoryName: cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' '),
+            slug: cat,
+            category: cat,
             count: mockProducts.filter(p => p.category === cat).length,
         }));
     }

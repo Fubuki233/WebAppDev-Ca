@@ -11,12 +11,12 @@
  * 
  * @author Yunhe
  * @date 2025-10-08
- * @version 1.1
+ * @version 1.2 - Updated to use getUserUuid() from apiUtils
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
+import { getUserUuid } from './apiUtils';
 
 const FAVOURITES_KEY = 'aori_favourites';
-const TEMP_CUSTOMER_ID = 'temp-customer-id'; // Temporary customer ID for guest users
 
 
 /**
@@ -74,7 +74,13 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
     }
 
     try {
-        const custId = customerId || TEMP_CUSTOMER_ID;
+        const custId = customerId || await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, using localStorage');
+            const favourites = localStorage.getItem(FAVOURITES_KEY);
+            return favourites ? JSON.parse(favourites) : [];
+        }
+
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}`;
         console.log('Fetching wishlist from:', url);
 
@@ -83,6 +89,7 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -121,7 +128,7 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
 
             const newItem = {
                 ...item,
-                customerId: customerId || TEMP_CUSTOMER_ID,
+                customerId: customerId || await getUserUuid(),
                 addedAt: new Date().toISOString()
             };
 
@@ -136,9 +143,15 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
     }
 
     try {
+        const custId = customerId || await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, falling back to localStorage');
+            return addToFavourites(item, customerId, true);
+        }
+
         // Backend expects: { customerId, productId }
         const wishlistItem = {
-            customerId: "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+            customerId: custId,
             productId: item.productId || item.id,
         };
 
@@ -149,6 +162,7 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -185,7 +199,12 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
 
     try {
         // Backend DELETE expects composite key: customerId and productId as query params
-        const custId = customerId || TEMP_CUSTOMER_ID;
+        const custId = customerId || await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, falling back to localStorage');
+            return removeFromFavourites(productId, customerId, true);
+        }
+
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES_REMOVE}?customerId=${custId}&productId=${productId}`;
         console.log('Removing from wishlist:', url);
 
@@ -194,6 +213,7 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -234,8 +254,14 @@ export const removeFromFavouritesByProduct = async (productId, size = null, colo
 
 
     try {
+        const custId = await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, falling back to localStorage');
+            return removeFromFavouritesByProduct(productId, size, color, true);
+        }
+
         const params = new URLSearchParams();
-        params.append('customerId', "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a");
+        params.append('customerId', custId);
         params.append('productId', productId);
         console.log('Removing from wishlist with params:', params.toString());
 
@@ -245,6 +271,7 @@ export const removeFromFavouritesByProduct = async (productId, size = null, colo
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -273,7 +300,13 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
 
     try {
         // Call backend /exists endpoint
-        const custId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+        const custId = customerId || await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, checking localStorage');
+            const favourites = await getFavourites(null, true);
+            return favourites.some(item => item.productId === productId);
+        }
+
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}/exists?customerId=${custId}&productId=${productId}`;
         console.log('Checking if in wishlist:', url);
 
@@ -282,6 +315,7 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -334,6 +368,7 @@ export const clearFavourites = async (useMock = API_CONFIG.USE_MOCK) => {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -361,17 +396,22 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
 
     try {
         // Use backend toggle endpoint
-        const custId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+        const custId = customerId || await getUserUuid();
+        if (!custId) {
+            console.warn('No customer UUID available, falling back to localStorage');
+            return toggleFavourite(item, customerId, true);
+        }
+
         const productId = item.productId || item.id;
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}&productId=${productId}`;
 
         console.log('Toggling wishlist:', url);
-
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include', // Important for session authentication
         });
 
         if (!response.ok) {

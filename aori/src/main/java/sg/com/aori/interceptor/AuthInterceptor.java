@@ -1,22 +1,16 @@
 package sg.com.aori.interceptor;
 
-import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import sg.com.aori.model.Customer;
-import sg.com.aori.model.Employee;
 import sg.com.aori.service.EmployeeService;
 import sg.com.aori.service.LoginService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import sg.com.aori.utils.AuthFilter;
-import sg.com.aori.utils.PermissionMapper;
 import sg.com.aori.config.DebugMode;
 import sg.com.aori.utils.AuthHandler;
 
@@ -36,6 +30,11 @@ import sg.com.aori.utils.AuthHandler;
  * @date 2025-10-09
  * @version 3.0 Introduce role-based access control for employee. Seperate 2
  *          types of access (Customer and Employee)
+ *          ------------------------------------------------------------------------
+ * @author Yunhe
+ * @date 2025-10-09
+ * @version 3.1 optimized.
+ *          ------------------------------------------------------------------------
  */
 
 @Component
@@ -43,7 +42,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     LoginService loginService;
 
-    @Autowired // Inject the service to look up employee details and permissions
+    @Autowired
     EmployeeService employeeService;
 
     // Configuration Constant for Employee Paths
@@ -70,7 +69,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         // 1. Employee/Admin Check (For security, we need put this first)
         if (path.startsWith(EMPLOYEE_PATH_PREFIX) || path.contains("/admin")) {
-            return AuthHandler.handleEmployeeAccess(request, response, handler);
+            return AuthHandler.handleEmployeeAccess(request, response, handler, employeeService);
         }
 
         if (AuthFilter.isAuthorized(requestMap)) {
@@ -80,6 +79,6 @@ public class AuthInterceptor implements HandlerInterceptor {
         // 2. Customer Access Check (Default for non-employee restricted paths)
         System.out.println("[LoggingInterceptor] Not a bypass request - Validating customer session for path: " + path
                 + ", method: " + method);
-        return AuthHandler.handleCustomerAccess(request, response);
+        return AuthHandler.handleCustomerAccess(request, response, loginService);
     }
 }
