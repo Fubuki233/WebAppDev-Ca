@@ -11,6 +11,7 @@ package sg.com.aori.model;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -87,7 +88,7 @@ public class Employee {
     private LocalDateTime createdAt;
 
     // updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    @CreationTimestamp
+    @UpdateTimestamp
     @Column(name = "updated_at", updatable = true)
     private LocalDateTime updatedAt;
 

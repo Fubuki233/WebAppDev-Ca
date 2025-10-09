@@ -31,15 +31,13 @@ public class CustomerAccountService implements ICustomerAccount {
 	private final CustomerRepository customerRepository;
 	private final CustomerAddressRepository addressRepository;
 
-	// dependency injection; no need to use @Autowired as it is not needed in this
-	// version
+	// Constructor-based Dependency Injection
 	public CustomerAccountService(CustomerRepository customerRepository, CustomerAddressRepository addressRepository) {
 		this.customerRepository = customerRepository;
 		this.addressRepository = addressRepository;
 	}
 
 	// Locate customer by ID
-
 	@Override
 	public Optional<Customer> getCustomerById(String customerId) {
 		return customerRepository.findById(customerId);
@@ -70,8 +68,7 @@ public class CustomerAccountService implements ICustomerAccount {
 			throw new EntityNotFoundException("Customer not found with ID: " + customerId);
 		}
 
-		// Update customer's profile details for each field, encapsulated by the
-		// 'profileData' object
+		// Update customer's profile details for each field, encapsulated by 'profileData' object
 		existingCustomer.setFirstName(profileData.getFirstName());
 		existingCustomer.setLastName(profileData.getLastName());
 		existingCustomer.setPhoneNumber(profileData.getPhoneNumber());
