@@ -28,6 +28,12 @@ public class AuthFilter {
         String requestMethod = requestMap.get("method");
         System.out.println("AuthFilter checking path: " + requestPath + ", method: " + requestMethod);
 
+        // Always allow error page access (for all HTTP methods)
+        if (requestPath != null && requestPath.equals("/error")) {
+            System.out.println("Error page - Request authorized!");
+            return true;
+        }
+
         // Check if the path exists in byPassMap AND the method matches
         if (requestPath != null && requestMethod != null) {
             String allowedMethod = byPassMap.get(requestPath);
