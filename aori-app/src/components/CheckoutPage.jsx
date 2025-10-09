@@ -1,3 +1,10 @@
+/**
+ * CheckoutPage.jsx
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.1
+ */
 import React, { useState, useEffect } from 'react';
 import { getCart, getCartTotal } from '../api/cartApi';
 import '../styles/CheckoutPage.css';

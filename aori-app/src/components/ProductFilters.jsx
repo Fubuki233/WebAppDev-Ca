@@ -1,3 +1,10 @@
+/**
+ *  ProductFilters.jsx
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.1
+ */
 import React, { useState } from 'react';
 import '../styles/ProductFilters.css';
 
