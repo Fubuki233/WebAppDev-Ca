@@ -302,26 +302,12 @@ public class Product {
     }
 
     @Override
-    public String toString() {
-        return "{" +
-                "\"productId\":\"" + productId + "\"" +
-                ", \"productCode\":\"" + productCode + "\"" +
-                ", \"productName\":\"" + productName + "\"" +
-                ", \"description\":\"" + description + "\"" +
-                ", \"categoryId\":\"" + categoryId + "\"" +
-                ", \"collection\":\"" + collection + "\"" +
-                ", \"material\":\"" + material + "\"" +
-                ", \"season\":\"" + season + "\"" +
-                ", \"careInstructions\":\"" + careInstructions + "\"" +
-                ", \"colors\":" + colors +
-                ", \"image\":\"" + image + "\"" +
-                ", \"price\":" + price +
-                ", \"inStock\":\"" + inStock + "\"" +
-                ", \"size\":" + size +
-                ", \"rating\":" + rating +
-                ", \"tags\":\"" + tags + "\"" +
-                ", \"createdAt\":\"" + createdAt + "\"" +
-                ", \"updatedAt\":\"" + updatedAt + "\"" +
-                '}';
-    }
+	public String toString() {
+		return "Product [productId=" + productId + ", productCode=" + productCode + ", productName=" + productName
+				+ ", description=" + description + ", categoryId=" + categoryId + ", collection=" + collection
+				+ ", material=" + material + ", season=" + season + ", careInstructions=" + careInstructions
+				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", colors=" + colors + ", image=" + image
+				+ ", price=" + price + ", stockQuantity=" + stockQuantity + ", size=" + size + ", rating=" + rating
+				+ ", tags=" + tags + ", category=" + category + "]";
+	}
 }
