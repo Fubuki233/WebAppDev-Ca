@@ -1,5 +1,7 @@
 package sg.com.aori.interceptor;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -10,6 +12,7 @@ import sg.com.aori.service.LoginService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import sg.com.aori.utils.AuthFilter;
 
 /**
  * Interceptor to log and validate user sessions.
@@ -28,10 +31,12 @@ public class LoggingInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
             HttpServletResponse response, Object handler) {
         String method = request.getMethod();
-        if ("GET".equalsIgnoreCase(method)) {
-            System.out.println("这是一个 GET 请求");
-        } else if ("POST".equalsIgnoreCase(method)) {
-            System.out.println("这是一个 POST 请求");
+        String path = request.getRequestURI();
+        Map<String, String> requestMap = Map.of(
+                path, method);
+        if (AuthFilter.isAuthorized(requestMap)) {
+            System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
+            return true;
         }
         HttpSession session = request.getSession();
         String email = (String) session.getAttribute("email");
