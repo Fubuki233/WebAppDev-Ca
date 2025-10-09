@@ -15,8 +15,8 @@ public class ShoppingCart {
     @Column(name = "customer_id", length = 36, nullable = false)
     private String customerId;
 
-    @Column(name = "variant_id", length = 36, nullable = false)
-    private String variantId;
+    @Column(name = "product_id", length = 36, nullable = false)
+    private String productId;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -29,8 +29,8 @@ public class ShoppingCart {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id", insertable = false, updatable = false)
-    private ProductVariant variant;
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
 
     @PrePersist
     protected void onCreate() {
@@ -40,9 +40,9 @@ public class ShoppingCart {
     public ShoppingCart() {
     }
 
-    public ShoppingCart(String customerId, String variantId, Integer quantity) {
+    public ShoppingCart(String customerId, String productId, Integer quantity) {
         this.customerId = customerId;
-        this.variantId = variantId;
+        this.productId = productId;
         this.quantity = quantity;
     }
 
@@ -62,12 +62,12 @@ public class ShoppingCart {
         this.customerId = customerId;
     }
 
-    public String getVariantId() {
-        return variantId;
+    public String getproductId() {
+        return productId;
     }
 
-    public void setVariantId(String variantId) {
-        this.variantId = variantId;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public Integer getQuantity() {
@@ -94,12 +94,12 @@ public class ShoppingCart {
         this.customer = customer;
     }
 
-    public ProductVariant getVariant() {
-        return variant;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setVariant(ProductVariant variant) {
-        this.variant = variant;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ShoppingCart {
         return "{" +
                 "cartId='" + cartId + '\'' +
                 ", customerId='" + customerId + '\'' +
-                ", variantId='" + variantId + '\'' +
+                ", productId='" + productId + '\'' +
                 ", quantity=" + quantity +
                 ", addedAt=" + addedAt +
                 '}';
