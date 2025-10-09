@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import sg.com.aori.model.Customer;
@@ -39,7 +38,7 @@ import sg.com.aori.config.DebugMode;
  */
 
 @Component
-public class LoginInterceptor implements HandlerInterceptor {
+public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     LoginService loginService;
 

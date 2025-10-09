@@ -14,7 +14,7 @@ import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.ReturnRequest;
 import sg.com.aori.repository.OrderRepository;
 import sg.com.aori.repository.ReturnRepository;
-
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
@@ -71,5 +71,23 @@ public class ReturnService implements IReturn {
 
         // --- Return Confirmation ---
         return "Return Confirmed. Instructions and Refund Processed.";
+    }
+
+    @Override
+    public Optional<ReturnRequest> findReturnById(String returnId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findReturnById'");
+    }
+
+    @Override
+    public boolean checkEligibility(String orderId, String productId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'checkEligibility'");
+    }
+
+    @Override
+    public String getReturnInstructions(String returnId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getReturnInstructions'");
     }
 }

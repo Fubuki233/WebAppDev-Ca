@@ -5,16 +5,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import sg.com.aori.interceptor.LoggingInterceptor;
+import sg.com.aori.interceptor.AuthInterceptor;
 
 @Component
 public class WebAppConfig implements WebMvcConfigurer {
     @Autowired
-    LoggingInterceptor loggingInterceptor;
+    AuthInterceptor authInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loggingInterceptor)
+        registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**");
 
     }
