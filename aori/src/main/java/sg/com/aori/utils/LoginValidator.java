@@ -3,8 +3,7 @@ package sg.com.aori.utils;
 import jakarta.servlet.http.HttpSession;
 
 public class LoginValidator {
-    public static boolean sessionExists(String email, HttpSession session) {
-        return email.equals(session.getAttribute("email"));
+    public static String getUUID(HttpSession session) {
+        return (String) session.getAttribute("id");
     }
-
 }

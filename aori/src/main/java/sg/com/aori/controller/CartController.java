@@ -12,6 +12,7 @@ import sg.com.aori.interfaces.ICart;
 import sg.com.aori.model.Customer;
 import sg.com.aori.model.ShoppingCart;
 import sg.com.aori.service.CustomerService;
+import sg.com.aori.utils.LoginValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +34,10 @@ public class CartController {
     private CustomerService customerService;
 
     private String getCustomerIdFromSession(HttpSession session) {
-        String email = (String) session.getAttribute("email");
-        if (email == null) 
+        String id = (String) session.getAttribute("id");
+        if (id == null)
             return null;
-        Customer customer = customerService.findCustomerByEmail(email).orElse(null);
+        Customer customer = customerService.findCustomerByEmail(id).orElse(null);
         return customer != null ? customer.getCustomerId() : null;
         // ***** Use the statement below if customerId is stored in session
         // return (String) session.getAttribute("customerId");
@@ -47,19 +48,21 @@ public class CartController {
         Map<String, Object> response = new HashMap<>();
         try {
             String customerId = getCustomerIdFromSession(session);
-             if (customerId == null) {
+            if (customerId == null) {
                 response.put("success", false);
                 response.put("message", "User not logged in");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             List<ShoppingCart> cartItems = cartService.findCartByCustomerId(customerId);
             BigDecimal totalAmount = cartService.calculateTotal(cartItems);
-            
+
             response.put("success", true);
             response.put("cartItems", cartItems);
             response.put("totalAmount", totalAmount);
+            System.out.println(
+                    "customerId: " + customerId + ", Cart items: " + cartItems + ", Total amount: " + totalAmount);
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
@@ -78,21 +81,21 @@ public class CartController {
                 response.put("message", "User not logged in");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
-            
+
             boolean inventoryAvailable = cartService.checkInventory(customerId);
             if (!inventoryAvailable) {
                 response.put("success", false);
                 response.put("message", "Insufficient inventory for some items");
                 return ResponseEntity.badRequest().body(response);
             }
-            
+
             String orderId = cartService.createOrder(customerId);
-            
+
             response.put("success", true);
             response.put("message", "Order created successfully");
             response.put("orderId", orderId);
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Checkout failed: " + e.getMessage());
@@ -102,7 +105,8 @@ public class CartController {
 
     // Add item to cart
     @PostMapping("/items")
-    public ResponseEntity<Map<String, Object>> addToCart(@RequestBody Map<String, Object> request, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> addToCart(@RequestBody Map<String, Object> request,
+            HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
             String customerId = getCustomerIdFromSession(session);
@@ -114,13 +118,13 @@ public class CartController {
 
             String variantId = (String) request.get("variantId");
             Integer quantity = (Integer) request.get("quantity");
-            
+
             cartService.addToCart(customerId, variantId, quantity);
-            
+
             response.put("success", true);
             response.put("message", "Product added to cart");
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Failed to add product: " + e.getMessage());
@@ -141,11 +145,11 @@ public class CartController {
             }
 
             cartService.removeFromCart(cartId);
-            
+
             response.put("success", true);
             response.put("message", "Item removed from cart");
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Failed to remove item: " + e.getMessage());
@@ -153,7 +157,3 @@ public class CartController {
         }
     }
 }
-
-
-
-

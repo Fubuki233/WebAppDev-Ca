@@ -54,7 +54,7 @@ public class Customer {
     private String email;
 
     @NotBlank
-    @Length(min = 8, max = 255) 
+    @Length(min = 8, max = 255)
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
@@ -99,8 +99,7 @@ public class Customer {
         this.dateOfBirth = dateOfBirth;
     }
 
-    
-    //getters and setters
+    // getters and setters
     public String getCustomerId() {
         return customerId;
     }

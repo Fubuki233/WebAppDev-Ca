@@ -25,12 +25,12 @@ public class LoginController {
     @Autowired
     LoginService loginService;
 
-    @GetMapping("/login")
+    @GetMapping("/api/login")
     public String login() {
         return "login";
     }
 
-    @PostMapping("/login")
+    @PostMapping("/api/login")
     public String handleLogin(@RequestParam("email") String email, @RequestParam("passwd") String passwd,
             Model model, HttpSession session) {
         System.out.println("email: " + email + ", passwd: " + passwd);
@@ -51,7 +51,7 @@ public class LoginController {
         return "login";
     }
 
-    @GetMapping("/logout")
+    @GetMapping("/api/logout")
     public String logout(HttpSession session) {
         session.invalidate();
 
