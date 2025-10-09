@@ -1,11 +1,11 @@
 /**
  * REST Controller for Managing Customer Account
  * 
- * @author Ying Chun
+ * @author Ying Chun, Sun Rui
  * @date 2025-10-08
  * @version 1.0 - previously known as CustomerProfileController; renamed to cover different sub-services
  * @version 2.0 - Renamed to CustomerAccountController. Introduce Http Session to authenticate users before they can perform actions.
- * 
+ * @version 2.1 - Added validation
  */
 
 package sg.com.aori.controller;
@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,7 +86,7 @@ public class CustomerAccountController {
 	// Allow logged-in customer to edit profile details
 
 	@PutMapping("/profile/edit")
-	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Customer profileData, HttpSession session) {
+	public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody Customer profileData, HttpSession session) {
 		System.out.println("[CustomerAccountController] Data received from frontend: " + profileData.toString());
 		Map<String, Object> response = new HashMap<>();
 		try {
@@ -135,7 +136,7 @@ public class CustomerAccountController {
 
 	@PutMapping("/addresses/{addressId}")
 	public ResponseEntity<Map<String, Object>> updateAddress(
-			@PathVariable String addressId,
+			@PathVariable String addressId, @Valid
 			@RequestBody CustomerAddress addressData,
 			HttpSession session) {
 		Map<String, Object> response = new HashMap<>();
