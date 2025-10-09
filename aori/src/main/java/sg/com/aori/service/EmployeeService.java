@@ -4,6 +4,8 @@ import java.util.List;
 
 import sg.com.aori.interfaces.IEmployee;
 import sg.com.aori.model.Employee;
+import sg.com.aori.model.Permission;
+import sg.com.aori.model.Role;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import sg.com.aori.repository.EmployeeRepository;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service for Employee entity.
@@ -22,7 +26,7 @@ import java.util.NoSuchElementException;
  */
 
 @Service
-public class EmployeeService implements IEmployee { // Note: Implement your interface here
+public class EmployeeService implements IEmployee {
     @Autowired
     private final EmployeeRepository employeeRepository;
     // You'd typically inject a PasswordEncoder here for security
@@ -170,6 +174,40 @@ public class EmployeeService implements IEmployee { // Note: Implement your inte
         boolean hasDigit = pwd.matches(".*\\d.*");
         boolean hasSymbol = pwd.matches(".*[^A-Za-z0-9].*");
         return hasUpper && hasLower && hasDigit && hasSymbol && pwd.length() >= 8;
+    }
+
+    // -----------------------------------------------------------
+    // Implementation of the method called by the Interceptor
+    // -----------------------------------------------------------
+    public Optional<Employee> findEmployeeWithPermissions(String employeeId) {
+
+        return employeeRepository.findEmployeeWithRoleAndPermissions(employeeId);
+    }
+
+    // -----------------------------------------------------------
+    // Implementation of the core permission check logic (SIMPLIFIED)
+    // -----------------------------------------------------------
+    /**
+     * Checks if the Employee's single assigned Role grants the required permission.
+     */
+    public boolean hasPermission(Employee employee, String requiredPermissionNode) {
+
+        // Safety check: Employee must exist and must have a Role assigned
+        if (employee == null || employee.getRole() == null) {
+            return false;
+        }
+
+        Role employeeRole = employee.getRole();
+
+        // Check if the permission node is granted by this single role
+        if (employeeRole.getPermissions() != null) {
+
+            // Iterate through all Permissions of the single role
+            return employeeRole.getPermissions().stream()
+                    .anyMatch(permission -> permission.getPermissionName().equals(requiredPermissionNode));
+        }
+
+        return false; // Role exists but has no permissions defined.
     }
 
 }

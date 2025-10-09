@@ -9,6 +9,7 @@
 package sg.com.aori.service;
 
 import sg.com.aori.model.Orders;
+import sg.com.aori.interfaces.IReturn;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.ReturnRequest;
 import sg.com.aori.repository.OrderRepository;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ReturnService {
+public class ReturnService implements IReturn {
     @Autowired
     private final OrderRepository orderRepository;
     @Autowired
@@ -38,7 +39,7 @@ public class ReturnService {
     @Transactional
     public String processReturnRequest(ReturnRequest requestEntity, String userId) {
 
-        // --- Step 5: Find OrderItem and Check Eligibility ---
+        // --- Find OrderItem and Check Eligibility ---
         OrderItem itemToReturn = orderRepository.findOrderItemForReturn(
                 requestEntity.getOrderId(),
                 requestEntity.getProductId(),
