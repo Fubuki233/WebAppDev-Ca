@@ -151,8 +151,8 @@ public class Employee {
         return password;
     }
 
-    public void setPassword(String passwordHash) {
-        this.password = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getPhoneNumber() {
