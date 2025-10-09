@@ -40,7 +40,7 @@ public class ProductSearchController {
         return productSearchService.search(q, category, minPrice, maxPrice, inStock, pageable);
     }
 
-    // has been implemented in ProductController
+    // Yunhe: has been implemented in ProductController
     // @GetMapping("/{productId}")
     // public ProductDetailVM getDetail(@PathVariable String productId) {
     // return productDetailService.getDetail(productId);
