@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  */
 
 @Controller // This enables Spring to resolve view names (e.g., "employee-list")
-@RequestMapping("/employees")
+@RequestMapping("/admin/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -29,9 +29,9 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    // --- RENDER ALL EMPLOYEES (Read) ---
-    // GET /employees
-    @GetMapping
+    // --- SHOW ALL EMPLOYEES (Read) ---
+    // GET /admin/employees
+    @GetMapping("/")
     public String listEmployees(Model model) {
         List<Employee> employees = employeeService.getAllEmployees();
 
@@ -43,7 +43,7 @@ public class EmployeeController {
     }
 
     // --- RENDER FORM FOR NEW EMPLOYEE (Create - GET) ---
-    // GET /employees/new
+    // GET /admin/employees/new
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("employee", new Employee());
@@ -51,16 +51,16 @@ public class EmployeeController {
     }
 
     // --- PROCESS NEW EMPLOYEE (Create - POST) ---
-    // POST /employees
-    @PostMapping
+    // POST /admin/employees
+    @PostMapping("/")
     public String createEmployee(@Valid @ModelAttribute("employee") Employee employee) {
         employeeService.createEmployee(employee);
         // Redirect to the list view after successful creation
-        return "redirect:/employees";
+        return "redirect:/admin/employees";
     }
 
     // --- RENDER FORM TO EDIT EMPLOYEE (Update - GET) ---
-    // GET /employees/{id}/edit
+    // GET /admin/employees/{id}/edit
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable String id, Model model) {
         Employee employee = employeeService.getEmployeeById(id);
@@ -77,7 +77,7 @@ public class EmployeeController {
     public String updateEmployee(@PathVariable String id,
             @Valid @ModelAttribute("employee") Employee employeeDetails) {
         employeeService.updateEmployee(id, employeeDetails);
-        return "redirect:/employees";
+        return "redirect:/admin/employees";
     }
 
     // --- DELETE EMPLOYEE ---
@@ -85,6 +85,6 @@ public class EmployeeController {
     @GetMapping("/{id}/delete")
     public String deleteEmployee(@PathVariable String id) {
         employeeService.deleteEmployee(id);
-        return "redirect:/employees";
+        return "redirect:/admin/employees";
     }
 }
