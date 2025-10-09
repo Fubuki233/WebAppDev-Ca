@@ -20,9 +20,12 @@ import sg.com.aori.config.DebugMode;
  * @author Yunhe
  * @date 2025-10-07
  * @version 1.0 basic version
+ *          ------------------------------------------------------------------------
+ * @author Yunhe
  * @date 2025-10-09
  * @version 2.0 introduced AuthFilter for bypass rules, now works well, but
  *          haven't introduced role-based access control yet
+ * 
  */
 
 @Component
@@ -33,23 +36,33 @@ public class LoggingInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request,
             HttpServletResponse response, Object handler) {
-        if (DebugMode.DEBUG) {
+
+        if (DebugMode.DEBUG) { // Debug mode bypasses all checks, change the flag in DebugMode.java
             System.out.println("[LoggingInterceptor] Debug mode ON - bypassing all checks");
             return true;
         }
+
         String method = request.getMethod();
-        String path = request.getRequestURI();
+        String path = request.getRequestURI(); // these two values are used in AuthFilter
+                                               // to determine if the request should be bypassed
+                                               // e.g. login, register, view products, etc.
+
         Map<String, String> requestMap = Map.of(
                 "path", path,
                 "method", method);
         System.out.println("[LoggingInterceptor] Request map: " + requestMap);
-        if (AuthFilter.isAuthorized(requestMap)) {
+
+        if (AuthFilter.isAuthorized(requestMap)) { // Check if request should be bypassed, if so, no need to validate
+                                                   // session
             System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
             return true;
         }
+
+        // ----------------------------------session
+        // validation------------------------------------------------------------------------
+
         System.out.println("[LoggingInterceptor] Not a bypass request - Validating session for path: " + path
                 + ", method: " + method);
-
         HttpSession session = request.getSession();
         String id = (String) session.getAttribute("id");
 
@@ -64,6 +77,13 @@ public class LoggingInterceptor implements HandlerInterceptor {
         Customer customer = loginService.findCustomerById(id).orElse(null);
         if (customer != null) {
             System.out.println("[LoggingInterceptor] Session valid for user: " + customer.getEmail());
+            /*
+             * so, if you wanna introduce role-based access control,
+             * you can do it here.
+             * flow could be:
+             * check if necessary to check permission -> check user role -> check permission
+             * node
+             */
             return true;
         } else {
             System.out.println("[LoggingInterceptor] Session invalid - user not found in database");
