@@ -38,16 +38,16 @@ public class LoginController {
     public ResponseEntity<?> handleLogin(@RequestParam("email") String email,
             @RequestParam("passwd") String passwd,
             HttpSession session) {
-        System.out.println("email: " + email + ", passwd: " + passwd);
-        System.out.println("session id: " + session.getId());
+        System.out.println("[LoginController] email: " + email + ", passwd: " + passwd);
+        System.out.println("[LoginController] session id: " + session.getId());
 
         Customer customer = loginService.findCustomerByEmail(email).orElse(null);
         if (customer == null) {
-            System.out.println("user not found: " + email);
+            System.out.println("[LoginController] user not found: " + email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new LoginResponse(false, "User not found", null, null));
         } else if (customer.getPassword().equals(passwd)) {
-            System.out.println("User Valid");// better store customer in redis for session management
+            System.out.println("[LoginController] User Valid");// better store customer in redis for session management
 
             session.setAttribute("email", email);
             session.setAttribute("id", customer.getCustomerId());
@@ -61,7 +61,7 @@ public class LoginController {
 
             return ResponseEntity.ok(new LoginResponse(true, "Login successful", userData, session.getId()));
         } else {
-            System.out.println("password invalid for: " + email);
+            System.out.println("[LoginController] password invalid for: " + email);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new LoginResponse(false, "Invalid password", null, null));
         }

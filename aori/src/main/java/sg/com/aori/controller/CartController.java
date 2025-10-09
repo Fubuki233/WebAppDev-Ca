@@ -62,7 +62,7 @@ public class CartController {
             response.put("cartItems", cartItems);
             response.put("totalAmount", totalAmount);
             System.out.println(
-                    "customerId: " + customerId + ", Cart items: " + cartItems + ", Total amount: " + totalAmount);
+                   "[CartController] " + "customerId: " + customerId + ", Cart items: " + cartItems + ", Total amount: " + totalAmount);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
