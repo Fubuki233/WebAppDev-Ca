@@ -153,40 +153,133 @@ const mockProducts = [
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+/**
+ * Transform backend product data to frontend format.
+ * Backend fields:
+ * - productId (String, UUID)
+ * - productCode (String)
+ * - productName (String)
+ * - description (TEXT)
+ * - categoryId (String, UUID)
+ * - collection (String)
+ * - material (String)
+ * - season (Enum: Spring/Summer/Autumn/Winter/All_Season)
+ * - careInstructions (TEXT)
+ * - colors (JSON string: "[\"#000000\", \"#FFFFFF\"]")
+ * - image (String, URL or path)
+ * - price (Short, integer)
+ * - inStock (String: "true" or "false")
+ * - size (JSON string: "[\"XS\", \"S\", \"M\", \"L\", \"XL\"]")
+ * - rating (Float)
+ * - tags (String, comma-separated: "new,best-seller")
+ * - category (Object with categoryName, categoryCode, etc.)
+ * - createdAt, updatedAt (LocalDateTime)
+ */
 const transformBackendProduct = (item) => {
     if (!item) return null;
 
-    return {
-        id: item.productId || item.id,
-        productId: item.productId || item.id,
-        name: item.productName || item.name,
-        type: item.description || item.type || '',
-        category: item.category?.categoryName?.toLowerCase().replace(/\s+/g, '-') ||
-            item.category?.toLowerCase().replace(/\s+/g, '-') || 'other',
-        colors: typeof item.colors === 'string' ? JSON.parse(item.colors) : (item.colors || []),
-        availableColors: typeof item.colors === 'string' ?
-            JSON.parse(item.colors).length :
-            (item.colors?.length || 0),
-        image: item.image,
-        images: item.images || (item.image ? [item.image] : []),
-        price: item.price || 0,
-        inStock: item.inStock === 'true' || item.inStock === true || item.inStock === 1,
-        size: typeof item.size === 'string' ? JSON.parse(item.size) : (item.size || []),
-        tags: typeof item.tags === 'string' ?
-            item.tags.split(',').map(t => t.trim()).filter(t => t) :
-            (Array.isArray(item.tags) ? item.tags : []),
-        rating: item.rating || 0,
-        description: item.description,
-        material: item.material,
-        season: item.season,
-        collection: item.collection,
-        careInstructions: item.careInstructions,
-        details: item.details || [
-            item.material ? `Material: ${item.material}` : '',
-            item.careInstructions || '',
-            item.season ? `Season: ${item.season}` : '',
-        ].filter(d => d),
-    };
+    try {
+        // Parse JSON fields safely
+        let colors = [];
+        if (item.colors) {
+            try {
+                colors = typeof item.colors === 'string' ? JSON.parse(item.colors) : item.colors;
+            } catch (e) {
+                console.warn('Failed to parse colors:', item.colors);
+                colors = [];
+            }
+        }
+
+        let sizes = [];
+        if (item.size) {
+            try {
+                sizes = typeof item.size === 'string' ? JSON.parse(item.size) : item.size;
+            } catch (e) {
+                console.warn('Failed to parse size:', item.size);
+                sizes = [];
+            }
+        }
+
+        // Parse tags
+        let tags = [];
+        if (item.tags) {
+            if (typeof item.tags === 'string') {
+                tags = item.tags.split(',').map(t => t.trim()).filter(t => t);
+            } else if (Array.isArray(item.tags)) {
+                tags = item.tags;
+            }
+        }
+
+        // Determine category name
+        let categoryName = 'other';
+        if (item.category && item.category.categoryName) {
+            categoryName = item.category.categoryName.toLowerCase().replace(/\s+/g, '-');
+        } else if (typeof item.category === 'string') {
+            categoryName = item.category.toLowerCase().replace(/\s+/g, '-');
+        }
+
+        return {
+            // Frontend fields
+            id: item.productId || item.id,
+            productId: item.productId || item.id,
+            name: item.productName || item.name,
+            productName: item.productName || item.name,
+            productCode: item.productCode,
+
+            // Type field (use collection or material as fallback)
+            type: item.collection || item.material || item.description || '',
+
+            // Category
+            category: categoryName,
+            categoryId: item.categoryId,
+            categoryData: item.category,
+
+            // Colors
+            colors: colors,
+            availableColors: colors.length,
+
+            // Images
+            image: item.image || '',
+            images: item.images || (item.image ? [item.image] : []),
+
+            // Price
+            price: item.price || 0,
+
+            // Stock status
+            inStock: item.inStock === 'true' || item.inStock === true || item.inStock === 1,
+
+            // Sizes
+            size: sizes,
+
+            // Tags
+            tags: tags,
+
+            // Rating
+            rating: item.rating || 0,
+
+            // Description and details
+            description: item.description || '',
+            material: item.material || '',
+            season: item.season || '',
+            collection: item.collection || '',
+            careInstructions: item.careInstructions || '',
+
+            // Build details array
+            details: [
+                item.material ? `Material: ${item.material}` : '',
+                item.season ? `Season: ${item.season}` : '',
+                item.collection ? `Collection: ${item.collection}` : '',
+                item.careInstructions || '',
+            ].filter(d => d),
+
+            // Timestamps
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+        };
+    } catch (error) {
+        console.error('Error transforming product:', error, item);
+        return null;
+    }
 };
 
 export const fetchProducts = async (filters = {}, useMock = false) => {
@@ -254,6 +347,8 @@ export const fetchProducts = async (filters = {}, useMock = false) => {
         if (filters.limit) params.append('limit', filters.limit);
 
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.PRODUCTS}?${params.toString()}`;
+        console.log('Fetching products from:', url);
+
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -268,16 +363,40 @@ export const fetchProducts = async (filters = {}, useMock = false) => {
         const data = await response.json();
         console.log('Fetched data from API:', data);
 
+        // Backend returns Optional<List<Product>>, which resolves to array directly
         if (Array.isArray(data)) {
+            const transformedProducts = data.map(transformBackendProduct).filter(p => p !== null);
             const page = filters.page || 1;
             const limit = filters.limit || 12;
+
+            // Apply client-side filtering if backend doesn't support it
+            let filtered = transformedProducts;
+
+            if (filters.category && filters.category !== 'all') {
+                filtered = filtered.filter(p => p.category === filters.category);
+            }
+
+            if (filters.search) {
+                const search = filters.search.toLowerCase();
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(search) ||
+                    p.description.toLowerCase().includes(search)
+                );
+            }
+
+            // Pagination
+            const start = (page - 1) * limit;
+            const end = start + limit;
+            const paginatedProducts = filtered.slice(start, end);
+
             return {
-                products: data.map(transformBackendProduct).filter(p => p !== null),
-                total: data.length,
+                products: paginatedProducts,
+                total: filtered.length,
                 page: page,
-                totalPages: Math.ceil(data.length / limit),
+                totalPages: Math.ceil(filtered.length / limit),
             };
         } else if (data.products) {
+            // If backend returns object with products array
             return {
                 ...data,
                 products: data.products.map(transformBackendProduct).filter(p => p !== null),
@@ -292,6 +411,7 @@ export const fetchProducts = async (filters = {}, useMock = false) => {
         }
     } catch (error) {
         console.error('Error fetching products from API:', error);
+        console.error('Falling back to mock data');
         return {
             products: mockProducts.slice(0, 12),
             total: mockProducts.length,
@@ -348,6 +468,15 @@ export const searchProducts = async (query, useMock = API_CONFIG.USE_MOCK) => {
     return await fetchProducts({ search: query }, useMock);
 };
 
+/**
+ * Fetch all categories from backend.
+ * Backend returns: Array of Category objects with:
+ * - categoryId (String, UUID)
+ * - categoryCode (String)
+ * - categoryName (String)
+ * - broadCategoryId (Enum: Men/Women/Girls/Boys/Unisex)
+ * - slug (String)
+ */
 export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
     if (useMock) {
         await delay(300);
@@ -361,6 +490,8 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
 
     try {
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.CATEGORIES}`;
+        console.log('Fetching categories from:', url);
+
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -373,9 +504,28 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
         }
 
         const data = await response.json();
+        console.log('Fetched categories from API:', data);
+
+        // Transform backend category format to frontend format
+        if (Array.isArray(data)) {
+            return data.map(cat => ({
+                id: cat.categoryId || cat.id,
+                categoryId: cat.categoryId,
+                categoryCode: cat.categoryCode,
+                name: cat.categoryName,
+                categoryName: cat.categoryName,
+                broadCategoryId: cat.broadCategoryId,
+                slug: cat.slug,
+                // Frontend compatible fields
+                category: cat.slug || cat.categoryName.toLowerCase().replace(/\s+/g, '-'),
+                count: 0, // Backend doesn't provide count, need separate endpoint
+            }));
+        }
+
         return data;
     } catch (error) {
         console.error('Error fetching categories from API:', error);
+        console.error('Falling back to mock categories');
         const categories = [...new Set(mockProducts.map(p => p.category))];
         return categories.map(cat => ({
             id: cat,

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sg.com.aori.model.Wishlist;
 import sg.com.aori.service.WishlistService;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * Controller class for handling wishlist.
@@ -22,7 +24,7 @@ import sg.com.aori.service.WishlistService;
  */
 
 @RestController
-@RequestMapping("/wishlist")
+@RequestMapping("/api/wishlist")
 public class WishlistController {
 
 	private final WishlistService wishlistService;
@@ -33,7 +35,7 @@ public class WishlistController {
 
 	// toggles customer's wishlist. returns added:true if newly added, added:false
 	// if removed
-	@PostMapping("/toggle")
+	@PostMapping("")
 	public ResponseEntity<Map<String, Boolean>> toggle(
 			@RequestParam String customerId,
 			@RequestParam String productId) {

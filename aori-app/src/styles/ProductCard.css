@@ -50,6 +50,48 @@
     letter-spacing: 1px;
 }
 
+/* Favorite button on product card */
+.favorite-button-card {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.favorite-button-card:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.favorite-button-card svg {
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.favorite-button-card:hover svg {
+    color: #666;
+}
+
+.favorite-button-card.is-favorite svg {
+    color: #e74c3c;
+}
+
+.favorite-button-card.is-favorite:hover svg {
+    color: #c0392b;
+}
+
 .product-info {
     padding: 15px;
 }

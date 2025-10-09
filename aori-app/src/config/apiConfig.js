@@ -3,11 +3,11 @@
  * 
  * @author Yunhe
  * @date 2025-10-08
- * @version 1.0
+ * @version 1.1
  */
 const DEV_CONFIG = {
-    BASE_URL: 'http://localhost:8080/api',
-    USE_MOCK: true,
+    BASE_URL: 'http://localhost:8080/api',  // Remove /api as it's included in endpoints
+    USE_MOCK: false,  // Set to false to use real backend
 };
 
 
@@ -32,12 +32,14 @@ export const API_ENDPOINTS = {
     CART_ADD: '/cart/add',
     CART_REMOVE: '/cart/remove',
 
-    FAVOURITES: '/favourites',
-    FAVOURITES_ADD: '/favourites/add',
-    FAVOURITES_REMOVE: '/favourites/remove',
+    FAVOURITES: '/wishlist',
+    FAVOURITES_ADD: '/wishlist',
+    FAVOURITES_REMOVE: '/wishlist',
 
     ORDERS: '/orders',
     ORDER_CREATE: '/orders/create',
+
+    CUSTOMER: '/customer',
 };
 
 export const API_CONFIG = {

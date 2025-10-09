@@ -39,10 +39,21 @@ public class CustomerAccountService implements ICustomerAccount {
 	}
 
 	// Locate customer by ID
+
 	@Override
 	public Optional<Customer> getCustomerById(String customerId) {
 		return customerRepository.findById(customerId);
 	}
+
+	/**
+	 * Updates the profile information for a specific customer.
+	 * It finds the customer by their ID and applies the new details.
+	 *
+	 * @param customerId  The unique ID of the customer to update.
+	 * @param profileData A Customer object containing the new profile information.
+	 * @return The updated and saved Customer entity.
+	 * @throws EntityNotFoundException if no customer is found.
+	 */
 
 	@Override
 	@Transactional(readOnly = false)
