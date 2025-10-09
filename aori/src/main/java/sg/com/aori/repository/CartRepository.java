@@ -1,7 +1,8 @@
 /**
+ * v1.1: Modified variant related code
  * @author Jiang
  * @date 2025-10-07
- * @version 1.0
+ * @version 1.1
  */
 
 package sg.com.aori.repository;
@@ -31,7 +32,9 @@ public interface CartRepository extends JpaRepository<ShoppingCart, String> {
     void deleteByCustomerId(@Param("customerId") String customerId);
 
     // Verify if product is in cart
+    // @Query("SELECT COUNT(c) > 0 FROM ShoppingCart c WHERE c.customer.id = :customerId AND c.variant.id = :variantId")
+    // boolean existsByCustomerIdAndVariantId(@Param("customerId") String customerId, @Param("variantId") String variantId);
+
     @Query("SELECT COUNT(c) > 0 FROM ShoppingCart c WHERE c.customer.id = :customerId AND c.product.id = :productId")
-    boolean existsByCustomerIdAndProductId(@Param("customerId") String customerId,
-            @Param("productId") String productId);
+    boolean existsByCustomerIdAndProductId(@Param("customerId") String customerId, @Param("productId") String productId);
 }

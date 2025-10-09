@@ -1,6 +1,8 @@
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -83,7 +85,8 @@ public class Product {
     private String image;
 
     @Column(name = "price", nullable = false)
-    private Short price;
+    // private Short price;
+    private BigDecimal price;
 
     /* To remove
     / @Column(name = "inStock", length = 255)
@@ -250,11 +253,13 @@ public class Product {
         this.image = image;
     }
 
-    public Short getPrice() {
+    // public Short getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Short price) {
+    // public void setPrice(Short price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

@@ -1,3 +1,9 @@
+/**
+ * Jiang: Changed all variant to product
+ * Line 24: length need to be checked again
+ * @date 10-09
+ */
+
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
@@ -5,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "ShoppingCart")
+@Table(name = "shopping_cart")
 public class ShoppingCart {
 
     @Id
@@ -62,7 +68,7 @@ public class ShoppingCart {
         this.customerId = customerId;
     }
 
-    public String getproductId() {
+    public String getProductId() {
         return productId;
     }
 
