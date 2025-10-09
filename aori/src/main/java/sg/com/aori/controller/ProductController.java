@@ -22,10 +22,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
+@RequestMapping("/api/products")
 public class ProductController {
     @Autowired
     private CRUDProductService crudProductService;
@@ -41,7 +44,7 @@ public class ProductController {
      * @return The created product.
      */
 
-    @PostMapping("/api/products")
+    @PostMapping()
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         if (product.getProductId() == null || product.getProductId().isEmpty()) {
             product.setProductId(java.util.UUID.randomUUID().toString());
@@ -52,7 +55,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
-    @GetMapping("/api/products")
+    @GetMapping()
     public Optional<List<Product>> getAllProducts() {
         Optional<List<Product>> products = crudProductService.getAllProducts();
         System.out.println("Fetching all products: " + products);
@@ -96,7 +99,7 @@ public class ProductController {
      * @param id The product ID.
      * @return The product with the specified ID.
      */
-    @GetMapping("/api/products/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable String id) {
         System.out.println("Fetching product with ID: " + id);
         Optional<Product> product = crudProductService.getProductById(id);
@@ -131,17 +134,17 @@ public class ProductController {
      * @param product The product to create.
      * @return The created product.
      */
-    @PutMapping("/api/products/{id}")
+    @PutMapping("")
 
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") String id, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@RequestParam("id") String id, @RequestBody Product product) {
 
         Product updatedProduct = crudProductService.updateProduct(id, product);
         System.out.println("Updated product: " + updatedProduct);
         return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
 
-    @DeleteMapping("/api/products/{productId}")
-    public ResponseEntity<Product> deleteProduct(@PathVariable String productId) {
+    @DeleteMapping("")
+    public ResponseEntity<Product> deleteProduct(@RequestParam("id") String productId) {
         System.out.println("Deleting product with ID: " + productId);
         Product deletedProduct = crudProductService.deleteProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);

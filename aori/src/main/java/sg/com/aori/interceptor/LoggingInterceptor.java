@@ -40,6 +40,9 @@ public class LoggingInterceptor implements HandlerInterceptor {
             System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
             return true;
         }
+        System.out.println("[LoggingInterceptor] Not a bypass request - Validating session for path: " + path
+                + ", method: " + method);
+
         HttpSession session = request.getSession();
         String id = (String) session.getAttribute("id");
 

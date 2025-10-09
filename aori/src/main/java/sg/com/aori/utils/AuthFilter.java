@@ -9,42 +9,40 @@
  */
 package sg.com.aori.utils;
 
+import java.util.List;
 import java.util.Map;
 
 public class AuthFilter {
 
     public static boolean isAuthorized(Map<String, String> requestMap) {
-        // Define bypass rules: path -> allowed HTTP method
-        Map<String, String> byPassMap = Map.of(
-                "/api/auth/login", "POST",
-                "/api/products", "GET",
-                "/api/categories", "GET",
-                "/api/products/search", "GET",
-                "/api/wishlist/exists", "GET");
+        List<Map<String, String>> byPassMap = List.of(
+                Map.of("path", "/api/auth/login", "method", "POST"),
+                Map.of("path", "/api/products", "method", "GET"),
+                Map.of("path", "/api/categories", "method", "GET"),
+                Map.of("path", "/api/products/search", "method", "GET"),
+                Map.of("path", "/api/wishlist/exists", "method", "GET"));
 
         // Extract path and method from requestMap
-        System.out.println("AuthFilter checking requestMap: " + requestMap);
+        System.out.println("[AuthFilter] checking requestMap: " + requestMap);
         String requestPath = requestMap.get("path");
         String requestMethod = requestMap.get("method");
-        System.out.println("AuthFilter checking path: " + requestPath + ", method: " + requestMethod);
+        System.out.println("[AuthFilter] checking path: " + requestPath + ", method: " + requestMethod);
 
         // Always allow error page access (for all HTTP methods)
         if (requestPath != null && requestPath.equals("/error")) {
-            System.out.println("Error page - Request authorized!");
+            System.out.println("[AuthFilter] Error!");
             return true;
         }
 
         // Check if the path exists in byPassMap AND the method matches
-        if (requestPath != null && requestMethod != null) {
-            String allowedMethod = byPassMap.get(requestPath);
-            System.out.println("Allowed method for " + requestPath + ": " + allowedMethod);
-            if (allowedMethod != null && allowedMethod.equals(requestMethod)) {
-                System.out.println("Request authorized!");
+        for (Map<String, String> entry : byPassMap) {
+            if (entry.get("path").equals(requestPath) && entry.get("method").equals(requestMethod)) {
+                System.out.println("[AuthFilter] Bypass rule matched: " + entry);
                 return true;
             }
         }
 
-        System.out.println("Request NOT authorized!");
+        System.out.println("[AuthFilter] Request NOT a bypass rule");
         return false;
     }
 
