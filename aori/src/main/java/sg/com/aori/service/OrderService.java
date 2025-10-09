@@ -1,7 +1,8 @@
 /**
+ * v1.1(10-09): Removed variant, modified it into product
  * @author Jiang
  * @date 2025-10-07
- * @version 1.0
+ * @version 1.1
  */
 
 package sg.com.aori.service;
@@ -9,7 +10,7 @@ package sg.com.aori.service;
 import sg.com.aori.interfaces.IOrder;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Orders;
-import sg.com.aori.model.ProductVariant;
+import sg.com.aori.model.Product;
 import sg.com.aori.repository.InventoryRepository;
 import sg.com.aori.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,9 +136,9 @@ public class OrderService implements IOrder {
         List<OrderItem> orderItems = findOrderItemsByOrderId(orderId);
         
         for (OrderItem item : orderItems) {
-            ProductVariant variant = item.getVariant();
-            variant.setStockQuantity(variant.getStockQuantity() + item.getQuantity());
-            inventoryRepository.save(variant);
+            Product product = item.getProduct();
+            product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+            inventoryRepository.save(product);
         }
     }
 

@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import sg.com.aori.interfaces.ICustomerAccount;
 import sg.com.aori.model.Customer;
 import sg.com.aori.model.CustomerAddress;
@@ -86,21 +85,15 @@ public class CustomerAccountController {
 	// Allow logged-in customer to edit profile details
 
 	@PutMapping("/profile/edit")
-    public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody Customer profileData,
-            org.springframework.validation.BindingResult bindingResult,
-            HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            if (bindingResult.hasErrors()) {
-                response.put("success", false);
-                response.put("message", bindingResult.getAllErrors().get(0).getDefaultMessage());
-                return ResponseEntity.badRequest().body(response);
-            }
-            String customerId = getCustomerIdFromSession(session);
-            if (customerId == null) {
-                response.put("message", "User not logged in.");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
+	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Customer profileData, HttpSession session) {
+	    System.out.println("Data received from frontend: " + profileData.toString());
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String customerId = getCustomerIdFromSession(session);
+			if (customerId == null) {
+				response.put("message", "User not logged in.");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+			}
 			Customer updatedCustomer = manageCustAccount.updateCustProfile(customerId, profileData);
 			response.put("success", true);
 			response.put("profile", updatedCustomer);
@@ -141,23 +134,17 @@ public class CustomerAccountController {
 	// Allow logged-in customer to edit address details
 
 	@PutMapping("/addresses/{addressId}")
-    public ResponseEntity<Map<String, Object>> updateAddress(
-            @PathVariable String addressId,
-            @Valid @RequestBody CustomerAddress addressData,
-            org.springframework.validation.BindingResult bindingResult,
-            HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            if (bindingResult.hasErrors()) {
-                response.put("success", false);
-                response.put("message", bindingResult.getAllErrors().get(0).getDefaultMessage());
-                return ResponseEntity.badRequest().body(response);
-            }
-            String customerId = getCustomerIdFromSession(session);
-            if (customerId == null) {
-                response.put("message", "User not logged in.");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
+	public ResponseEntity<Map<String, Object>> updateAddress(
+			@PathVariable String addressId,
+			@RequestBody CustomerAddress addressData,
+			HttpSession session) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String customerId = getCustomerIdFromSession(session);
+			if (customerId == null) {
+				response.put("message", "User not logged in.");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+			}
 
 			CustomerAddress updatedAddress = manageCustAccount.updateCustomerAddress(customerId, addressId,
 					addressData);

@@ -6,7 +6,7 @@
  * @version 1.1
  */
 const DEV_CONFIG = {
-    BASE_URL: 'http://localhost:8080/api',  // Remove /api as it's included in endpoints
+    BASE_URL: 'http://localhost:8080/api',
     USE_MOCK: false,  // Set to false to use real backend
 };
 
@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
     ORDER_CREATE: '/orders/create',
 
     CUSTOMER: '/customer',
+
 };
 
 export const API_CONFIG = {

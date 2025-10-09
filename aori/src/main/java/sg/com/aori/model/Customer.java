@@ -16,7 +16,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -33,7 +32,7 @@ public class Customer {
 
     @Id
     @Column(name = "customer_id", nullable = false, length = 36)
-    private String customerId = UUID.randomUUID().toString();
+    private String customerId;
 
     @NotBlank
     @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain alphabets only")

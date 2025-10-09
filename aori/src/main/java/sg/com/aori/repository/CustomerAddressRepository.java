@@ -38,6 +38,4 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
     
     Optional<CustomerAddress> findByAddressIdAndCustomerId(String addressId, String customerId);
 
-
-
 }

@@ -41,7 +41,7 @@ public class CartService implements ICart {
     // Calculate total amount for cart items
     public BigDecimal calculateTotal(List<ShoppingCart> cartItems) {
         return cartItems.stream()
-                .map(item -> item.getVariant().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -50,8 +50,8 @@ public class CartService implements ICart {
         List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
         
         for (ShoppingCart item : cartItems) {
-            ProductVariant variant = item.getVariant();
-            if (variant.getStockQuantity() < item.getQuantity()) {
+            Product product = item.getProduct();
+            if (product.getStockQuantity() < item.getQuantity()) {
                 return false;
             }
         }
@@ -87,15 +87,15 @@ public class CartService implements ICart {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrderId(java.util.UUID.randomUUID().toString());
             orderItem.setOrder(savedOrder);
-            orderItem.setVariant(cartItem.getVariant());
+            orderItem.setProduct(cartItem.getProduct());
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPriceAtPurchase(cartItem.getVariant().getPrice());
+            orderItem.setPriceAtPurchase(cartItem.getProduct().getPrice());
             orderItem.setDiscountApplied(BigDecimal.ZERO);
             
             // Update inventory
-            ProductVariant variant = cartItem.getVariant();
-            variant.setStockQuantity(variant.getStockQuantity() - cartItem.getQuantity());
-            inventoryRepository.save(variant);
+            Product product = cartItem.getProduct();
+            product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+            inventoryRepository.save(product);
         }
         
         // Clear cart
@@ -105,19 +105,19 @@ public class CartService implements ICart {
     }
 
     // Add item to cart
-    public void addToCart(String customerId, String variantId, Integer quantity) {
-        Optional<ProductVariant> variantOpt = inventoryRepository.findById(variantId);
-        if (variantOpt.isEmpty()) {
-            throw new RuntimeException("Product variant not found");
+    public void addToCart(String customerId, String productId, Integer quantity) {
+        Optional<Product> productOpt = inventoryRepository.findById(productId);
+        if (productOpt.isEmpty()) {
+            throw new RuntimeException("Product not found");
         }
         
-        ProductVariant variant = variantOpt.get();
-        if (variant.getStockQuantity() < quantity) {
+        Product product = productOpt.get();
+        if (product.getStockQuantity() < quantity) {
             throw new RuntimeException("Insufficient inventory");
         }
         
         // Check if item already in cart
-        Optional<ShoppingCart> existingCartItem = cartRepository.findByCustomerIdAndVariantId(customerId, variantId);
+        Optional<ShoppingCart> existingCartItem = cartRepository.findByCustomerIdAndProductId(customerId, productId);
         
         if (existingCartItem.isPresent()) {
             // Update quantity
@@ -135,7 +135,7 @@ public class CartService implements ICart {
             customer.setCustomerId(customerId);
             cartItem.setCustomer(customer);
             
-            cartItem.setVariant(variant);
+            cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
             cartItem.setAddedAt(LocalDateTime.now());
             
@@ -149,7 +149,7 @@ public class CartService implements ICart {
     }
 
     // Verify if product is in cart
-    public boolean verifyInCart(String customerId, String variantId) {
-        return cartRepository.findByCustomerIdAndVariantId(customerId, variantId).isPresent();
+    public boolean verifyInCart(String customerId, String productId) {
+        return cartRepository.findByCustomerIdAndProductId(customerId, productId).isPresent();
     }
 }

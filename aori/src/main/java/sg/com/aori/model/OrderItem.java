@@ -1,3 +1,8 @@
+/**
+ * Jiang: Modfied variant into product
+ * @date: 10-09
+ */
+
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
@@ -5,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "OrderItem")
+@Table(name = "order_item")
 public class OrderItem {
 
     @Id
@@ -15,8 +20,8 @@ public class OrderItem {
     @Column(name = "order_id", length = 36, nullable = false)
     private String orderId;
 
-    @Column(name = "variant_id", length = 36, nullable = false)
-    private String variantId;
+    @Column(name = "product_id", length = 36, nullable = false)
+    private String productId;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -32,15 +37,15 @@ public class OrderItem {
     private Orders order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id", insertable = false, updatable = false)
-    private ProductVariant variant;
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
 
     public OrderItem() {
     }
 
-    public OrderItem(String orderId, String variantId, Integer quantity, BigDecimal priceAtPurchase) {
+    public OrderItem(String orderId, String productId, Integer quantity, BigDecimal priceAtPurchase) {
         this.orderId = orderId;
-        this.variantId = variantId;
+        this.productId = productId;
         this.quantity = quantity;
         this.priceAtPurchase = priceAtPurchase;
     }
@@ -61,12 +66,12 @@ public class OrderItem {
         this.orderId = orderId;
     }
 
-    public String getVariantId() {
-        return variantId;
+    public String getProductId() {
+        return productId;
     }
 
-    public void setVariantId(String variantId) {
-        this.variantId = variantId;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public Integer getQuantity() {
@@ -101,12 +106,12 @@ public class OrderItem {
         this.order = order;
     }
 
-    public ProductVariant getVariant() {
-        return variant;
+    public Product getProduct() {
+        return product;
     }
 
-    public void setVariant(ProductVariant variant) {
-        this.variant = variant;
+    public void setProduct(Product product) {
+        this.product = product;
     }
 
     /**
@@ -135,7 +140,7 @@ public class OrderItem {
         return "{" +
                 "orderItemId='" + orderItemId + '\'' +
                 ", orderId='" + orderId + '\'' +
-                ", variantId='" + variantId + '\'' +
+                ", productId='" + productId + '\'' +
                 ", quantity=" + quantity +
                 ", priceAtPurchase=" + priceAtPurchase +
                 ", discountApplied=" + discountApplied +
