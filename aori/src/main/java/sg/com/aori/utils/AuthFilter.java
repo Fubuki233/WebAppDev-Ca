@@ -32,12 +32,12 @@ public class AuthFilter {
             String allowedMethod = byPassMap.get(requestPath);
             System.out.println("Allowed method for " + requestPath + ": " + allowedMethod);
             if (allowedMethod != null && allowedMethod.equals(requestMethod)) {
-                System.out.println("✅ Request authorized!");
+                System.out.println("Request authorized!");
                 return true;
             }
         }
 
-        System.out.println("❌ Request NOT authorized!");
+        System.out.println("Request NOT authorized!");
         return false;
     }
 

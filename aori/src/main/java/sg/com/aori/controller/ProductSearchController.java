@@ -25,7 +25,6 @@ import java.util.List;
 public class ProductSearchController {
 
     private final ProductSearchService searchService;
-    private final ProductDetailService detailService;
 
     @GetMapping("/search")
     public Page<Product> search(@RequestParam(required = false) String keyword,
