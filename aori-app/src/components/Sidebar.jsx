@@ -1,3 +1,10 @@
+/**
+ *  Sidebar.jsx
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.1
+ */
 import React from 'react';
 import '../styles/Sidebar.css';
 

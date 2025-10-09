@@ -1,3 +1,11 @@
+/**
+ * Controller class for handling product-related requests.
+ * Now, all the methods had been tested
+ * 
+ * @author Yunhe
+ * @date 2025-10-07
+ * @version 1.1
+ */
 package sg.com.aori.controller;
 
 import sg.com.aori.model.Product;
@@ -17,14 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/**
- * Controller class for handling product-related requests.
- * Now, all the methods had been tested
- * 
- * @author Yunhe
- * @date 2025-10-07
- * @version 1.1
- */
 @RestController
 public class ProductController {
     @Autowired
