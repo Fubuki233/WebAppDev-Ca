@@ -1,8 +1,8 @@
 /**
  * v1.1: REST API applied
  * v1.2: Session applied
- * v1.3: Provide reference of how to get customerId from session
- * @author Jiang
+ * v1.3: Provide reference of how to get customerId from session, add validation
+ * @author Jiang, Sun Rui
  * @date 2025-10-08
  * @version 1.3
  */
