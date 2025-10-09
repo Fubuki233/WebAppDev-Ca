@@ -27,7 +27,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request,
             HttpServletResponse response, Object handler) {
-        String method = request.getMethod(); // 获取请求方法
+        String method = request.getMethod();
         if ("GET".equalsIgnoreCase(method)) {
             System.out.println("这是一个 GET 请求");
         } else if ("POST".equalsIgnoreCase(method)) {
