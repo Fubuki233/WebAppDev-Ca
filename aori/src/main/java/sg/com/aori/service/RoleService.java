@@ -1,5 +1,7 @@
 package sg.com.aori.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * Service for role entity.
  *
@@ -22,8 +24,9 @@ import java.util.NoSuchElementException;
 
 @Service
 public class RoleService implements IRole {
-
+    @Autowired
     private final RoleRepository roleRepository;
+    @Autowired
     private final PermissionRepository permissionRepository;
 
     public RoleService(
