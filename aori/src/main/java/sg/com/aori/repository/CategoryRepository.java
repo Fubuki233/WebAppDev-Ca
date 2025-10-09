@@ -2,6 +2,8 @@ package sg.com.aori.repository;
 
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
 
 import sg.com.aori.model.Category;
 
@@ -11,6 +13,10 @@ import sg.com.aori.model.Category;
  * @author Yunhe
  * @date 2025-10-07
  * @version 1.0
+ * 
+ * @author Simon Lei
+ * @date 2025-10-09
+ * @version 1.1
  */
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, String> {

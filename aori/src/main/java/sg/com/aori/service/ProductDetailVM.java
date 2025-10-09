@@ -1,36 +1,41 @@
 package sg.com.aori.service;
 
-import java.util.Map;
-import sg.com.aori.model.Product;
+import java.math.BigDecimal;
+
+import lombok.Data;
 
 // View Model for Product Details
 // Combines product info with review stats
 // @author Simon Lei
 // @date 2025-10-08
 // @version 1.0
+/*
+ * @author Simon Lei
+// @date 2025-10-09
+// @version 1.1
+ */
+@Data
+public class ProductDetailVM {
+    private String id;
+    private String productCode;
+    private String name;
+    private String description;
+    private String image;
+    private BigDecimal price;
+    private Integer stockQuantity;
 
-public record ProductDetailVM(
-    String productId,
-    String productName,
-    String description,
-    String categoryId,
-    String material,
-    String season,
-    String collection,
-    double avgRating,
-    Map<Integer, Long> ratingBuckets
-) {
-    public static ProductDetailVM of(Product p, double avg, Map<Integer, Long> buckets) {
-        return new ProductDetailVM(
-            p.getProductId(),
-            p.getProductName(),
-            p.getDescription(),
-            p.getCategoryId(),
-            p.getMaterial(),
-            p.getSeason() != null ? p.getSeason().name() : null,
-            p.getCollection(),
-            Math.round(avg * 10) / 10.0,
-            buckets
-        );
-    }
+
+    private String collection;
+    private String material;
+    private String season;
+    private String careInstructions;
+
+
+    private String categoryId;
+    private String categoryName;
+    private String broadCategory;
+    private String categorySlug;  
+
+    private Double ratingAvg;
+    private Long reviewCount;
 }

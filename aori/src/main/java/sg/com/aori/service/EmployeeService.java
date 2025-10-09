@@ -4,7 +4,6 @@ import java.util.List;
 
 import sg.com.aori.interfaces.IEmployee;
 import sg.com.aori.model.Employee;
-import sg.com.aori.model.Permission;
 import sg.com.aori.model.Role;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import sg.com.aori.repository.EmployeeRepository;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service for Employee entity.

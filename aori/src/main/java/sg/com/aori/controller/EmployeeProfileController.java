@@ -27,7 +27,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
-@RequestMapping("/admin/profile")
+@RequestMapping("/admin/account/profile")
 public class EmployeeProfileController {
 
     private final IEmployeeProfile manageEmployeeProfile;
@@ -89,7 +89,7 @@ public class EmployeeProfileController {
             // Since we return to the profile view, we need to add the employee object
             // back to the model to repopulate the form with the incorrect data.
             // A better way is to not redirect but return the view name directly.
-            return "admin/profile";
+            return "employee-profile";
         }
 
         try {
