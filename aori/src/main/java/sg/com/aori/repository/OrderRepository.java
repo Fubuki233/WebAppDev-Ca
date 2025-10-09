@@ -14,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Orders, String> {
@@ -37,4 +38,21 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
     // Check if order exists and is accessible by customer
     @Query("SELECT COUNT(o) > 0 FROM Orders o WHERE o.id = :orderId AND o.customer.id = :customerId")
     boolean existsByIdAndCustomerId(@Param("orderId") String orderId, @Param("customerId") String customerId);
+
+    /**
+     * xiaobo Date
+     * 2025-10-09
+     * Securely finds the OrderItem associated with a specific order, product, and
+     * customer.
+     * This is Step 5 (Find Order) in the return process and includes a crucial
+     * security check.
+     */
+    @Query("SELECT oi FROM OrderItem oi " +
+            "WHERE oi.order.orderId = :orderId " +
+            "AND oi.productId = :productId " +
+            "AND oi.order.customerId = :customerId")
+    Optional<OrderItem> findOrderItemForReturn(
+            @Param("orderId") String orderId,
+            @Param("productId") String productId,
+            @Param("customerId") String customerId);
 }

@@ -109,6 +109,27 @@ public class OrderItem {
         this.variant = variant;
     }
 
+    /**
+     * xiaobo
+     * 2025-10-09
+     * Calculates and returns the net total price paid for this line item (used for
+     * refund calculation).
+     * Calculation: (priceAtPurchase - discountApplied) * quantity
+     * * @return The BigDecimal amount paid for this specific line item.
+     */
+    public BigDecimal getPrice() {
+        // 1. Calculate the final price per unit: (priceAtPurchase - discountApplied)
+        BigDecimal netPricePerUnit = this.priceAtPurchase.subtract(
+                this.discountApplied != null ? this.discountApplied : BigDecimal.ZERO);
+
+        // 2. Multiply by the quantity to get the total paid amount for the line item
+        // Note: We use the Integer value of quantity converted to BigDecimal for the
+        // math.
+        BigDecimal quantityBigDecimal = new BigDecimal(this.quantity);
+
+        return netPricePerUnit.multiply(quantityBigDecimal);
+    }
+
     @Override
     public String toString() {
         return "{" +

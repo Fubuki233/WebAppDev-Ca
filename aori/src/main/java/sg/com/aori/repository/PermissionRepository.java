@@ -1,3 +1,11 @@
+/**
+ * Repository interface for Permission entity.
+ *
+ * @author xiaobo
+ * @date 2025-10-07
+ * @version 1.0
+ */
+
 package sg.com.aori.repository;
 
 import sg.com.aori.model.Permission;
@@ -13,13 +21,6 @@ import org.springframework.stereotype.Repository;
 import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.transaction.Transactional;
 
-/**
- * Repository interface for Permission entity.
- *
- * @author xiaobo
- * @date 2025-10-07
- * @version 1.0
- */
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, String> {
 

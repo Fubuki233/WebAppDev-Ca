@@ -8,11 +8,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Entity representing a product in the system.
- * Updated entity
+ * Updated entity (see changes)
  * 
  * JSON example:
  * {
- * "productCode": "PROD-000001",
+ * "productCode": "AORI-KSA-0001",
  * "productName": "Classic Polo Shirt",
  * "description": "High quality polo shirt",
  * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * "image":
  * "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=600&fit=crop",
  * "price": 249,
- * "inStock": "true",
+ * "stockQuantity": 20,
  * "size": "[\"XS\", \"S\", \"M\", \"L\", \"XL\"]",
  * "rating": 4.7,
  * "tags": "best-seller"
@@ -85,8 +85,14 @@ public class Product {
     @Column(name = "price", nullable = false)
     private Short price;
 
-    @Column(name = "inStock", length = 255)
-    private String inStock = "true";
+    /* To remove
+    / @Column(name = "inStock", length = 255)
+    / private String inStock = "true"
+    */ 
+
+    // added by YC
+    @Column(name = "stock_quantity", nullable = false)
+    private Integer stockQuantity = 0;
 
     @Column(name = "size", columnDefinition = "JSON")
     private String size; // JSON array: ["XS", "S", "M", "L", "XL"]
@@ -252,12 +258,22 @@ public class Product {
         this.price = price;
     }
 
-    public String getInStock() {
+    /* remove
+     public String getInStock() {
         return inStock;
     }
 
     public void setInStock(String inStock) {
         this.inStock = inStock;
+    }
+    */
+
+    public Integer getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(Integer stockQuantity) {
+        this.stockQuantity = stockQuantity;
     }
 
     public String getSize() {
@@ -285,26 +301,12 @@ public class Product {
     }
 
     @Override
-    public String toString() {
-        return "{" +
-                "\"productId\":\"" + productId + "\"" +
-                ", \"productCode\":\"" + productCode + "\"" +
-                ", \"productName\":\"" + productName + "\"" +
-                ", \"description\":\"" + description + "\"" +
-                ", \"categoryId\":\"" + categoryId + "\"" +
-                ", \"collection\":\"" + collection + "\"" +
-                ", \"material\":\"" + material + "\"" +
-                ", \"season\":\"" + season + "\"" +
-                ", \"careInstructions\":\"" + careInstructions + "\"" +
-                ", \"colors\":" + colors +
-                ", \"image\":\"" + image + "\"" +
-                ", \"price\":" + price +
-                ", \"inStock\":\"" + inStock + "\"" +
-                ", \"size\":" + size +
-                ", \"rating\":" + rating +
-                ", \"tags\":\"" + tags + "\"" +
-                ", \"createdAt\":\"" + createdAt + "\"" +
-                ", \"updatedAt\":\"" + updatedAt + "\"" +
-                '}';
-    }
+	public String toString() {
+		return "Product [productId=" + productId + ", productCode=" + productCode + ", productName=" + productName
+				+ ", description=" + description + ", categoryId=" + categoryId + ", collection=" + collection
+				+ ", material=" + material + ", season=" + season + ", careInstructions=" + careInstructions
+				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", colors=" + colors + ", image=" + image
+				+ ", price=" + price + ", stockQuantity=" + stockQuantity + ", size=" + size + ", rating=" + rating
+				+ ", tags=" + tags + ", category=" + category + "]";
+	}
 }
