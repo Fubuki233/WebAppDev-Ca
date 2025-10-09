@@ -3,6 +3,7 @@ package sg.com.aori.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -25,7 +26,7 @@ public interface PurchaseHistoryRepository extends JpaRepository<Orders, String>
      * @param pageable 分页参数
      * @return 客户在指定时间范围内的订单列表
      */
-    List<Orders> findByCustomerIdAndCreatedAtBetween(
+    Page<Orders> findByCustomerIdAndCreatedAtBetween(
             String customerId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
     
     /**

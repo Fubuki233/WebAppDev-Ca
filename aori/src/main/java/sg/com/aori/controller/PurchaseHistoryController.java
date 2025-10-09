@@ -64,8 +64,8 @@ public class PurchaseHistoryController {
      * @return 订单详细信息
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<PurchaseHistoryDTO> getOrderDetails(@PathVariable String orderId) {
-        PurchaseHistoryDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
+    public ResponseEntity<sg.com.aori.service.PurchaseHistoryDTO> getOrderDetails(@PathVariable String orderId) {
+        sg.com.aori.service.PurchaseHistoryDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
 
     if (orderDetails == null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

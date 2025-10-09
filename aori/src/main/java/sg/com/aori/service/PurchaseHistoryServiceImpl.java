@@ -1,10 +1,18 @@
 package sg.com.aori.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Orders;
 import sg.com.aori.model.Payment;
@@ -13,13 +21,6 @@ import sg.com.aori.repository.OrderItemRepository;
 import sg.com.aori.repository.PaymentRepository;
 import sg.com.aori.repository.PurchaseHistoryRepository;
 import sg.com.aori.repository.ReturnRepository;
-import sg.com.aori.service.PurchaseHistoryService;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * purchasehistory
@@ -61,8 +62,8 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
                                                        LocalDateTime endDate, 
                                                        PageRequest pageRequest) {
 
-        // 1）查询订单
-        List<Orders> ordersPage = purchaseHistoryRepository.findByCustomerIdAndCreatedAtBetween(
+        // 1）查询订单，确保返回的是 Page 类型
+        Page<Orders> ordersPage = (Page<Orders>) purchaseHistoryRepository.findByCustomerIdAndCreatedAtBetween(
                 customerId, startDate, endDate, pageRequest);
 
         if (ordersPage.isEmpty()) {
@@ -98,7 +99,9 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
                         returnsByOrderItemId))
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(data, pageRequest, ordersPage.getTotalElements());
+        // 返回分页结果，构造一个 PageImpl 对象
+        Page<PurchaseHistoryDTO> page = new PageImpl<>(data, pageRequest, ordersPage.getTotalElements());
+        return (sg.com.aori.service.Page) page;
     }
 
 
@@ -152,7 +155,7 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
             paymentStatus = summarizePaymentStatus(payments);
         }
 
-        return PurchaseHistoryDTO.from(order, itemDTOs, payments, partiallyRefunded, paymentStatus);
+        return new PurchaseHistoryDTO(order, itemDTOs, payments, partiallyRefunded, paymentStatus);
     }
 
     /**
