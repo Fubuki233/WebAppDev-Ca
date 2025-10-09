@@ -1,13 +1,17 @@
 package sg.com.aori.controller;
 
-import lombok.RequiredArgsConstructor;
+import java.math.BigDecimal;
+
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import sg.com.aori.model.Product;
+import lombok.RequiredArgsConstructor;
+import sg.com.aori.service.ProductDetailService;
+import sg.com.aori.service.ProductDetailVM;
 import sg.com.aori.service.ProductSearchService;
-
-import java.util.List;
+import sg.com.aori.service.ProductSummaryVM;
 
 /**
  * Controller for product search and detail endpoints.
@@ -22,19 +26,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductSearchController {
 
-    private final ProductSearchService searchService;
+    private final ProductSearchService productSearchService;
+    private final ProductDetailService productDetailService;
 
     @GetMapping("/search")
-    public Page<Product> search(@RequestParam(required = false) String keyword,
-            @RequestParam(required = false, name = "category") List<String> categoryIds,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "12") int size,
-            @RequestParam(required = false) String sort) {
-        return searchService.search(keyword, categoryIds, page, size, sort);
+    public Page<ProductSummaryVM> search(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Boolean inStock,
+            @PageableDefault(size = 12, sort = "createdAt") Pageable pageable
+    ) {
+        return productSearchService.search(q, category, minPrice, maxPrice, inStock, pageable);
     }
 
-    // @GetMapping("/{id}")
-    // public ProductDetailVM detail(@PathVariable String id) {
-    // return detailService.getDetail(id);
-    // }
+    @GetMapping("/{productId}")
+    public ProductDetailVM getDetail(@PathVariable String productId) {
+        return productDetailService.getDetail(productId);
+    }
 }
