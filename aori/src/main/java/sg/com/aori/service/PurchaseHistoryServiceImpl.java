@@ -1,19 +1,10 @@
 package sg.com.aori.service;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Orders;
 import sg.com.aori.model.Payment;
@@ -22,6 +13,14 @@ import sg.com.aori.repository.OrderItemRepository;
 import sg.com.aori.repository.PaymentRepository;
 import sg.com.aori.repository.PurchaseHistoryRepository;
 import sg.com.aori.repository.ReturnRepository;
+import sg.com.aori.service.PurchaseHistoryService;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /**
  * purchasehistory
  *
@@ -38,13 +37,14 @@ import sg.com.aori.repository.ReturnRepository;
  */
 @Service
 @Transactional(readOnly = true)
-public class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
+public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
 
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final OrderItemRepository orderItemRepository;
     private final PaymentRepository paymentRepository;
     private final ReturnRepository returnsRepository;
 
+    @Autowired
     public PurchaseHistoryServiceImpl(PurchaseHistoryRepository purchaseHistoryRepository,
                                       OrderItemRepository orderItemRepository,
                                       PaymentRepository paymentRepository,
@@ -56,121 +56,78 @@ public class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
     }
 
     @Override
-    public PageResult<PurchaseOrderDTO> getPurchaseHistory(PurchaseHistoryFilter filter, int page, int size) {
-        validateFilter(filter);
+    public sg.com.aori.service.Page getPurchaseHistory(String customerId, 
+                                                       LocalDateTime startDate, 
+                                                       LocalDateTime endDate, 
+                                                       PageRequest pageRequest) {
 
-        // 为了支持 hasNext，这里用 size+1 拉取一条“探针”记录
-        int pageSizePlusOne = Math.max(1, size) + 1;
-        Pageable pageable = PageRequest.of(Math.max(0, page), pageSizePlusOne);
+        // 1）查询订单
+        List<Orders> ordersPage = purchaseHistoryRepository.findByCustomerIdAndCreatedAtBetween(
+                customerId, startDate, endDate, pageRequest);
 
-        // 1）根据是否包含 orderStatus 条件，选择不同查询
-        final LocalDateTime from = Optional.ofNullable(filter.getFrom()).orElse(LocalDateTime.MIN);
-        final LocalDateTime to   = Optional.ofNullable(filter.getTo()).orElse(LocalDateTime.MAX);
-
-        List<Orders> orders;
-        if (filter.getOrderStatus() != null) {
-            orders = purchaseHistoryRepository.findByCustomerIdAndOrderStatusAndCreatedAtBetween(
-                    filter.getCustomerId(), filter.getOrderStatus(), from, to, pageable);
-        } else {
-            orders = purchaseHistoryRepository.findByCustomerIdAndCreatedAtBetween(
-                    filter.getCustomerId(), from, to, pageable);
+        if (ordersPage.isEmpty()) {
+            return (sg.com.aori.service.Page) Page.empty();
         }
 
-        // 2）计算 hasNext，并裁剪到期望 size
-        boolean hasNext = orders.size() == pageSizePlusOne;
-        if (hasNext) {
-            orders = orders.subList(0, size);
-        }
-        if (orders.isEmpty()) {
-            return PageResult.of(Collections.emptyList(), page, size, hasNext);
-        }
-
-        // 3）批量加载订单项（含商品）
-        List<String> orderIds = orders.stream().map(Orders::getOrderId).toList();
+        // 2）批量加载订单项（含商品）
+        List<String> orderIds = ordersPage.getContent().stream().map(Orders::getOrderId).collect(Collectors.toList());
         List<OrderItem> orderItems = orderItemRepository.findOrderItemsWithProductDetails(orderIds);
 
-        // 4）批量加载支付记录
+        // 3）批量加载支付记录
         List<Payment> payments = paymentRepository.findByOrderIdIn(orderIds);
         Map<String, List<Payment>> paymentsByOrderId = payments.stream()
                 .collect(Collectors.groupingBy(Payment::getOrderId));
 
-        // 5）批量加载退货记录（用于标记行级退款/部分退款）
-        List<String> orderItemIds = orderItems.stream().map(OrderItem::getOrderItemId).toList();
+        // 4）批量加载退货记录
+        List<String> orderItemIds = orderItems.stream().map(OrderItem::getOrderItemId).collect(Collectors.toList());
         Map<String, List<Returns>> returnsByOrderItemId = returnsRepository.findByOrderItemIdIn(orderItemIds)
                 .stream()
                 .collect(Collectors.groupingBy(Returns::getOrderItemId));
 
-        // 6）将订单项按订单分组
+        // 5）将订单项按订单分组
         Map<String, List<OrderItem>> itemsByOrderId = orderItems.stream()
                 .collect(Collectors.groupingBy(OrderItem::getOrderId));
 
-        // 7）组装 DTO
-        Map<String, Orders> orderMap = orders.stream()
+        // 6）组装 DTO
+        Map<String, Orders> orderMap = ordersPage.getContent().stream()
                 .collect(Collectors.toMap(Orders::getOrderId, Function.identity()));
 
-        List<PurchaseOrderDTO> data = orders.stream()
+        List<PurchaseHistoryDTO> data = ordersPage.getContent().stream()
                 .map(o -> assembleOrderDTO(o, itemsByOrderId.getOrDefault(o.getOrderId(), List.of()),
                         paymentsByOrderId.getOrDefault(o.getOrderId(), List.of()),
                         returnsByOrderItemId))
-                .toList();
+                .collect(Collectors.toList());
 
-        // 8）支付状态筛选（如果 filter.paymentStatus 不为 null）
-        if (filter.getPaymentStatus() != null) {
-            List<PurchaseOrderDTO> filtered = data.stream()
-                    .filter(d -> d.getPaymentStatus() == filter.getPaymentStatus())
-                    .toList();
-            return PageResult.of(filtered, page, size, hasNext && filtered.size() == size);
-        }
-
-        return PageResult.of(data, page, size, hasNext);
+        return new PageImpl<>(data, pageRequest, ordersPage.getTotalElements());
     }
 
-    @Override
-    public PurchaseOrderDTO getOrderDetail(String customerId, String orderId) {
-        // 1）基于 customer + orderId 定位订单（避免跨用户越权）
-        //   由于仓库层未提供该签名方法，这里采用区间最大化方案：
-        List<Orders> orders = purchaseHistoryRepository.findByCustomerIdAndCreatedAtBetween(
-                customerId, LocalDateTime.MIN, LocalDateTime.MAX, PageRequest.of(0, Integer.MAX_VALUE));
 
-        Orders target = orders.stream()
-                .filter(o -> Objects.equals(o.getOrderId(), orderId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("订单不存在或不属于该客户"));
+    public PurchaseHistoryDTO getOrderDetails(String orderId) {
+        // 1）查询订单
+        Orders order = purchaseHistoryRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("订单不存在"));
 
         // 2）加载本订单的订单项（含商品）
         List<OrderItem> items = orderItemRepository.findOrderItemsWithProductDetails(List.of(orderId));
 
         // 3）加载支付记录
         List<Payment> payments = paymentRepository.findByOrderIdIn(List.of(orderId));
-        Map<String, List<Payment>> paymentsByOrderId = payments.stream()
-                .collect(Collectors.groupingBy(Payment::getOrderId));
 
         // 4）加载退货记录
-        List<String> itemIds = items.stream().map(OrderItem::getOrderItemId).toList();
+        List<String> itemIds = items.stream().map(OrderItem::getOrderItemId).collect(Collectors.toList());
         Map<String, List<Returns>> returnsByOrderItemId = returnsRepository.findByOrderItemIdIn(itemIds)
                 .stream()
                 .collect(Collectors.groupingBy(Returns::getOrderItemId));
 
-        // 5）组装
-        return assembleOrderDTO(target, items, paymentsByOrderId.getOrDefault(orderId, List.of()), returnsByOrderItemId);
+        // 5）组装订单详情 DTO
+        return assembleOrderDTO(order, items, payments, returnsByOrderItemId);
     }
 
-    // ---------------- 辅助方法 ----------------
-
-    /** 基础校验 */
-    private void validateFilter(PurchaseHistoryFilter filter) {
-        if (filter == null || filter.getCustomerId() == null || filter.getCustomerId().isBlank()) {
-            throw new IllegalArgumentException("customerId 不能为空");
-        }
-        if (filter.getFrom() != null && filter.getTo() != null && filter.getFrom().isAfter(filter.getTo())) {
-            throw new IllegalArgumentException("起止时间不合法：from 不能晚于 to");
-        }
-    }
 
     /**
      * 组装订单 DTO（含订单行、商品详情、支付概要、部分退款标记）
      */
-    private PurchaseOrderDTO assembleOrderDTO(
+    private PurchaseHistoryDTO assembleOrderDTO(
             Orders order,
             List<OrderItem> items,
             List<Payment> payments,
@@ -183,7 +140,7 @@ public class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
                     .anyMatch(r -> r.getReturnStatus() == Returns.ReturnStatus.Refunded || r.getReturnStatus() == Returns.ReturnStatus.Exchange);
 
             return PurchaseOrderItemDTO.from(oi, refundedThisLine);
-        }).toList();
+        }).collect(Collectors.toList());
 
         // 是否“部分退款”：存在至少一行退款，但并未所有行都退款
         long refundedLines = itemDTOs.stream().filter(PurchaseOrderItemDTO::isRefunded).count();
@@ -195,7 +152,7 @@ public class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
             paymentStatus = summarizePaymentStatus(payments);
         }
 
-        return PurchaseOrderDTO.from(order, itemDTOs, payments, partiallyRefunded, paymentStatus);
+        return PurchaseHistoryDTO.from(order, itemDTOs, payments, partiallyRefunded, paymentStatus);
     }
 
     /**
