@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpSession;
 import sg.com.aori.utils.AuthFilter;
 import sg.com.aori.utils.PermissionMapper;
 import sg.com.aori.config.DebugMode;
+import sg.com.aori.utils.AuthHandler;
 
 /**
  * Interceptor to log and validate user sessions.
@@ -49,84 +50,6 @@ public class AuthInterceptor implements HandlerInterceptor {
     private static final String EMPLOYEE_PATH_PREFIX = "/api/permissions";
 
     // ----------------------------------------------------------------------------------
-    // PRIVATE HANDLERS
-    // ----------------------------------------------------------------------------------
-
-    private boolean handleEmployeeAccess(HttpServletRequest request,
-            HttpServletResponse response,
-            Object handler) throws IOException {
-
-        HttpSession session = request.getSession();
-        String employeeId = (String) session.getAttribute("employeeId");
-        String path = request.getRequestURI();
-        String method = request.getMethod();
-
-        if (employeeId == null || employeeId.isEmpty()) {
-            System.out.println("[EmployeeAccess] No employee session. Access denied.");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Employee login required.");
-            return false;
-        }
-
-        // Validate Employee in DB
-        Employee employee = employeeService.findEmployeeWithPermissions(employeeId).orElse(null);
-        if (employee == null) {
-            System.out.println("[EmployeeAccess] Invalid session. Employee not found.");
-            session.invalidate();
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid session.");
-            return false;
-        }
-
-        // --- NEW PATH-BASED ACCESS CONTROL (RBAC) Check ---
-
-        // 1. Map the request path and method to a required permission node
-        Optional<String> requiredPermissionNode = PermissionMapper.getRequiredPermission(path, method);
-
-        if (requiredPermissionNode.isPresent()) {
-            String permissionNode = requiredPermissionNode.get();
-
-            System.out.println("[EmployeeAccess] Path required permission: " + permissionNode);
-
-            // 2. Check the employee's permissions
-            if (!employeeService.hasPermission(employee, permissionNode)) {
-                System.out.println("[EmployeeAccess] Access denied. Missing permission: " + permissionNode);
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Insufficient permissions.");
-                return false;
-            }
-        }
-        // NOTE: If getRequiredPermission returns empty, access is allowed by default.
-
-        System.out.println("[EmployeeAccess] Access granted for employee: " + employee.getEmail());
-        return true;
-    }
-
-    // NEW HANDLER FOR CUSTOMER ACCESS (Encapsulates the old validation logic)
-    private boolean handleCustomerAccess(HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-
-        HttpSession session = request.getSession();
-        String customerId = (String) session.getAttribute("customerId"); // 👈 Using "customerId" key
-
-        // Check if user ID exists in session
-        if (customerId == null || customerId.isEmpty()) {
-            System.out.println("[CustomerAccess] No customer ID in session - redirecting to login.");
-            response.sendRedirect("/login");
-            return false;
-        }
-
-        // Validate customer exists in database
-        Customer customer = loginService.findCustomerById(customerId).orElse(null);
-        if (customer != null) {
-            System.out.println("[CustomerAccess] Session valid for user: " + customer.getEmail());
-            return true;
-        } else {
-            System.out.println("[CustomerAccess] Session invalid - user not found in database");
-            session.invalidate();
-            response.sendRedirect("/login");
-            return false;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
     // PUBLIC preHandle METHOD
     // ----------------------------------------------------------------------------------
 
@@ -145,19 +68,18 @@ public class AuthInterceptor implements HandlerInterceptor {
         Map<String, String> requestMap = Map.of("path", path, "method", method);
         System.out.println("[LoggingInterceptor] Request map: " + requestMap);
 
+        // 1. Employee/Admin Check (For security, we need put this first)
+        if (path.startsWith(EMPLOYEE_PATH_PREFIX) || path.contains("/admin")) {
+            return AuthHandler.handleEmployeeAccess(request, response, handler);
+        }
+
         if (AuthFilter.isAuthorized(requestMap)) {
             System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
             return true;
         }
-
-        // 1. Employee/Admin Check
-        if (path.startsWith(EMPLOYEE_PATH_PREFIX) || path.startsWith("/admin")) {
-            return handleEmployeeAccess(request, response, handler);
-        }
-
         // 2. Customer Access Check (Default for non-employee restricted paths)
         System.out.println("[LoggingInterceptor] Not a bypass request - Validating customer session for path: " + path
                 + ", method: " + method);
-        return handleCustomerAccess(request, response);
+        return AuthHandler.handleCustomerAccess(request, response);
     }
 }
