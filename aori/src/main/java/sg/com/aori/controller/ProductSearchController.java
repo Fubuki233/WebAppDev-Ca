@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import sg.com.aori.model.Product;
 import sg.com.aori.service.ProductSearchService;
-import sg.com.aori.service.ProductDetailService;
-import sg.com.aori.service.ProductDetailVM;
 
 import java.util.List;
 

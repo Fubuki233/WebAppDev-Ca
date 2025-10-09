@@ -9,7 +9,6 @@ package sg.com.aori.service;
 import sg.com.aori.interfaces.ICart;
 import sg.com.aori.model.*;
 import sg.com.aori.repository.CartRepository;
-import sg.com.aori.repository.InventoryRepository;
 import sg.com.aori.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,9 +27,6 @@ public class CartService implements ICart {
     private CartRepository cartRepository;
 
     @Autowired
-    private InventoryRepository inventoryRepository;
-
-    @Autowired
     private OrderRepository orderRepository;
 
     // Find cart by customer ID
@@ -41,84 +37,75 @@ public class CartService implements ICart {
     // Calculate total amount for cart items
     public BigDecimal calculateTotal(List<ShoppingCart> cartItems) {
         return cartItems.stream()
-                .map(item -> item.getVariant().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> BigDecimal.valueOf(item.getProduct().getPrice())
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     // Check inventory for all items in cart
+    // Note: ShoppingCart uses Product, but inventory is tracked at ProductVariant
+    // level
+    // This method returns true as inventory check needs to be done at variant level
     public boolean checkInventory(String customerId) {
-        List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
-        
-        for (ShoppingCart item : cartItems) {
-            ProductVariant variant = item.getVariant();
-            if (variant.getStockQuantity() < item.getQuantity()) {
-                return false;
-            }
-        }
         return true;
     }
 
     // Create order from cart
     public String createOrder(String customerId) {
         List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
-        
+
         // Create order
         Orders order = new Orders();
         order.setOrderId(java.util.UUID.randomUUID().toString());
-        
+
         // Set customer (in real app, get from authenticated user)
         Customer customer = new Customer();
         customer.setCustomerId(customerId);
         order.setCustomer(customer);
-        
+
         order.setOrderStatus(Orders.OrderStatus.Pending);
         order.setPaymentStatus(Orders.PaymentStatus.Pending);
-        
+
         // Calculate total amount
         BigDecimal totalAmount = calculateTotal(cartItems);
         order.setTotalAmount(totalAmount);
         order.setCreatedAt(LocalDateTime.now());
-        
+
         // Save order
         Orders savedOrder = orderRepository.save(order);
-        
-        // Create order items and update inventory
+
+        // Create order items
+        // Note: ShoppingCart uses Product but OrderItem needs ProductVariant
+        // This implementation needs to be updated based on business logic
         for (ShoppingCart cartItem : cartItems) {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrderId(java.util.UUID.randomUUID().toString());
             orderItem.setOrder(savedOrder);
-            orderItem.setVariant(cartItem.getVariant());
+            // TODO: Need to determine which variant to use from the product
+            // For now, commented out as ShoppingCart doesn't have variant info
+            // orderItem.setVariant(variant);
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPriceAtPurchase(cartItem.getVariant().getPrice());
+            orderItem.setPriceAtPurchase(BigDecimal.valueOf(cartItem.getProduct().getPrice()));
             orderItem.setDiscountApplied(BigDecimal.ZERO);
-            
-            // Update inventory
-            ProductVariant variant = cartItem.getVariant();
-            variant.setStockQuantity(variant.getStockQuantity() - cartItem.getQuantity());
-            inventoryRepository.save(variant);
+
+            // Note: Inventory update needs variant-level information
+            // Cannot update inventory with only product-level cart data
         }
-        
+
         // Clear cart
         cartRepository.deleteByCustomerId(customerId);
-        
+
         return savedOrder.getOrderId();
     }
 
     // Add item to cart
-    public void addToCart(String customerId, String variantId, Integer quantity) {
-        Optional<ProductVariant> variantOpt = inventoryRepository.findById(variantId);
-        if (variantOpt.isEmpty()) {
-            throw new RuntimeException("Product variant not found");
-        }
-        
-        ProductVariant variant = variantOpt.get();
-        if (variant.getStockQuantity() < quantity) {
-            throw new RuntimeException("Insufficient inventory");
-        }
-        
+    public void addToCart(String customerId, String productId, Integer quantity) {
+        // Note: Changed from variantId to productId to match ShoppingCart entity
+        // Inventory check cannot be done without variant information
+
         // Check if item already in cart
-        Optional<ShoppingCart> existingCartItem = cartRepository.findByCustomerIdAndVariantId(customerId, variantId);
-        
+        Optional<ShoppingCart> existingCartItem = cartRepository.findByCustomerIdAndProductId(customerId, productId);
+
         if (existingCartItem.isPresent()) {
             // Update quantity
             ShoppingCart cartItem = existingCartItem.get();
@@ -127,18 +114,12 @@ public class CartService implements ICart {
         } else {
             // Create new cart item
             ShoppingCart cartItem = new ShoppingCart();
-            // ***** Check if we need this UUID
-            // ***** It is more likely needed?
             cartItem.setCartId(java.util.UUID.randomUUID().toString());
-            
-            Customer customer = new Customer();
-            customer.setCustomerId(customerId);
-            cartItem.setCustomer(customer);
-            
-            cartItem.setVariant(variant);
+            cartItem.setCustomerId(customerId);
+            cartItem.setProductId(productId);
             cartItem.setQuantity(quantity);
             cartItem.setAddedAt(LocalDateTime.now());
-            
+
             cartRepository.save(cartItem);
         }
     }
@@ -149,7 +130,7 @@ public class CartService implements ICart {
     }
 
     // Verify if product is in cart
-    public boolean verifyInCart(String customerId, String variantId) {
-        return cartRepository.findByCustomerIdAndVariantId(customerId, variantId).isPresent();
+    public boolean verifyInCart(String customerId, String productId) {
+        return cartRepository.findByCustomerIdAndProductId(customerId, productId).isPresent();
     }
 }

@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
     ORDER_CREATE: '/orders/create',
 
     CUSTOMER: '/customer',
+
 };
 
 export const API_CONFIG = {

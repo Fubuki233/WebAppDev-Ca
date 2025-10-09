@@ -41,7 +41,6 @@ public class LoggingInterceptor implements HandlerInterceptor {
             return true;
         }
         HttpSession session = request.getSession();
-        String email = (String) session.getAttribute("email");
         String id = (String) session.getAttribute("id");
 
         // Check if user ID exists in session
