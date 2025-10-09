@@ -31,11 +31,13 @@ public class ProductReview {
     private String reviewId = UUID.randomUUID().toString();
 
     @Column(name = "product_id", length = 36, nullable = false)
-    private String productId;
+    private String product*Id;
 
+    /* 
     @Column(name = "variant_id", length = 36)
     private String variantId;
-
+    */
+    
     @Column(name = "user_id", length = 36, nullable = false)
     private String userId;
 
@@ -65,9 +67,11 @@ public class ProductReview {
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     private Product product;
 
+    /* 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variant_id", insertable = false, updatable = false)
     private ProductVariant variant;
+    */
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
@@ -110,7 +114,7 @@ public class ProductReview {
     public void setProductId(String productId) {
         this.productId = productId;
     }
-
+    /*
     public String getVariantId() {
         return variantId;
     }
@@ -118,6 +122,7 @@ public class ProductReview {
     public void setVariantId(String variantId) {
         this.variantId = variantId;
     }
+    */
 
     public String getUserId() {
         return userId;
@@ -191,6 +196,7 @@ public class ProductReview {
         this.product = product;
     }
 
+    /* 
     public ProductVariant getVariant() {
         return variant;
     }
@@ -198,6 +204,7 @@ public class ProductReview {
     public void setVariant(ProductVariant variant) {
         this.variant = variant;
     }
+    */
 
     public Customer getUser() {
         return user;
@@ -212,7 +219,6 @@ public class ProductReview {
         return "{" +
                 "reviewId='" + reviewId + '\'' +
                 ", productId='" + productId + '\'' +
-                ", variantId='" + variantId + '\'' +
                 ", userId='" + userId + '\'' +
                 ", rating=" + rating +
                 ", title='" + title + '\'' +
