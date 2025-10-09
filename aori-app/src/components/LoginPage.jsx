@@ -6,12 +6,11 @@
  * @version 1.0
  */
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { login } from '../api/authApi';
+import Navbar from './Navbar';
 import '../styles/LoginPage.css';
 
 const LoginPage = () => {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -36,28 +35,33 @@ const LoginPage = () => {
 
         try {
             const response = await login(formData.email, formData.password);
+            console.log('Login response:', response);
+
             if (response.success) {
                 // Store user info in localStorage
                 localStorage.setItem('user', JSON.stringify(response.user));
-                // Navigate to home page
-                navigate('/');
+                console.log('Login successful, user stored:', response.user);
+                // Navigate to home page using hash
+                window.location.hash = '#';
             } else {
+                // Display error message from backend
                 setError(response.message || 'Login failed. Please try again.');
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError('Invalid email or password. Please try again.');
+            setError('An unexpected error occurred. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
     const handleRegisterRedirect = () => {
-        navigate('/register');
+        window.location.hash = '#register';
     };
 
     return (
         <div className="login-page">
+            <Navbar />
             <div className="login-container">
                 <div className="login-card">
                     <div className="login-header">

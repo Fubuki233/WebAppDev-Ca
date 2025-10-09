@@ -1,0 +1,350 @@
+/**
+ * ProfilePage.css
+ * 
+ * @author Yunhe
+ * @date 2025-10-09
+ * @version 1.0
+ */
+
+.profile-page {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #666;
+}
+
+.breadcrumb a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s;
+    letter-spacing: 0.5px;
+}
+
+.breadcrumb a:hover {
+    color: #2d2d2d;
+}
+
+.breadcrumb .separator {
+    color: #ccc;
+}
+
+.breadcrumb .current {
+    color: #2d2d2d;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+/* Page Title */
+.page-title {
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: #2d2d2d;
+    margin: 0 0 30px 0;
+}
+
+/* Profile Card */
+.profile-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+    margin-bottom: 30px;
+}
+
+/* Messages */
+.message {
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.error-message {
+    background-color: #fff5f5;
+    color: #d32f2f;
+    border-left: 3px solid #d32f2f;
+}
+
+.success-message {
+    background-color: #f1f8f4;
+    color: #2e7d32;
+    border-left: 3px solid #2e7d32;
+}
+
+/* Form Section */
+.form-section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: #2d2d2d;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+/* Form Layout */
+.profile-form {
+    width: 100%;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 10px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #2d2d2d;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.form-group input,
+.form-group select {
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #2d2d2d;
+    background-color: white;
+    box-shadow: 0 0 0 1px #2d2d2d;
+}
+
+.form-group input:disabled,
+.form-group select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.7;
+    color: #999;
+}
+
+.field-hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 0.3px;
+}
+
+/* Action Buttons */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid #e8e8e8;
+}
+
+.btn-edit,
+.btn-save,
+.btn-cancel {
+    padding: 14px 35px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-edit {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #1a1a1a;
+}
+
+.btn-save {
+    background-color: #2d2d2d;
+    color: white;
+}
+
+.btn-save:hover:not(:disabled) {
+    background-color: #1a1a1a;
+}
+
+.btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-cancel {
+    background-color: white;
+    color: #2d2d2d;
+    border: 1px solid #2d2d2d;
+}
+
+.btn-cancel:hover:not(:disabled) {
+    background-color: #f5f5f5;
+}
+
+.btn-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Info Card */
+.info-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-label {
+    font-size: 11px;
+    font-weight: 400;
+    color: #888;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.info-value {
+    font-size: 15px;
+    color: #2d2d2d;
+    letter-spacing: 0.5px;
+    word-break: break-all;
+}
+
+/* Loading */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 20px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #2d2d2d;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-container p {
+    font-size: 14px;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 30px 15px 60px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        letter-spacing: 4px;
+    }
+
+    .profile-card,
+    .info-card {
+        padding: 25px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-edit,
+    .btn-save,
+    .btn-cancel {
+        width: 100%;
+        padding: 14px 20px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 20px;
+        letter-spacing: 2px;
+    }
+
+    .profile-card,
+    .info-card {
+        padding: 20px 15px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+}

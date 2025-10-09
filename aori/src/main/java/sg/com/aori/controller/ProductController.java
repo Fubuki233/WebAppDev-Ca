@@ -51,14 +51,14 @@ public class ProductController {
         }
 
         Product createdProduct = crudProductService.createProduct(product);
-        System.out.println("Created product: " + createdProduct);
+        System.out.println("[ProductController] Created product: " + createdProduct);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
     @GetMapping()
     public Optional<List<Product>> getAllProducts() {
         Optional<List<Product>> products = crudProductService.getAllProducts();
-        System.out.println("Fetching all products: " + products);
+        System.out.println("[ProductController] Fetching all products: " + products);
         return products;
     }
 
@@ -101,7 +101,7 @@ public class ProductController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable String id) {
-        System.out.println("Fetching product with ID: " + id);
+        System.out.println("[ProductController] Fetching product with ID: " + id);
         Optional<Product> product = crudProductService.getProductById(id);
 
         return product.map(ResponseEntity::ok)
@@ -139,13 +139,13 @@ public class ProductController {
     public ResponseEntity<Product> updateProduct(@RequestParam("id") String id, @RequestBody Product product) {
 
         Product updatedProduct = crudProductService.updateProduct(id, product);
-        System.out.println("Updated product: " + updatedProduct);
+        System.out.println("[ProductController] Updated product: " + updatedProduct);
         return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
 
     @DeleteMapping("")
     public ResponseEntity<Product> deleteProduct(@RequestParam("id") String productId) {
-        System.out.println("Deleting product with ID: " + productId);
+        System.out.println("[ProductController] Deleting product with ID: " + productId);
         Product deletedProduct = crudProductService.deleteProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
     }

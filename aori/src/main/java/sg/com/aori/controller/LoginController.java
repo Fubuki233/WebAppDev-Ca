@@ -35,32 +35,127 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> handleLogin(@RequestParam("email") String email,
+    public ResponseEntity<?> handleLogin(@RequestParam("email") String email,
             @RequestParam("passwd") String passwd,
             HttpSession session) {
-        System.out.println("email: " + email + ", passwd: " + passwd);
-        System.out.println("session id: " + session.getId());
+        System.out.println("[LoginController] email: " + email + ", passwd: " + passwd);
+        System.out.println("[LoginController] session id: " + session.getId());
 
         Customer customer = loginService.findCustomerByEmail(email).orElse(null);
         if (customer == null) {
-            System.out.println("user not found: " + email);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+            System.out.println("[LoginController] user not found: " + email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponse(false, "User not found", null, null));
         } else if (customer.getPassword().equals(passwd)) {
-            System.out.println("User Valid");// better store customer in redis for session management
+            System.out.println("[LoginController] User Valid");// better store customer in redis for session management
 
             session.setAttribute("email", email);
             session.setAttribute("id", customer.getCustomerId());
 
-            return ResponseEntity.ok("Login successful");
+            // Create user data object (without sensitive info)
+            UserData userData = new UserData(
+                    customer.getCustomerId(),
+                    customer.getEmail(),
+                    customer.getFirstName(),
+                    customer.getLastName());
+
+            return ResponseEntity.ok(new LoginResponse(true, "Login successful", userData, session.getId()));
         } else {
-            System.out.println("password invalid for: " + email);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+            System.out.println("[LoginController] password invalid for: " + email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new LoginResponse(false, "Invalid password", null, null));
         }
     }
 
-    @GetMapping("/logout")
-    public ResponseEntity<String> logout(HttpSession session) {
-        session.invalidate();
-        return ResponseEntity.ok("Logout successful");
+    // Inner class for login response
+    static class LoginResponse {
+        private boolean success;
+        private String message;
+        private UserData user;
+        private String sessionId;
+
+        public LoginResponse(boolean success, String message, UserData user, String sessionId) {
+            this.success = success;
+            this.message = message;
+            this.user = user;
+            this.sessionId = sessionId;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public UserData getUser() {
+            return user;
+        }
+
+        public String getSessionId() {
+            return sessionId;
+        }
+    }
+
+    // Inner class for user data (without sensitive information)
+    static class UserData {
+        private String customerId;
+        private String email;
+        private String firstName;
+        private String lastName;
+
+        public UserData(String customerId, String email, String firstName, String lastName) {
+            this.customerId = customerId;
+            this.email = email;
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+
+        public String getCustomerId() {
+            return customerId;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        try {
+            session.invalidate();
+            return ResponseEntity.ok(new LogoutResponse(true, "Logout successful"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new LogoutResponse(false, "Logout failed"));
+        }
+    }
+
+    // Inner class for logout response
+    static class LogoutResponse {
+        private boolean success;
+        private String message;
+
+        public LogoutResponse(boolean success, String message) {
+            this.success = success;
+            this.message = message;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 }
