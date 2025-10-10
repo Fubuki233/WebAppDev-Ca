@@ -6,6 +6,11 @@
  * @author Yunhe
  * @date 2025-10-07
  * @version 1.1
+ * 
+ * @author Ying Chun
+ * @date 2025-10-10 (v2.0)
+ * @version 2.0 - Refactored to adjust HTTP responses and tie in with changes made to CRUDProductService
+ * 
  */
 package sg.com.aori.controller;
 
@@ -24,7 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+// import org.springframework.web.bind.annotation.RequestParam; - used in old method
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -141,6 +146,8 @@ public class ProductController {
      * @param product The product to create.
      * @return The created product.
      */
+
+/* Previous method by Yunhe 
     @PutMapping("/admin")
 
     public ResponseEntity<Product> updateProduct(@RequestParam("id") @NotBlank(message = "Product Id cannot be empty") String id, @Valid @RequestBody Product product) {
@@ -151,10 +158,40 @@ public class ProductController {
     }
 
     @DeleteMapping("/admin")
-    public ResponseEntity<Product> deleteProduct(@RequestParam("id") @NotBlank(message = "Prodcut Id annot be empty") String productId) {
+    public ResponseEntity<Product> deleteProduct(@RequestParam("id") @NotBlank(message = "Product Id annot be empty") String productId) {
         System.out.println("[ProductController] Deleting product with ID: " + productId);
         Product deletedProduct = crudProductService.deleteProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
+    }
+*/
+
+    /**
+     * REFACTORED: Now uses @PathVariable for a more standard RESTful URL.
+     */
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
+        // This method is kept simple as per your request.
+        Product updatedProduct = crudProductService.updateProduct(id, product);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+    /**
+     * REFACTORED: Now uses @PathVariable and handles all errors from the service
+     * by returning specific HTTP status codes.
+     */
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable String id) {
+        try {
+            Product deletedProduct = crudProductService.deleteProduct(id);
+            // Success: Return 200 OK with the data of the deleted product.
+            return ResponseEntity.ok(deletedProduct);
+        } catch (IllegalStateException e) {
+            // Failure 1: Product has existing orders. Return 409 Conflict.
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (RuntimeException e) {
+            // Failure 2: Product not found. Return 404 Not Found.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
 }
