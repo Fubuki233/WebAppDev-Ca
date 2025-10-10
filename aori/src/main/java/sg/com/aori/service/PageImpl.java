@@ -1,5 +1,5 @@
 package sg.com.aori.service;
 
-public class PageImpl<> {
+public class PageImpl<T> {
 
 }
