@@ -52,8 +52,7 @@ public class Orders {
     @Column(name = "order_id", length = 36, nullable = false)
     private String orderId = UUID.randomUUID().toString();
 
-    @NotBlank(message = "orderNumber is required")
-    @Column(name = "order_number", length = 30, nullable = false, unique = true)
+    @Column(name = "order_number", length = 256, nullable = true, unique = true)
     private String orderNumber;
 
     @NotBlank(message = "customerId is required")
@@ -86,7 +85,6 @@ public class Orders {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", insertable = false, updatable = false)
     private Customer customer;
-
 
     @PrePersist
     protected void onCreate() {
