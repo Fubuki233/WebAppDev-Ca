@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import sg.com.aori.dto.PurchaseHistoryControllerDTO;
 import sg.com.aori.dto.PurchaseOrderItemDTO;
+import sg.com.aori.interfaces.IPurchaseHistoryService;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Orders;
 import sg.com.aori.model.Payment;
@@ -39,7 +40,7 @@ import sg.com.aori.repository.ReturnRepository;
  */
 @Service
 @Transactional(readOnly = true)
-public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryService {
+public abstract class PurchaseHistoryServiceImpl implements IPurchaseHistoryService {
 
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final OrderItemRepository orderItemRepository;
