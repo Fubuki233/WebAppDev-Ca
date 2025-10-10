@@ -1,9 +1,10 @@
 /**
  * v1.1: Small adjustments, including a simple validation before creating order
  * v1.2: Repaired the problem that orderItem cannot be added correctly.
+ * v1.3: Added the function of auto generating order_number
  * @author Jiang
  * @date 2025-10-10
- * @version 1.2
+ * @version 1.3
  */
 
 package sg.com.aori.service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,6 +102,9 @@ public class CartService implements ICart {
             BigDecimal totalAmount = calculateTotal(cartItems);
             order.setTotalAmount(totalAmount);
             order.setCreatedAt(LocalDateTime.now());
+
+            String orderNumber = generateOrderNumber(orderId, LocalDateTime.now());
+            order.setOrderNumber(orderNumber);
             
             System.out.println("Saving order to database...");
             Orders savedOrder = orderRepository.save(order);
@@ -139,6 +144,12 @@ public class CartService implements ICart {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private String generateOrderNumber(String orderId, LocalDateTime createdAt) {
+        String timePart = createdAt.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+        String idPart = orderId.substring(0, 4);
+        return "ORD-" + timePart + "-" + idPart;
     }
 
     // Add item to cart
