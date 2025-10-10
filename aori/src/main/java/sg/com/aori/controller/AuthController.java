@@ -1,19 +1,23 @@
 package sg.com.aori.controller;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import sg.com.aori.model.Customer;
 import sg.com.aori.service.LoginService;
+
 
 /**
  * Controller class for handling authentication-related requests.
@@ -30,10 +34,17 @@ import sg.com.aori.service.LoginService;
  * @author Yunhe
  * @date 2025-10-09
  * @version 2.0
+ * 
+ *         ------------------------------------------------------------------------
+ *             add validation 
+ * * @author Sun Rui
+ * @date 2025-10-10
+ * @version 2.1
  */
 @CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
+@Validated
 
 public class AuthController {
     @Autowired
@@ -65,9 +76,10 @@ public class AuthController {
      * @return ResponseEntity containing login result.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> handleLogin(@RequestParam("email") String email,
-            @RequestParam("passwd") String passwd,
-            HttpSession session) {
+    public ResponseEntity<?> handleLogin(
+        @RequestParam("email") @Email(message = "Email format is incorrect") @NotBlank(message = "Email cannot be empty") String email,
+        @RequestParam("passwd") @NotBlank(message = "Password cannot be empty") @Size(min = 8, max = 128, message = "The password length must be between 8 and 128 characters.") String passwd,
+        HttpSession session) {
         System.out.println("[LoginController] email: " + email + ", passwd: " + passwd);
         System.out.println("[LoginController] session id: " + session.getId());
 
