@@ -1,5 +1,7 @@
 package sg.com.aori.service;
 
+import sg.com.aori.dto.PurchaseHistoryDTO;
+
 public class Page<T> {
 
 

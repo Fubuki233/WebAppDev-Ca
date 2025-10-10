@@ -112,6 +112,7 @@ public class AdminProductController {
 		return "redirect:/admin/products";
 	}
 
+	/* Older method before adding business logic to not delete products with orders
 	// --- DELETE EXISTING PRODUCT ---
 
 	@GetMapping("/delete/{id}")
@@ -123,5 +124,23 @@ public class AdminProductController {
 
         return "redirect:/admin/products";
 	}
+	*/
+
+	// --- DELETE EXISTING PRODUCT ---
+	@GetMapping("/delete/{id}")
+	public String deleteProduct(@PathVariable String id, RedirectAttributes redirectAttributes) {
+    try {
+        // Try to delete the product
+        productService.deleteProduct(id);
+        // If it succeeds, show a success message
+        redirectAttributes.addFlashAttribute("message", "Product deleted successfully!");
+    } catch (RuntimeException ex) {
+        // If the service throws an error (product not found or has orders), catch it
+        // and show the error message to the user.
+        redirectAttributes.addFlashAttribute("error", ex.getMessage());
+    }
+
+    return "redirect:/admin/products";
+}
 
 }

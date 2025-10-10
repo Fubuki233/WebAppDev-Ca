@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import sg.com.aori.dto.PurchaseHistoryControllerDTO;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Payment;
 import sg.com.aori.model.Returns;
@@ -55,7 +56,7 @@ public class PurchaseHistoryController {
         @RequestParam(defaultValue = "10") @Min(value = 1, message = "The quantity per page must be at least 1") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<PurchaseHistoryDTO> purchaseHistory = (Page<PurchaseHistoryDTO>) purchaseHistoryService.getPurchaseHistory(customerId, startDate, endDate, pageRequest);
+        Page<PurchaseHistoryControllerDTO> purchaseHistory = (Page<PurchaseHistoryControllerDTO>) purchaseHistoryService.getPurchaseHistory(customerId, startDate, endDate, pageRequest);
         
         if (purchaseHistory.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(purchaseHistory);

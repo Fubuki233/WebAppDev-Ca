@@ -1,4 +1,4 @@
-package sg.com.aori.service;
+package sg.com.aori.dto;
 
 import java.util.List;
 
