@@ -1,6 +1,7 @@
 package sg.com.aori.interfaces;
 
-import sg.com.aori.model.ReturnRequest;
+import sg.com.aori.model.Returns;
+
 import java.util.Optional;
 
 /**
@@ -19,7 +20,7 @@ public interface IReturn {
      * initiation.
      * This is the core method corresponding to the sequence diagram's main flow.
      *
-     * @param request    The data transfer object/entity containing return details.
+     * @param returns    The data transfer object/entity containing return details.
      * @param customerId The ID of the authenticated user submitting the request.
      * 
      * @return A confirmation message or instructions.
@@ -27,7 +28,7 @@ public interface IReturn {
      *                                  unauthorized.
      * @throws RuntimeException         if the external refund fails.
      */
-    String processReturnRequest(ReturnRequest request, String customerId);
+    String processReturnRequest(Returns returns, String customerId);
 
     /**
      * 
@@ -37,7 +38,7 @@ public interface IReturn {
      * @param returnId The ID of the return request.
      * @return The ReturnRequest entity, if found.
      */
-    Optional<ReturnRequest> findReturnById(String returnId);
+    Optional<Returns> findReturnById(String returnId);
 
     /**
      * Internal method to check if an item qualifies for a return based on bus

@@ -4,8 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import sg.com.aori.model.ReturnRequest;
+import sg.com.aori.model.Returns;
 
 /**
  * @author Jiayi
@@ -14,7 +13,7 @@ import sg.com.aori.model.ReturnRequest;
  */
 
 @Repository
-public interface ReturnRepository extends JpaRepository<ReturnRequest, String> {
+public interface ReturnRepository extends JpaRepository<Returns, String> {
 
     /**
      * 根据订单项 ID 列表查询退货记录
@@ -22,5 +21,5 @@ public interface ReturnRepository extends JpaRepository<ReturnRequest, String> {
      * @param orderItemIds 订单项 ID 列表
      * @return 退货记录列表
      */
-    List<ReturnRequest> findByOrderItemIdIn(List<String> orderItemIds);
+    List<Returns> findByOrderItemIdIn(List<String> orderItemIds);
 }
