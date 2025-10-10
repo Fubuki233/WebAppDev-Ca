@@ -79,7 +79,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return AuthHandler.handleEmployeeAccess(request, response, handler, employeeService);
         }
 
-        // 2. Customer Access Check (Default for non-employee restricted paths)
+        // 2. Customer Access Check
         System.out.println("[LoggingInterceptor] Not a bypass request - Validating customer session for path: " + path
                 + ", method: " + method);
         return AuthHandler.handleCustomerAccess(request, response, loginService);
