@@ -95,5 +95,8 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
         Optional<Orders> findByOrderIdAndCustomerId(String orderId, String customerId);
         
         
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
