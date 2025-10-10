@@ -43,7 +43,7 @@ public class ReturnService implements IReturn {
 
         // NOTE: You need a method in OrderRepository to find the OrderItem by its ID
         // AND the User ID
-        OrderItem itemToReturn = orderRepository.findOrderItemByItemIdAndUserId(
+        OrderItem itemToReturn = orderRepository.findByIdAndOrder_User_Id(
                 returnEntity.getOrderItemId(), // Uses the field from the Returns entity
                 userId)
                 .orElseThrow(() -> new IllegalArgumentException("Order item not found or unauthorized access."));

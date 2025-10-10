@@ -66,5 +66,7 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
          * linked
          * in the database schema.
          */
-        Optional<OrderItem> findOrderItemByItemIdAndUserId(String orderItemId, String userId);
+        // Optional<OrderItem> findOrderItemByItemIdAndUserId(String orderItemId, String
+        // userId);
+        Optional<OrderItem> findByIdAndOrder_User_Id(String orderItemId, String userId);
 }
