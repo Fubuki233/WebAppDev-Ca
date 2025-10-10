@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,12 +27,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.model.Product;
 import sg.com.aori.service.CRUDProductService;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/products")
+@Validated
 public class ProductController {
     @Autowired
     private CRUDProductService crudProductService;
@@ -48,7 +52,7 @@ public class ProductController {
      */
 
     @PostMapping("/admin")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         if (product.getProductId() == null || product.getProductId().isEmpty()) {
             product.setProductId(java.util.UUID.randomUUID().toString());
         }
@@ -103,7 +107,7 @@ public class ProductController {
      * @return The product with the specified ID.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable String id) {
+    public ResponseEntity<Product> getProductById(@PathVariable @NotBlank(message = "Product ID Cannot be empty") String id) {
         System.out.println("[ProductController] Fetching product with ID: " + id);
         Optional<Product> product = crudProductService.getProductById(id);
 
@@ -139,7 +143,7 @@ public class ProductController {
      */
     @PutMapping("/admin")
 
-    public ResponseEntity<Product> updateProduct(@RequestParam("id") String id, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@RequestParam("id") @NotBlank(message = "Product Id cannot be empty") String id, @Valid @RequestBody Product product) {
 
         Product updatedProduct = crudProductService.updateProduct(id, product);
         System.out.println("[ProductController] Updated product: " + updatedProduct);
@@ -147,7 +151,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/admin")
-    public ResponseEntity<Product> deleteProduct(@RequestParam("id") String productId) {
+    public ResponseEntity<Product> deleteProduct(@RequestParam("id") @NotBlank(message = "Prodcut Id annot be empty") String productId) {
         System.out.println("[ProductController] Deleting product with ID: " + productId);
         Product deletedProduct = crudProductService.deleteProduct(productId);
         return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
