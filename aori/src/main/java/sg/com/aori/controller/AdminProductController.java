@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import sg.com.aori.model.Product;
+import sg.com.aori.model.Category;
 import sg.com.aori.repository.CategoryRepository;
 import sg.com.aori.service.CRUDProductService;
 
@@ -35,7 +37,7 @@ public class AdminProductController {
 
 	// inject CategoryRepository to populate the category dropdown in the form 
 	@Autowired
-	private CategoryRepository CategoryRepository;
+	private CategoryRepository categoryRepository;
 
     // --- SHOW ALL PRODUCTS (Read) ---
 	@GetMapping ("/")
@@ -101,7 +103,7 @@ public class AdminProductController {
 
 	// --- UPDATE EXISTING PRODUCT (Processes form) ---
 	@PostMapping("/update/{id}")
-	public String updateProduct(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
+	public String updateProduct(@PathVariable String id, @ModelAttribute Product product, RedirectAttributes redirectAttributes) {
 		
 		productService.updateProduct(id, product);
 
