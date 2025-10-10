@@ -9,6 +9,18 @@ import java.util.UUID;
  * Entity representing a customer's request to return an order item.
  * This record is persisted when a return request is initiated.
  */
+
+/**
+ * @author Simon Lei
+ * @date 2025-10-10
+ * @version 1.0
+ */
+
+/**
+ * @author Xiaobo
+ * @date 2025-10-15
+ * @version 1.1 
+ */
 @Entity
 @Table(name = "return_request")
 public class ReturnRequest {
