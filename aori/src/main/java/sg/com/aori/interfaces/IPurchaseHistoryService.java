@@ -1,4 +1,4 @@
-package sg.com.aori.service;
+package sg.com.aori.interfaces;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +20,7 @@ import sg.com.aori.model.Returns;
  * @version 1.0
  */
 @Service
-public interface PurchaseHistoryService {
+public interface IPurchaseHistoryService {
 
     /**
      * 分页查询指定客户的购买历史

@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.dto.PurchaseHistoryControllerDTO;
+import sg.com.aori.interfaces.IPurchaseHistoryService;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Payment;
 import sg.com.aori.model.Returns;
-import sg.com.aori.service.PurchaseHistoryService;
 
 /**
  * purchasehistory
@@ -36,7 +36,7 @@ import sg.com.aori.service.PurchaseHistoryService;
 public class PurchaseHistoryController {
 
     @Autowired
-    private PurchaseHistoryService purchaseHistoryService;
+    private IPurchaseHistoryService purchaseHistoryService;
 
     /**
      * 根据客户ID和时间区间查询订单历史
@@ -56,6 +56,7 @@ public class PurchaseHistoryController {
         @RequestParam(defaultValue = "10") @Min(value = 1, message = "The quantity per page must be at least 1") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
+        @SuppressWarnings("unchecked")
         Page<PurchaseHistoryControllerDTO> purchaseHistory = (Page<PurchaseHistoryControllerDTO>) purchaseHistoryService.getPurchaseHistory(customerId, startDate, endDate, pageRequest);
         
         if (purchaseHistory.isEmpty()) {
