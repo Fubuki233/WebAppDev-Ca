@@ -3,9 +3,9 @@ package sg.com.aori.controller;
 /**
  * Controller for Permission entity.
  *
- * @author xiaobo
+ * @author xiaobo，Sun RUi
  * @date 2025-10-07
- * @version 1.0 - need to change some paths
+ * @version 1.1 - need to change some paths validaiton has been added
  */
 
 import java.util.List;
