@@ -22,5 +22,5 @@ public interface ReturnRepository extends JpaRepository<ReturnRequest, String> {
      * @param orderItemIds 订单项 ID 列表
      * @return 退货记录列表
      */
-    List<Returns> findByOrderItemIdIn(List<String> orderItemIds);
+    List<ReturnRequest> findByOrderItemIdIn(List<String> orderItemIds);
 }
