@@ -37,14 +37,14 @@ public class ReturnService implements IReturn {
      * The Returns entity must contain a valid orderItemId and reason.
      */
     @Transactional
-    public String processReturnRequest(Returns returnEntity, String userId) {
+    public String processReturnRequest(Returns returns, String userId) {
 
         // --- 1. Find OrderItem and Check Eligibility ---
 
         // NOTE: You need a method in OrderRepository to find the OrderItem by its ID
         // AND the User ID
-        OrderItem itemToReturn = orderRepository.findByIdAndOrder_User_Id(
-                returnEntity.getOrderItemId(), // Uses the field from the Returns entity
+        OrderItem itemToReturn = orderRepository.findOrderItemByItemIdAndUserId(
+                returns.getOrderItemId(), // Uses the field from the Returns entity
                 userId)
                 .orElseThrow(() -> new IllegalArgumentException("Order item not found or unauthorized access."));
 
@@ -54,18 +54,18 @@ public class ReturnService implements IReturn {
         if (order.getCreatedAt().isBefore(java.time.LocalDateTime.now().minusDays(30))) {
 
             // Set final rejected status and save for tracking
-            returnEntity.setReturnStatus(Returns.ReturnStatus.Denied); // Use Returns's enum
-            returnRepository.save(returnEntity);
+            returns.setReturnStatus(Returns.ReturnStatus.Denied); // Use Returns's enum
+            returnRepository.save(returns);
             return "Return ineligible: Past 30-day window.";
         }
 
         // --- 2. Finalize Entity Data and Save ---
 
         // Set status to the initial state (Pervious: Requested)
-        returnEntity.setReturnStatus(Returns.ReturnStatus.Requested);
+        returns.setReturnStatus(Returns.ReturnStatus.Requested);
 
         // Step 8: Creates the record in the database
-        returnRepository.save(returnEntity); // 👈 Correctly saves the Returns entity
+        returnRepository.save(returns); // 👈 Correctly saves the Returns entity
 
         // --- 3. Update Order Status ---
         order.setOrderStatus(Orders.OrderStatus.Returned);

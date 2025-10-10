@@ -62,11 +62,9 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
         /**
          * Finds a specific OrderItem by its ID and ensures it belongs to the given
          * user.
-         * Assuming the OrderItem's parent Order has a 'customerId' or 'userId' field
-         * linked
-         * in the database schema.
          */
-        // Optional<OrderItem> findOrderItemByItemIdAndUserId(String orderItemId, String
-        // userId);
-        Optional<OrderItem> findByIdAndOrder_User_Id(String orderItemId, String userId);
+        @Query("SELECT oi FROM OrderItem oi JOIN oi.order o WHERE oi.orderItemId = :itemId AND o.customerId = :userId")
+        Optional<OrderItem> findOrderItemByItemIdAndUserId(
+                        @Param("itemId") String orderItemId,
+                        @Param("userId") String userId);
 }
