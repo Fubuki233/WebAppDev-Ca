@@ -15,16 +15,14 @@ import sg.com.aori.model.ReturnRequest;
 import sg.com.aori.repository.OrderRepository;
 import sg.com.aori.repository.ReturnRepository;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReturnService implements IReturn {
-    @Autowired
+
     private final OrderRepository orderRepository;
-    @Autowired
     private final ReturnRepository returnRepository;
 
     public ReturnService(
@@ -62,8 +60,8 @@ public class ReturnService implements IReturn {
 
         // @PrePersist in the ReturnRequest entity to set ID and
         // timestamps.
-
-        returnRepository.save(requestEntity); // Step 8: Creates the record
+        // Step 8: Creates the record in the database
+        returnRepository.save(requestEntity);
 
         // --- Update Order Status ---
         order.setOrderStatus(Orders.OrderStatus.Returned);
@@ -75,19 +73,19 @@ public class ReturnService implements IReturn {
 
     @Override
     public Optional<ReturnRequest> findReturnById(String returnId) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'findReturnById'");
     }
 
     @Override
     public boolean checkEligibility(String orderId, String productId) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'checkEligibility'");
     }
 
     @Override
     public String getReturnInstructions(String returnId) {
-        // TODO Auto-generated method stub
+
         throw new UnsupportedOperationException("Unimplemented method 'getReturnInstructions'");
     }
 }

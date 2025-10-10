@@ -26,6 +26,25 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Length;
 
+/**
+ * Entity representing an employee in the system.
+ * Updated entity (see changes)
+ * 
+ * JSON example:
+ * {
+ * "firstName": "Alex",
+ * "lastName": "Chen",
+ * "email": "alex.chen@aori.com",
+ * "password": "SecurePassword123!",
+ * "phoneNumber": "+6598765432",
+ * "role": {
+ * "roleId": "d323b4e1-2f3b-4c5d-8a9e-f0a1b2c3d4e5"
+ * // This is the ID of the Role entity this employee belongs to.
+ * // The @ManyToOne relationship requires a valid, existing Role object.
+ * },
+ * "status": "Active" // Matches the EmployeeStatus enum value
+ * }
+ */
 @Entity
 @Table(name = "Employee")
 public class Employee {
