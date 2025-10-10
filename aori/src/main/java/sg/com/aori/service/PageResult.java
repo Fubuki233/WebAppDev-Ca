@@ -10,8 +10,7 @@ import java.util.List;
  */
 /**
  * 简化的分页结果封装
- * 说明：
- * - 由于仓库方法返回 List + Pageable，但不返回 total，这里提供 hasNext 标志位供前端“加载更多/下一页”判断
+ * 由于仓库方法返回 List + Pageable，但不返回 total，提供 hasNext 标志位供前端“加载更多/下一页”判断
  */
 public class PageResult<T> {
 

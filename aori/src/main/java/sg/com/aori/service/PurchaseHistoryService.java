@@ -22,9 +22,9 @@ public interface PurchaseHistoryService {
 
     /**
      * 分页查询指定客户的购买历史
-     * - 支持按订单状态/支付状态筛选
-     * - 支持按创建时间区间筛选
-     * - 结果展开到订单行（含商品详情）
+     * 支持按订单状态/支付状态筛选
+     * 支持按创建时间区间筛选
+     * 结果展开到订单行（含商品详情）
      *
      * @param customerId 客户 ID
      * @param startDate 查询的开始时间
