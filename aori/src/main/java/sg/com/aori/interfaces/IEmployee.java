@@ -2,6 +2,7 @@ package sg.com.aori.interfaces;
 
 import sg.com.aori.model.Employee;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Interface for Employee entity.
@@ -57,4 +58,6 @@ public interface IEmployee {
     // Optional method signature if you wanted the service to return Optional
     // instead of throwing an exception:
     // Optional<Employee> findEmployeeById(String id);
+    Optional<Employee> findEmployeeWithPermissions(String employeeId);
+
 }

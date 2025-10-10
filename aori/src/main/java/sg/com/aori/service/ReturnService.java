@@ -9,9 +9,9 @@
 package sg.com.aori.service;
 
 import sg.com.aori.model.Orders;
+import sg.com.aori.model.Returns;
 import sg.com.aori.interfaces.IReturn;
 import sg.com.aori.model.OrderItem;
-import sg.com.aori.model.ReturnRequest;
 import sg.com.aori.repository.OrderRepository;
 import sg.com.aori.repository.ReturnRepository;
 import java.util.Optional;
@@ -30,62 +30,63 @@ public class ReturnService implements IReturn {
             ReturnRepository returnRepository) {
         this.orderRepository = orderRepository;
         this.returnRepository = returnRepository;
-
     }
 
-    // Now accepts the ReturnRequest entity directly
+    /**
+     * Processes a return request using the Returns entity as the input object.
+     * The Returns entity must contain a valid orderItemId and reason.
+     */
     @Transactional
-    public String processReturnRequest(ReturnRequest requestEntity, String userId) {
+    public String processReturnRequest(Returns returnEntity, String userId) {
 
-        // --- Find OrderItem and Check Eligibility ---
-        OrderItem itemToReturn = orderRepository.findOrderItemForReturn(
-                requestEntity.getOrderId(),
-                requestEntity.getProductId(),
-                userId).orElseThrow(() -> new IllegalArgumentException("Order item not found or unauthorized access."));
+        // --- 1. Find OrderItem and Check Eligibility ---
+
+        // NOTE: You need a method in OrderRepository to find the OrderItem by its ID
+        // AND the User ID
+        OrderItem itemToReturn = orderRepository.findOrderItemByItemIdAndUserId(
+                returnEntity.getOrderItemId(), // Uses the field from the Returns entity
+                userId)
+                .orElseThrow(() -> new IllegalArgumentException("Order item not found or unauthorized access."));
 
         Orders order = itemToReturn.getOrder();
 
-        // Example Eligibility Check (as per "Passed Eligibility Check (company
-        // policy)")
+        // Example Eligibility Check (30-day policy)
         if (order.getCreatedAt().isBefore(java.time.LocalDateTime.now().minusDays(30))) {
+
+            // Set final rejected status and save for tracking
+            returnEntity.setReturnStatus(Returns.ReturnStatus.Denied); // Use Returns's enum
+            returnRepository.save(returnEntity);
             return "Return ineligible: Past 30-day window.";
         }
 
-        // --- Prepare the ReturnRequest Entity for Persistence ---
+        // --- 2. Finalize Entity Data and Save ---
 
-        // Manually set properties that were not in the incoming JSON
-        requestEntity.setCustomerId(userId);
-        requestEntity.setRefundAmount(itemToReturn.getPrice()); // Example: refund the item price
-        requestEntity.setReturnStatus(ReturnRequest.ReturnStatus.PENDING_APPROVAL);
+        // Set status to the initial state (Pervious: Requested)
+        returnEntity.setReturnStatus(Returns.ReturnStatus.Requested);
 
-        // @PrePersist in the ReturnRequest entity to set ID and
-        // timestamps.
         // Step 8: Creates the record in the database
-        returnRepository.save(requestEntity);
+        returnRepository.save(returnEntity); // 👈 Correctly saves the Returns entity
 
-        // --- Update Order Status ---
+        // --- 3. Update Order Status ---
         order.setOrderStatus(Orders.OrderStatus.Returned);
         orderRepository.save(order);
 
-        // --- Return Confirmation ---
+        // --- 4. Return Confirmation ---
         return "Return Confirmed. Instructions and Refund Processed.";
     }
 
     @Override
-    public Optional<ReturnRequest> findReturnById(String returnId) {
-
-        throw new UnsupportedOperationException("Unimplemented method 'findReturnById'");
+    public Optional<Returns> findReturnById(String returnId) {
+        return returnRepository.findById(returnId);
     }
 
     @Override
     public boolean checkEligibility(String orderId, String productId) {
-
         throw new UnsupportedOperationException("Unimplemented method 'checkEligibility'");
     }
 
     @Override
     public String getReturnInstructions(String returnId) {
-
         throw new UnsupportedOperationException("Unimplemented method 'getReturnInstructions'");
     }
 }

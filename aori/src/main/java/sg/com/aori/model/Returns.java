@@ -15,7 +15,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Returns")
+@Table(name = "returns")
 public class Returns {
 
     public enum ReturnReason {
@@ -26,7 +26,7 @@ public class Returns {
     }
 
     public enum ReturnStatus {
-        Requested,
+        Requested, // Initial status
         Approved,
         Denied,
         Refunded,
@@ -35,11 +35,12 @@ public class Returns {
 
     @Id
     @Column(name = "return_id", length = 36, nullable = false)
-    private String returnId = UUID.randomUUID().toString();
+    private String returnId; // FIX: Removed direct initialization
 
     @Column(name = "return_code", length = 30, nullable = false, unique = true)
     private String returnCode;
 
+    // Foreign Key string field
     @Column(name = "order_item_id", length = 36, nullable = false)
     private String orderItemId;
 
@@ -54,14 +55,31 @@ public class Returns {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    // ManyToOne relationship to OrderItem
+    // NOTE: This setup relies on the service/controller setting orderItemId string.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_item_id", insertable = false, updatable = false)
     private OrderItem orderItem;
 
+    /**
+     * JPA Callback method to set ID, creation timestamp, and initial status.
+     */
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        // Centralize ID generation logic
+        if (this.returnId == null) {
+            this.returnId = UUID.randomUUID().toString();
+        }
+
+        this.createdAt = LocalDateTime.now();
+
+        // Set initial status if not already set
+        if (this.returnStatus == null) {
+            this.returnStatus = ReturnStatus.Requested;
+        }
     }
+
+    // --- Constructors ---
 
     public Returns() {
     }
@@ -72,6 +90,8 @@ public class Returns {
         this.reason = reason;
         this.returnStatus = returnStatus;
     }
+
+    // --- Getters and Setters ---
 
     public String getReturnId() {
         return returnId;
@@ -127,6 +147,10 @@ public class Returns {
 
     public void setOrderItem(OrderItem orderItem) {
         this.orderItem = orderItem;
+        // Optionally update the foreign key string if the object is set
+        if (orderItem != null) {
+            this.orderItemId = orderItem.getOrderItemId();
+        }
     }
 
     @Override
