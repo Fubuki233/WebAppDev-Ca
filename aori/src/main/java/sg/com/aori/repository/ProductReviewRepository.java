@@ -6,6 +6,7 @@ package sg.com.aori.repository;
  * @author Simon Lei
  * @date 2025-10-07
  * @version 1.0
+ * @version 2.0 removed variant
  */
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,6 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, St
          "where r.productId = :productId and r.status = :status group by r.rating")
   List<Object[]> ratingBuckets(@Param("productId") String productId, @Param("status") ProductReview.ReviewStatus status);
 
-  Optional<ProductReview> findByProductIdAndUserIdAndVariantId(String productId, String userId, String variantId);
+  Optional<ProductReview> findByProductIdAndUserId(String productId, String userId);
 }
 

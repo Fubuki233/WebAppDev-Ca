@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="layout.html"
+      layout:decorate="layout.html">
+<head>
+    <title th:text="${product.productName}">Product Details</title>
+</head>
+<body>
+
+<section layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="${product.productName}">Product Name</h2>
+        <div>
+            <a th:href="@{/admin/products/edit/{id}(id=${product.productId})}" class="btn btn-primary">Edit</a>
+            <a th:href="@{/admin/products}" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                 <div class="card-header">Primary Details</div>
+                 <div class="card-body">
+                     <dl class="row">
+                        <dt class="col-sm-3">Product Code</dt>
+                        <dd class="col-sm-9" th:text="${product.productCode}">AORI-KSA-001</dd>
+
+                        <dt class="col-sm-3">Category</dt>
+                        <dd class="col-sm-9" th:text="${product.category.categoryName}">Shirts</dd>
+
+                        <dt class="col-sm-3">Collection</dt>
+                        <dd class="col-sm-9" th:text="${product.collection}">XIV Collections 23-24</dd>
+
+                        <dt class="col-sm-3">Description</dt>
+                        <dd class="col-sm-9"><p th:text="${product.description}">Relaxed-fit shirt.</p></dd>
+                     </dl>
+                 </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">Attributes</div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Season</dt>
+                        <dd class="col-sm-9" th:text="${product.season}">Summer</dd>
+                        
+                        <dt class="col-sm-3">Material</dt>
+                        <dd class="col-sm-9" th:text="${product.material}">Cotton</dd>
+
+                        <dt class="col-sm-3">Care Instructions</dt>
+                        <dd class="col-sm-9" th:text="${product.careInstructions}">Machine wash cold.</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+             <div class="card mb-4">
+                 <div class="card-header">Pricing & Inventory</div>
+                 <div class="card-body">
+                     <dl class="row">
+                         <dt class="col-sm-6">Price</dt>
+                         <dd class="col-sm-6" th:text="${#numbers.formatCurrency(product.price)}">$99.00</dd>
+
+                         <dt class="col-sm-6">Total Stock</dt>
+                         <dd class="col-sm-6" th:text="${product.stockQuantity}">150</dd>
+                     </dl>
+                 </div>
+             </div>
+             <div class="card mb-4">
+                <div class="card-header">Available Colors</div>
+                <div class="card-body">
+                    <div th:each="color : ${product.colors}" class="d-flex align-items-center mb-1">
+                        <div style="width: 20px; height: 20px; border-radius: 50%;" th:style="'background-color:' + ${color.value}"></div>
+                        <span class="ms-2" th:text="${color.name}">Black</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">Available Sizes & Stock</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                         <li th:each="size : ${product.sizes}" class="list-group-item d-flex justify-content-between align-items-center">
+                            <span th:text="${size.size}">L</span>
+                            <span class="badge bg-secondary rounded-pill" th:text="${size.quantity} + ' units'">50 units</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

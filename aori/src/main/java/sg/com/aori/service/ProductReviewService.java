@@ -16,9 +16,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import sg.com.aori.interfaces.IProductReview;
 import sg.com.aori.model.ProductReview;
 import sg.com.aori.model.ProductReview.ReviewStatus;
 import sg.com.aori.repository.ProductReviewRepository;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class ProductReviewService {
 
     @Transactional
     public ProductReview createReview(String productId, String userId, int rating, String title, String comment) {
-        reviewRepo.findByProductIdAndUserIdAndVariantId(productId, userId, null)
+        reviewRepo.findByProductIdAndUserId(productId, userId)
                 .ifPresent(r -> {
                     throw new IllegalStateException("You have already reviewed this product.");
                 });
@@ -83,4 +85,6 @@ public class ProductReviewService {
         }
         reviewRepo.deleteById(reviewId);
     }
+
 }
+

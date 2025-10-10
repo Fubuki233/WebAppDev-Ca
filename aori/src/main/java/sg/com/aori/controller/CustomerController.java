@@ -11,14 +11,22 @@ package sg.com.aori.controller;
 
 import java.net.URI;
 import java.util.Optional;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import sg.com.aori.service.CustomerService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import sg.com.aori.interfaces.ICreateAccount;
 import sg.com.aori.model.Customer;
 import sg.com.aori.model.CustomerAddress;
-import sg.com.aori.interfaces.ICreateAccount;
+import sg.com.aori.service.CustomerService;
 
 /**
  * REST controller for the "Create Account" use case.
@@ -51,7 +59,9 @@ public class CustomerController {
      */
     @PostMapping
     public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
-        customer.setCustomerId(java.util.UUID.randomUUID().toString());
+        if (customer.getCustomerId() == null || customer.getCustomerId().isBlank()) {
+            customer.setCustomerId(java.util.UUID.randomUUID().toString());
+        }
         Customer saved = createAccountService.createCustomer(customer);
         return ResponseEntity
                 .created(URI.create("/api/customers/" + saved.getCustomerId()))
@@ -59,17 +69,14 @@ public class CustomerController {
     }
 
     /**
-     * Get a customer by email.
+     * Get a customer by id from query parameter.
      *
-     * param: email Email address to search for (as query parameter).
+     * param: customerId Customer primary key (String UUID).
      * return: 200 OK with Customer if found, otherwise 404 Not Found.
-     * throws: IllegalArgumentException if input is invalid.
      */
     @GetMapping
-    public ResponseEntity<Customer> getCustomerByEmail(@RequestParam("email") String email) {
-        Optional<Customer> opt = createAccountService.getCustomerByEmail(email);
-        return opt.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Customer> getCustomerByIdQuery(@RequestParam("customerId") String customerId) {
+        return buildCustomerResponse(customerService.findCustomerById(customerId));
     }
 
     /**
@@ -97,7 +104,10 @@ public class CustomerController {
 
     @GetMapping("/{customerId}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable String customerId) {
-        Optional<Customer> customer = customerService.findCustomerById(customerId);
+        return buildCustomerResponse(customerService.findCustomerById(customerId));
+    }
+
+    private ResponseEntity<Customer> buildCustomerResponse(Optional<Customer> customer) {
         return customer.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

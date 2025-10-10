@@ -21,7 +21,13 @@ public class AuthFilter {
                 Map.of("path", "/api/categories", "method", "GET"),
                 Map.of("path", "/api/products/search", "method", "GET"),
                 Map.of("path", "/api/wishlist/exists", "method", "GET"),
-                Map.of("path", "/api/customers", "method", "POST")); // For registration
+                Map.of("path", "/api/customers", "method", "POST"), // For registration
+
+                // --- NEW RULES FOR EMPLOYEE THYMELEAF LOGIN ---
+                Map.of("path", "/admin/login", "method", "GET"), // To display the login form
+                Map.of("path", "/admin/login", "method", "POST"), // To process the login form submission
+                Map.of("path", "/admin/logout", "method", "GET")); // To handle logout
+        // --- END NEW RULES ---
 
         // Extract path and method from requestMap
         System.out.println("[AuthFilter] checking requestMap: " + requestMap);
