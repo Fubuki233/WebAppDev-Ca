@@ -1,4 +1,4 @@
-package sg.com.aori.service;
+package sg.com.aori.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

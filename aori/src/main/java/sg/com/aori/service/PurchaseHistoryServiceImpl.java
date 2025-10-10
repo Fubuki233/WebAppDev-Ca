@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import sg.com.aori.dto.PurchaseHistoryDTO;
+import sg.com.aori.dto.PurchaseOrderItemDTO;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Orders;
 import sg.com.aori.model.Payment;
@@ -105,6 +107,7 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
     }
 
 
+    @Override
     public PurchaseHistoryDTO getOrderDetails(String orderId) {
         // 1）查询订单
         Orders order = purchaseHistoryRepository.findById(orderId)
