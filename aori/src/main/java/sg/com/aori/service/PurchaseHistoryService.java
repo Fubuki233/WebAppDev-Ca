@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 
+import sg.com.aori.dto.PurchaseHistoryControllerDTO;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Payment;
 import sg.com.aori.model.Returns;
@@ -31,7 +32,7 @@ public interface PurchaseHistoryService {
      * @param pageRequest 分页请求
      * @return 分页结果（不保证提供 total，总是提供 hasNext 以支持前端“加载更多/下一页”）
      */
-    sg.com.aori.service.Page<sg.com.aori.service.PurchaseHistoryDTO> getPurchaseHistory(String customerId, 
+    sg.com.aori.service.Page<sg.com.aori.dto.PurchaseHistoryDTO> getPurchaseHistory(String customerId, 
                                                 LocalDateTime startDate, 
                                                 LocalDateTime endDate, 
                                                 PageRequest pageRequest);
@@ -43,7 +44,7 @@ public interface PurchaseHistoryService {
      * @param orderId 订单 ID
      * @return 订单详情 DTO（若订单不存在或不属于该客户，抛出业务异常）
      */
-    sg.com.aori.service.PurchaseHistoryDTO getOrderDetails(String orderId);
+    PurchaseHistoryControllerDTO getOrderDetails(String orderId);
 
     /**
      * 获取订单支付信息

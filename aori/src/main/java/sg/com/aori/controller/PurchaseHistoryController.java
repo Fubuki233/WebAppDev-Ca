@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import sg.com.aori.dto.PurchaseHistoryControllerDTO;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Payment;
 import sg.com.aori.model.Returns;
@@ -42,7 +43,7 @@ public class PurchaseHistoryController {
      * @return 客户的订单历史数据
      */
     @GetMapping
-    public ResponseEntity<Page<PurchaseHistoryDTO>> getPurchaseHistory(
+    public ResponseEntity<Page<PurchaseHistoryControllerDTO>> getPurchaseHistory(
             @RequestParam String customerId,
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate,
@@ -50,7 +51,7 @@ public class PurchaseHistoryController {
             @RequestParam(defaultValue = "10") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<PurchaseHistoryDTO> purchaseHistory = (Page<PurchaseHistoryDTO>) purchaseHistoryService.getPurchaseHistory(customerId, startDate, endDate, pageRequest);
+        Page<PurchaseHistoryControllerDTO> purchaseHistory = (Page<PurchaseHistoryControllerDTO>) purchaseHistoryService.getPurchaseHistory(customerId, startDate, endDate, pageRequest);
         
         if (purchaseHistory.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(purchaseHistory);
@@ -64,8 +65,8 @@ public class PurchaseHistoryController {
      * @return 订单详细信息
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<sg.com.aori.service.PurchaseHistoryDTO> getOrderDetails(@PathVariable String orderId) {
-        sg.com.aori.service.PurchaseHistoryDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
+    public ResponseEntity<sg.com.aori.dto.PurchaseHistoryControllerDTO> getOrderDetails(@PathVariable String orderId) {
+        sg.com.aori.dto.PurchaseHistoryControllerDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
 
     if (orderDetails == null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
