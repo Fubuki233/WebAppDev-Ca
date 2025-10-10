@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Login</title>
+</head>
+<body>
+    <h1>Employee Login</h1>
+
+    <div th:if="${success}" style="color: green; border: 1px solid green; padding: 10px;">
+        <p th:text="${success}"></p>
+    </div>
+    <div th:if="${error}" style="color: red; border: 1px solid red; padding: 10px;">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form th:action="@{/admin/login}" th:object="${employee}" method="post">
+        
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" th:field="*{email}" required>
+        </div>
+        
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" th:field="*{password}" required>
+        </div>
+        
+        <div>
+            <button type="submit">Log In</button>
+        </div>
+    </form>
+    
+    <p>
+        <a th:href="@{/admin/logout}">Logout (Test Link)</a>
+    </p>
+
+</body>
+</html>

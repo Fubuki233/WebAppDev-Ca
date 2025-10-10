@@ -60,4 +60,13 @@ public interface IEmployee {
     // Optional<Employee> findEmployeeById(String id);
     Optional<Employee> findEmployeeWithPermissions(String employeeId);
 
+    /**
+     * Authenticates an Employee by email and password.
+     * * @param email The employee's email.
+     * 
+     * @param password The raw password.
+     * @return An Optional containing the authenticated Employee, or empty if login
+     *         fails.
+     */
+    Optional<Employee> loginEmployee(String email, String password);
 }

@@ -69,6 +69,33 @@ public class EmployeeService implements IEmployee {
         return employeeRepository.findAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Employee> loginEmployee(String email, String rawPassword) {
+        // 1. Find the Employee by email
+        Optional<Employee> employeeOpt = employeeRepository.findByEmail(email);
+
+        if (employeeOpt.isEmpty()) {
+            return Optional.empty(); // User not found
+        }
+
+        Employee employee = employeeOpt.get();
+
+        // 2. Validate the password
+
+        // --- SECURE IMPLEMENTATION (Requires PasswordEncoder bean) ---
+        // if (passwordEncoder.matches(rawPassword, employee.getPassword())) {
+        // return Optional.of(employee);
+        // }
+
+        // --- INSECURE/SIMPLE IMPLEMENTATION (For demonstration only) ---
+        if (employee.getPassword().equals(rawPassword)) {
+            return Optional.of(employee);
+        }
+
+        return Optional.empty(); // Authentication failed
+    }
+
     /**
      * Update an existing employee after business validations.
      *
