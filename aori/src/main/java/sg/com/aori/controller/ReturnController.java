@@ -1,6 +1,6 @@
 package sg.com.aori.controller;
 
-import sg.com.aori.model.ReturnRequest;
+import sg.com.aori.model.Returns;
 import sg.com.aori.service.ReturnService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +16,10 @@ public class ReturnController {
         this.returnService = returnService;
     }
 
-    // Step 3 & 4: Receives the ReturnRequest entity directly from the JSON body.
+    // Step 3 & 4: Receives the Returns entity directly from the JSON body.
     @PostMapping("/request")
     public ResponseEntity<String> initiateReturn(
-            @RequestBody ReturnRequest requestEntity) { // 👈 Accepting the Entity directly
+            @RequestBody Returns returns) { // 👈 Accepting the Entity directly
 
         try {
             // NOTE: We rely on the request JSON body to contain 'orderId', 'productId', and
@@ -28,7 +28,7 @@ public class ReturnController {
             String userId = "current_logged_in_user_id";
 
             // Delegate the entire entity to the service
-            String confirmationMessage = returnService.processReturnRequest(requestEntity, userId);
+            String confirmationMessage = returnService.processReturnRequest(returns, userId);
 
             // Step 6 & 7 (Return Confirmation/Instructions)
             return ResponseEntity.ok(confirmationMessage);

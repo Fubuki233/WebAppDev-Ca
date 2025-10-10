@@ -48,7 +48,7 @@ public class PurchaseHistoryController {
      * @return 客户的订单历史数据
      */
     @GetMapping
-    public ResponseEntity<Page<PurchaseHistoryDTO>> getPurchaseHistory(
+    public ResponseEntity<Page<PurchaseHistoryControllerDTO>> getPurchaseHistory(
             @RequestParam @NotBlank(message = "customerId cannot be empty") String customerId,
         @RequestParam(required = false) LocalDateTime startDate,
         @RequestParam(required = false) LocalDateTime endDate,
@@ -70,8 +70,8 @@ public class PurchaseHistoryController {
      * @return 订单详细信息
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<sg.com.aori.service.PurchaseHistoryDTO> getOrderDetails(@PathVariable @NotBlank(message = "orderId cannot be empty") String orderId) {
-        sg.com.aori.service.PurchaseHistoryDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
+    public ResponseEntity<sg.com.aori.dto.PurchaseHistoryControllerDTO> getOrderDetails(@PathVariable @NotBlank(message = "orderId cannot be empty") String orderId) {
+        PurchaseHistoryControllerDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
 
     if (orderDetails == null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

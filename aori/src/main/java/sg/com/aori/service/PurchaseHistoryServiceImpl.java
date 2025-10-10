@@ -6,14 +6,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import sg.com.aori.dto.PurchaseHistoryDTO;
+import sg.com.aori.dto.PurchaseHistoryControllerDTO;
 import sg.com.aori.dto.PurchaseOrderItemDTO;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Orders;
@@ -47,7 +46,6 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
     private final PaymentRepository paymentRepository;
     private final ReturnRepository returnsRepository;
 
-    @Autowired
     public PurchaseHistoryServiceImpl(PurchaseHistoryRepository purchaseHistoryRepository,
                                       OrderItemRepository orderItemRepository,
                                       PaymentRepository paymentRepository,
@@ -58,7 +56,8 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
         this.returnsRepository = returnsRepository;
     }
 
-    @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+@Override
     public sg.com.aori.service.Page getPurchaseHistory(String customerId, 
                                                        LocalDateTime startDate, 
                                                        LocalDateTime endDate, 
@@ -92,23 +91,24 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
                 .collect(Collectors.groupingBy(OrderItem::getOrderId));
 
         // 6）组装 DTO
+        @SuppressWarnings("unused")
         Map<String, Orders> orderMap = ordersPage.getContent().stream()
                 .collect(Collectors.toMap(Orders::getOrderId, Function.identity()));
 
-        List<PurchaseHistoryDTO> data = ordersPage.getContent().stream()
+        List<PurchaseHistoryControllerDTO> data = ordersPage.getContent().stream()
                 .map(o -> assembleOrderDTO(o, itemsByOrderId.getOrDefault(o.getOrderId(), List.of()),
                         paymentsByOrderId.getOrDefault(o.getOrderId(), List.of()),
                         returnsByOrderItemId))
                 .collect(Collectors.toList());
 
         // 返回分页结果，构造一个 PageImpl 对象
-        Page<PurchaseHistoryDTO> page = new PageImpl<>(data, pageRequest, ordersPage.getTotalElements());
+        Page<PurchaseHistoryControllerDTO> page = new PageImpl<>(data, pageRequest, ordersPage.getTotalElements());
         return (sg.com.aori.service.Page) page;
     }
 
 
     @Override
-    public PurchaseHistoryDTO getOrderDetails(String orderId) {
+    public PurchaseHistoryControllerDTO getOrderDetails(String orderId) {
         // 1）查询订单
         Orders order = purchaseHistoryRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("订单不存在"));
@@ -133,7 +133,7 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
     /**
      * 组装订单 DTO（含订单行、商品详情、支付概要、部分退款标记）
      */
-    private PurchaseHistoryDTO assembleOrderDTO(
+    private PurchaseHistoryControllerDTO assembleOrderDTO(
             Orders order,
             List<OrderItem> items,
             List<Payment> payments,
@@ -158,7 +158,8 @@ public abstract class PurchaseHistoryServiceImpl implements PurchaseHistoryServi
             paymentStatus = summarizePaymentStatus(payments);
         }
 
-        return new PurchaseHistoryDTO(order, itemDTOs, payments, partiallyRefunded, paymentStatus);
+        return new PurchaseHistoryControllerDTO(order, itemDTOs, payments, partiallyRefunded, paymentStatus);
+
     }
 
     /**
