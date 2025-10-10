@@ -1,17 +1,21 @@
 package sg.com.aori.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.servlet.http.HttpSession;
 import sg.com.aori.interfaces.IEmployee;
 import sg.com.aori.model.Employee;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin") // Base path for admin views
 public class EmployeeLoginController {
+
     private final IEmployee employeeService;
 
     public EmployeeLoginController(IEmployee employeeService) {
@@ -21,14 +25,14 @@ public class EmployeeLoginController {
     // --- 1. DISPLAY LOGIN FORM (GET /admin/login) ---
     @GetMapping("/login")
     public String showLoginForm(Model model, HttpSession session) {
-        // Redirect if already logged in
-        if (session.getAttribute("loggedInEmployeeId") != null) {
+        // Redirect if the employee is already authenticated
+        if (session.getAttribute("employeeId") != null) {
             return "redirect:/admin/account/profile";
         }
 
-        // Pass a blank Employee object to the model for Thymeleaf to bind form data
+        // Use the Employee entity as the form backing object
         model.addAttribute("employee", new Employee());
-        return "login-form"; // Thymeleaf template name
+        return "login-form"; // Refers to src/main/resources/templates/login-form.html
     }
 
     // --- 2. PROCESS LOGIN SUBMISSION (POST /admin/login) ---
@@ -40,13 +44,17 @@ public class EmployeeLoginController {
         String email = loginFormEmployee.getEmail();
         String password = loginFormEmployee.getPassword();
 
+        // 1. Authenticate via Service Layer
         employeeService.loginEmployee(email, password)
                 .ifPresentOrElse(
-                        // Success: Employee found and authenticated
+                        // Success: Employee found and password matches
                         (authenticatedEmployee) -> {
-                            // Store authentication context in the session
-                            session.setAttribute("loggedInEmployeeId", authenticatedEmployee.getEmployeeId());
-                            session.setAttribute("loggedInEmployeeEmail", authenticatedEmployee.getEmail());
+                            // 2. CRITICAL: Store the Employee ID in the session under the key expected by
+                            // AuthHandler.
+                            // AuthHandler.java uses 'employeeId'
+                            session.setAttribute("employeeId", authenticatedEmployee.getEmployeeId());
+                            session.setAttribute("employeeEmail", authenticatedEmployee.getEmail());
+
                             redirectAttributes.addFlashAttribute("success",
                                     "Welcome, " + authenticatedEmployee.getFirstName() + "!");
                         },
@@ -55,16 +63,16 @@ public class EmployeeLoginController {
                             redirectAttributes.addFlashAttribute("error", "Invalid email or password.");
                         });
 
-        // Redirect to profile on success, or back to login on failure
-        return session.getAttribute("loggedInEmployeeId") != null
-                ? "redirect:/admin/account/profile"
-                : "redirect:/admin/login";
+        // 3. Determine redirect path
+        return session.getAttribute("employeeId") != null
+                ? "redirect:/admin/account/profile" // Success path
+                : "redirect:/admin/login"; // Failure path
     }
 
     // --- 3. LOGOUT (GET /admin/logout) ---
     @GetMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
-        session.invalidate(); // Destroy the session
+        session.invalidate(); // Clear the session
         redirectAttributes.addFlashAttribute("success", "You have been logged out successfully.");
         return "redirect:/admin/login";
     }
