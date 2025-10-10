@@ -303,7 +303,7 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
         const custId = customerId || await getUserUuid();
         if (!custId) {
             console.warn('No customer UUID available, checking localStorage');
-            const favourites = await getFavourites(null, true);
+            const favourites = await getFavourites(null, false);
             return favourites.some(item => item.productId === productId);
         }
 

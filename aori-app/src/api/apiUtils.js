@@ -20,12 +20,12 @@ export const handleAuthError = async (response) => {
                 window.location.href = errorData.redirectTo;
             } else {
                 console.log('Authentication required, redirecting to login');
-                window.location.hash = '#login';
+                window.location.href = '/#login';
             }
         } catch (e) {
             // If response is not JSON, just redirect to login
             console.log('Authentication required, redirecting to login');
-            window.location.hash = '#login';
+            window.location.href = '/#login';
         }
         return true;
     }
@@ -100,6 +100,11 @@ export const getUserUuid = async () => {
                 'Content-Type': 'application/json',
             },
         });
+
+        // Handle authentication errors - will redirect to login
+        if (await handleAuthError(response)) {
+            return null;
+        }
 
         if (!response.ok) {
             console.warn('Failed to get user UUID:', response.status);

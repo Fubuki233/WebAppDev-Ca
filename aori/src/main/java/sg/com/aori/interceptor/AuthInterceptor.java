@@ -56,8 +56,11 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
             HttpServletResponse response, Object handler) throws Exception {
 
+        DebugMode.DEBUG = false;
+
         if (DebugMode.DEBUG) {
-            System.out.println("[LoggingInterceptor] Debug mode ON - bypassing all checks");
+            System.out.println(
+                    "[LoggingInterceptor] Debug mode ON - bypassing all checks, if you wanna turn it off, please set DebugMode.DEBUG to false");
             return true;
         }
 
