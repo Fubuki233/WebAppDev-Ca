@@ -52,8 +52,12 @@ public class Orders {
     @Column(name = "order_id", length = 36, nullable = false)
     private String orderId = UUID.randomUUID().toString();
 
+<<<<<<< HEAD
     @NotBlank(message = "orderNumber is required")
     @Column(name = "order_number", length = 30, nullable = false, unique = true)
+=======
+    @Column(name = "order_number", length = 50, nullable = false, unique = true)
+>>>>>>> 826a0bf498c6498e3ff64eb594e12795b623a392
     private String orderNumber;
 
     @NotBlank(message = "customerId is required")

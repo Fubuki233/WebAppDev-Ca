@@ -8,6 +8,10 @@
  * @author Ying Chun
  * @date 2025-10-08
  * @version 1.1 - added two more methods
+ * 
+ * @author Jiayi
+ * @date 2025-10-09
+ * @version 1.2
  */
 
 package sg.com.aori.repository;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import sg.com.aori.model.CustomerAddress;
 
 public interface CustomerAddressRepository extends JpaRepository<CustomerAddress, String> {
@@ -31,6 +36,11 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
     
     // for use when updating customer address in customer account
     // find all addresses for a given customer
+    /**
+     * 根据客户 ID 查询客户地址列表
+     * @param customerId 客户 ID
+     * @return 客户的地址列表
+     */
     List<CustomerAddress> findByCustomerId(String customerId);
     
     // for use when updating customer address in customer account

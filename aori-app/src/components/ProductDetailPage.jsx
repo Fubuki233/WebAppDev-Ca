@@ -169,7 +169,23 @@ const ProductDetailPage = ({ productId }) => {
 
                     <div className="product-info-section">
                         <h1 className="product-title">{product.name}</h1>
-                        <div className="product-price">${product.price}</div>
+
+                        <div className="price-rating-container">
+                            <div className="product-price">${product.price}</div>
+                            {product.rating && (
+                                <div className="product-rating-detail">
+                                    <div className="stars">
+                                        {[...Array(5)].map((_, i) => (
+                                            <span key={i} className={i < Math.floor(product.rating) ? 'star filled' : 'star'}>
+                                                ★
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <span className="rating-value">{product.rating.toFixed(1)}/5</span>
+                                </div>
+                            )}
+                        </div>
+
                         <p className="tax-info">MRP incl. of all taxes</p>
 
                         <div className="product-description">

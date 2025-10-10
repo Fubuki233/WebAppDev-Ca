@@ -10,22 +10,32 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import sg.com.aori.model.Customer;
 import sg.com.aori.service.LoginService;
 
 /**
- * Controller class for handling login-related requests.
+ * Controller class for handling authentication-related requests.
  * not fully tested*
  * 
  * @author Yunhe
  * @date 2025-10-07
  * @version 1.0
+ * 
+ *          ------------------------------------------------------------------------
+ *          now, all the methods had been tested,they will return the correct
+ *          response
+ *          to the frontend
+ * @author Yunhe
+ * @date 2025-10-09
+ * @version 2.0
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
 
-public class LoginController {
+public class AuthController {
     @Autowired
     LoginService loginService;
 
@@ -34,6 +44,26 @@ public class LoginController {
         return "login";
     }
 
+    /**
+     * Handles user login requests.
+     * Example response:
+     * {
+     * "success": true,
+     * "message": "Login successful",
+     * "user": {
+     * "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+     * "email": "john@example.com",
+     * "firstName": "John",
+     * "lastName": "Doe1"
+     * },
+     * "sessionId": "58A9B2F4502A5906C4FCC20B0DE699B7"
+     * }
+     *
+     * @param email   User's email address.
+     * @param passwd  User's password.
+     * @param session HTTP session for storing user information.
+     * @return ResponseEntity containing login result.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> handleLogin(@RequestParam("email") String email,
             @RequestParam("passwd") String passwd,
@@ -129,6 +159,17 @@ public class LoginController {
         }
     }
 
+    /**
+     * Handles user logout requests.
+     * Example response:
+     * {
+     * "success": true,
+     * "message": "Logout successful"
+     * }
+     *
+     * @return ResponseEntity containing logout result.
+     * 
+     */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         try {
@@ -137,6 +178,42 @@ public class LoginController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new LogoutResponse(false, "Logout failed"));
+        }
+    }
+
+    /**
+     * Get current user's UUID from session
+     * Example response:
+     * {
+     * "uuid": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a"
+     * }
+     * 
+     * @param session HTTP session
+     * @return ResponseEntity containing UUID or null if not authenticated
+     */
+    @GetMapping("/uuid")
+    public ResponseEntity<?> getSession(HttpSession session) {
+        String uuid = (String) session.getAttribute("id");
+        if (uuid != null && !uuid.isEmpty()) {
+            System.out.println("[AuthController] session UUID: " + uuid);
+            return ResponseEntity.ok().body(new UuidResponse(uuid));
+        } else {
+            System.out.println("[AuthController] no valid session");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new UuidResponse(null));
+        }
+    }
+
+    // Inner class for UUID response
+    static class UuidResponse {
+        private String uuid;
+
+        public UuidResponse(String uuid) {
+            this.uuid = uuid;
+        }
+
+        public String getUuid() {
+            return uuid;
         }
     }
 

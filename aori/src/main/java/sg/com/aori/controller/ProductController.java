@@ -1,5 +1,6 @@
 /**
- * Controller class for handling product-related requests.
+ * Controller class for handling product-related requests
+ * This class is coded using REST API to cater for future integration with mobile app.
  * Now, all the methods had been tested
  * 
  * @author Yunhe
@@ -23,10 +24,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+<<<<<<< HEAD
 
 import sg.com.aori.model.Product;
 import sg.com.aori.service.CRUDProductService;
+=======
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
+>>>>>>> 826a0bf498c6498e3ff64eb594e12795b623a392
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -44,7 +51,7 @@ public class ProductController {
      * @return The created product.
      */
 
-    @PostMapping()
+    @PostMapping("/admin")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         if (product.getProductId() == null || product.getProductId().isEmpty()) {
             product.setProductId(java.util.UUID.randomUUID().toString());
@@ -134,7 +141,7 @@ public class ProductController {
      * @param product The product to create.
      * @return The created product.
      */
-    @PutMapping("")
+    @PutMapping("/admin")
 
     public ResponseEntity<Product> updateProduct(@RequestParam("id") String id, @RequestBody Product product) {
 
@@ -143,7 +150,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
 
-    @DeleteMapping("")
+    @DeleteMapping("/admin")
     public ResponseEntity<Product> deleteProduct(@RequestParam("id") String productId) {
         System.out.println("[ProductController] Deleting product with ID: " + productId);
         Product deletedProduct = crudProductService.deleteProduct(productId);

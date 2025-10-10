@@ -1,8 +1,9 @@
 /**
- * v1.1(10-09): Removed variant, modified it into product
+ * v1.1: Removed variant, modified it into product
+ * v1.2: Timeout limit 60s -> 10s
  * @author Jiang
- * @date 2025-10-07
- * @version 1.1
+ * @date 2025-10-10
+ * @version 1.2
  */
 
 package sg.com.aori.service;
@@ -68,8 +69,9 @@ public class OrderService implements IOrder {
             try {
                 // Simulate payment processing with FinanceService
                 // ***** Timeout limit can be modified here
-                for (int i = 0; i < 60; i++) {
+                for (int i = 0; i < 10; i++) {
                     Boolean paymentResult = financeService.verifyPayment(orderId);
+                    System.out.println(i + "s, paymentResult=" + paymentResult);
                     if (paymentResult != null && paymentResult) {
                         return true;
                     }

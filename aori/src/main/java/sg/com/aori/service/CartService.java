@@ -1,29 +1,26 @@
 /**
+ * v1.1: Small adjustments, including a simple validation before creating order
+ * ATTETION: orderItem can't be added correctly, further modification needed
  * @author Jiang
- * @date 2025-10-07
- * @version 1.0
+ * @date 2025-10-10
+ * @version 1.1
  */
 
 package sg.com.aori.service;
+
+import sg.com.aori.interfaces.ICart;
+import sg.com.aori.model.*;
+import sg.com.aori.repository.CartRepository;
+import sg.com.aori.repository.InventoryRepository;
+import sg.com.aori.repository.OrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import sg.com.aori.interfaces.ICart;
-import sg.com.aori.model.Customer;
-import sg.com.aori.model.OrderItem;
-import sg.com.aori.model.Orders;
-import sg.com.aori.model.Product;
-import sg.com.aori.model.ShoppingCart;
-import sg.com.aori.repository.CartRepository;
-import sg.com.aori.repository.InventoryRepository;
-import sg.com.aori.repository.OrderRepository;
 
 @Service
 @Transactional
@@ -65,17 +62,24 @@ public class CartService implements ICart {
 
     // Create order from cart
     public String createOrder(String customerId) {
+
         List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
+
+        if (cartItems == null || cartItems.isEmpty()) {
+            throw new RuntimeException("Cannot create order: Shopping cart is empty");
+        }
         
         // Create order
         Orders order = new Orders();
         order.setOrderId(java.util.UUID.randomUUID().toString());
         
         // Set customer (in real app, get from authenticated user)
+        // ***** Check this part again though it can work
         Customer customer = new Customer();
         customer.setCustomerId(customerId);
         order.setCustomer(customer);
-        
+        order.setCustomerId(customerId);
+
         order.setOrderStatus(Orders.OrderStatus.Pending);
         order.setPaymentStatus(Orders.PaymentStatus.Pending);
         
@@ -83,15 +87,20 @@ public class CartService implements ICart {
         BigDecimal totalAmount = calculateTotal(cartItems);
         order.setTotalAmount(totalAmount);
         order.setCreatedAt(LocalDateTime.now());
+
+        // ***** Check if we should set a order_number
+        // order.setOrderNumber(order.getOrderId());
         
         // Save order
+        System.out.println("-----------------------------------"+order.getOrderId());
         Orders savedOrder = orderRepository.save(order);
         
         // Create order items and update inventory
         for (ShoppingCart cartItem : cartItems) {
             OrderItem orderItem = new OrderItem();
-            orderItem.setOrderId(java.util.UUID.randomUUID().toString());
+            orderItem.setOrderItemId(java.util.UUID.randomUUID().toString());
             orderItem.setOrder(savedOrder);
+            orderItem.setOrderId(savedOrder.getOrderId());
             orderItem.setProduct(cartItem.getProduct());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setPriceAtPurchase(cartItem.getProduct().getPrice());
@@ -105,6 +114,8 @@ public class CartService implements ICart {
         
         // Clear cart
         cartRepository.deleteByCustomerId(customerId);
+        System.out.println("-----------------------------------"+savedOrder.getCustomerId());
+        System.out.println("-----------------------------------"+order.getCustomerId());
         
         return savedOrder.getOrderId();
     }
@@ -135,24 +146,20 @@ public class CartService implements ICart {
             // ***** Check if we need this UUID
             // ***** It is more likely needed?
             cartItem.setCartId(java.util.UUID.randomUUID().toString());
-            
+
             Customer customer = new Customer();
             customer.setCustomerId(customerId);
             cartItem.setCustomer(customer);
-            
+
+            // Set customerid and productId directly
+            cartItem.setCustomerId(customerId);
+            cartItem.setProductId(productId);
+
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
             cartItem.setAddedAt(LocalDateTime.now());
             
             cartRepository.save(cartItem);
-        }
-       
-        // Basic validation, add defensive checks to prevent bypassing the controller
-        if (productId == null || productId.isBlank()) {
-        throw new IllegalArgumentException("productId is required");
-        }
-        if (quantity == null || quantity <= 0) {
-        throw new IllegalArgumentException("Quantity must be greater than zero");
         }
     }
 
