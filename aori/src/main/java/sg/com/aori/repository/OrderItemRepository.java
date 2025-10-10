@@ -27,4 +27,14 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
            "JOIN FETCH oi.product p " +
            "WHERE oi.orderId IN :orderIds")
     List<OrderItem> findOrderItemsWithProductDetails(@Param("orderIds") List<String> orderIds);
+
+    /**
+     * METHOD: Counts how many order items are associated with a specific product ID.
+     * This is used in the CRUDProductService to prevent deletion of products that have orders.
+     *
+     * @param productId The ID of the product to check.
+     * @return The number of order items linked to the product.
+     */
+    long countByProductId(String productId);
+
 }
