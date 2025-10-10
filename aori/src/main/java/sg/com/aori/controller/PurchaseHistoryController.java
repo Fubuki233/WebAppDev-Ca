@@ -8,26 +8,31 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.dto.PurchaseHistoryControllerDTO;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Payment;
 import sg.com.aori.model.Returns;
 import sg.com.aori.service.PurchaseHistoryService;
+
 /**
  * purchasehistory
  *
- * @author Jiayi
+ * @author Jiayi,Sun Rui
  * @date 2025-10-08
- * @version 1.0
+ * @version 1.1 - add validation for parameters
  */
 @RestController
 @RequestMapping("/api/v1/purchase-history")
+@Validated
 public class PurchaseHistoryController {
 
     @Autowired
@@ -43,12 +48,12 @@ public class PurchaseHistoryController {
      * @return 客户的订单历史数据
      */
     @GetMapping
-    public ResponseEntity<Page<PurchaseHistoryControllerDTO>> getPurchaseHistory(
-            @RequestParam String customerId,
-            @RequestParam(required = false) LocalDateTime startDate,
-            @RequestParam(required = false) LocalDateTime endDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<PurchaseHistoryDTO>> getPurchaseHistory(
+            @RequestParam @NotBlank(message = "customerId cannot be empty") String customerId,
+        @RequestParam(required = false) LocalDateTime startDate,
+        @RequestParam(required = false) LocalDateTime endDate,
+        @RequestParam(defaultValue = "0") @Min(value = 0, message = "page cannot be empty") int page,
+        @RequestParam(defaultValue = "10") @Min(value = 1, message = "The quantity per page must be at least 1") int size) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<PurchaseHistoryControllerDTO> purchaseHistory = (Page<PurchaseHistoryControllerDTO>) purchaseHistoryService.getPurchaseHistory(customerId, startDate, endDate, pageRequest);
@@ -65,8 +70,8 @@ public class PurchaseHistoryController {
      * @return 订单详细信息
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<sg.com.aori.dto.PurchaseHistoryControllerDTO> getOrderDetails(@PathVariable String orderId) {
-        sg.com.aori.dto.PurchaseHistoryControllerDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
+    public ResponseEntity<sg.com.aori.service.PurchaseHistoryDTO> getOrderDetails(@PathVariable @NotBlank(message = "orderId cannot be empty") String orderId) {
+        sg.com.aori.service.PurchaseHistoryDTO orderDetails = purchaseHistoryService.getOrderDetails(orderId);
 
     if (orderDetails == null) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -79,7 +84,7 @@ public class PurchaseHistoryController {
      * @return 支付信息
      */
     @GetMapping("/{orderId}/payment")
-    public ResponseEntity<List<Payment>> getPaymentDetails(@PathVariable String orderId) {
+    public ResponseEntity<List<Payment>> getPaymentDetails(@PathVariable @NotBlank(message = "orderId cannot be enmpty") String orderId) {
         List<Payment> payments = purchaseHistoryService.getPaymentDetails(orderId);
         
         if (payments.isEmpty()) {
@@ -94,7 +99,7 @@ public class PurchaseHistoryController {
      * @return 退货记录
      */
     @GetMapping("/{orderId}/returns")
-    public ResponseEntity<List<Returns>> getReturns(@PathVariable String orderId) {
+    public ResponseEntity<List<Returns>> getReturns(@PathVariable @NotBlank(message = "orderId cannot be empty") String orderId) {
         List<Returns> returns = purchaseHistoryService.getReturns(orderId);
         
         if (returns.isEmpty()) {
@@ -109,7 +114,7 @@ public class PurchaseHistoryController {
      * @return 订单项列表
      */
     @GetMapping("/{orderId}/items")
-    public ResponseEntity<List<OrderItem>> getOrderItems(@PathVariable String orderId) {
+    public ResponseEntity<List<OrderItem>> getOrderItems(@PathVariable @NotBlank(message = "orderId cannot be empty") String orderId) {
         List<OrderItem> orderItems = purchaseHistoryService.getOrderItems(orderId);
         
         if (orderItems.isEmpty()) {
