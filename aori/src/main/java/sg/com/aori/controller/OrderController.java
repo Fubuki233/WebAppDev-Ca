@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +101,7 @@ public class OrderController {
     }
      */
     @PostMapping("/{orderId}/payment")
-    public ResponseEntity<Map<String, Object>> processPayment(@PathVariable String orderId) {
+    public ResponseEntity<Map<String, Object>> processPayment(@Valid @PathVariable String orderId) {
         Map<String, Object> response = new HashMap<>();
         try {
             boolean paymentSuccess = orderService.processPayment(orderId);
@@ -136,7 +137,7 @@ public class OrderController {
     }
      */
     @PostMapping("/{orderId}/cancellation")
-    public ResponseEntity<Map<String, Object>> cancelOrder(@PathVariable String orderId) {
+    public ResponseEntity<Map<String, Object>> cancelOrder(@Valid @PathVariable String orderId) {
         Map<String, Object> response = new HashMap<>();
         try {
             orderService.cancelOrder(orderId);
