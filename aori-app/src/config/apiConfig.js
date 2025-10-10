@@ -36,8 +36,8 @@ export const API_ENDPOINTS = {
     CUSTOMER_REGISTER: '/customers',
 
     CART: '/cart',
-    CART_ADD: '/cart/add',
-    CART_REMOVE: '/cart/remove',
+    CART_ADD: '/cart/items',
+    CART_CHECKOUT: '/cart/checkout',
 
     FAVOURITES: '/wishlist',
     FAVOURITES_ADD: '/wishlist',
