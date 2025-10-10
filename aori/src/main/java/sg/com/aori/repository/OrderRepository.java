@@ -63,6 +63,7 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
          * Finds a specific OrderItem by its ID and ensures it belongs to the given
          * user.
          */
+<<<<<<< Updated upstream
 
         @Query("SELECT oi FROM OrderItem oi JOIN oi.order o WHERE oi.orderItemId = :itemId AND o.customerId = :userId")
         Optional<OrderItem> findOrderItemByItemIdAndUserId(
@@ -80,4 +81,19 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
         // for product review
         Optional<Orders> findByOrderIdAndCustomerId(String orderId, String customerId);
 
+=======
+        // Optional<OrderItem> findOrderItemByItemIdAndUserId(String orderItemId, String
+        // userId);
+        Optional<OrderItem> findByIdAndOrder_User_Id(String orderItemId, String userId);
+        
+        /* @author Derek
+         * @date 2025-10-08
+         * @version 1.0
+         * */
+        
+        //for product review
+        Optional<Orders> findByOrderIdAndCustomerId(String orderId, String customerId);
+        
+        
+>>>>>>> Stashed changes
 }
