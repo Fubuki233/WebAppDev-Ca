@@ -81,27 +81,35 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
             return favourites ? JSON.parse(favourites) : [];
         }
 
+        // Backend gets customerId from session, but for now we pass it as query param
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}`;
         console.log('Fetching wishlist from:', url);
 
         const response = await fetch(url, {
             method: 'GET',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
         });
 
         if (!response.ok) {
+            if (response.status === 401) {
+                console.warn('Unauthorized, falling back to localStorage');
+                const favourites = localStorage.getItem(FAVOURITES_KEY);
+                return favourites ? JSON.parse(favourites) : [];
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
         console.log('Wishlist data from API:', data);
 
-        // Transform backend wishlist items to frontend format
+        // Backend returns List<Wishlist> directly (an array)
         if (Array.isArray(data)) {
-            return data.map(transformWishlistItem).filter(item => item !== null);
+            const transformed = data.map(transformWishlistItem).filter(item => item !== null);
+            console.log('Transformed favourites:', transformed);
+            return transformed;
         } else if (data.favourites && Array.isArray(data.favourites)) {
             return data.favourites.map(transformWishlistItem).filter(item => item !== null);
         }
@@ -198,22 +206,22 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
     }
 
     try {
-        // Backend DELETE expects composite key: customerId and productId as query params
+        // Backend uses POST toggle to add/remove (not DELETE)
         const custId = customerId || await getUserUuid();
         if (!custId) {
             console.warn('No customer UUID available, falling back to localStorage');
             return removeFromFavourites(productId, customerId, true);
         }
 
-        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES_REMOVE}?customerId=${custId}&productId=${productId}`;
-        console.log('Removing from wishlist:', url);
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}&productId=${productId}`;
+        console.log('Toggling (removing) from wishlist:', url);
 
         const response = await fetch(url, {
-            method: 'DELETE',
+            method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -221,7 +229,8 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
         }
 
         const data = await response.json();
-        console.log('Removed from wishlist:', data);
+        console.log('Toggled wishlist:', data);
+        // data = { added: false } means removed
         return { success: true, message: 'Removed from favourites', data };
     } catch (error) {
         console.error('Failed to remove from favourites via API:', error);

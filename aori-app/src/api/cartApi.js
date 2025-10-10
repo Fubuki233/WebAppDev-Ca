@@ -38,11 +38,12 @@ export const getCart = async (customerId, useMock = false) => {
             return cart ? JSON.parse(cart) : [];
         }
 
-        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}?customerId=${custId}`;
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}`;
         console.log('Fetching cart from:', url);
 
         const response = await fetch(url, {
             method: 'GET',
+            credentials: 'include', // Important: include session cookie
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -56,8 +57,11 @@ export const getCart = async (customerId, useMock = false) => {
         console.log('Cart data from API:', data);
 
         // Transform backend cart items to frontend format
+        // Backend returns: { success, cartItems, totalAmount, itemCount }
         if (Array.isArray(data)) {
             return data.map(transformCartItem).filter(item => item !== null);
+        } else if (data.cartItems && Array.isArray(data.cartItems)) {
+            return data.cartItems.map(transformCartItem).filter(item => item !== null);
         } else if (data.cart && Array.isArray(data.cart)) {
             return data.cart.map(transformCartItem).filter(item => item !== null);
         }
@@ -73,31 +77,61 @@ export const getCart = async (customerId, useMock = false) => {
 
 /**
  * Transform backend cart item to frontend format
+ * Backend returns: { cartId, customerId, productId, quantity, addedAt, customer, product }
  */
 const transformCartItem = (backendItem) => {
     if (!backendItem) return null;
 
     try {
+        // Backend returns product directly, not variant
+        const product = backendItem.product;
+
         return {
             cartId: backendItem.cartId,
             customerId: backendItem.customerId,
-            variantId: backendItem.variantId,
+            productId: backendItem.productId || product?.productId,
             quantity: backendItem.quantity,
             addedAt: backendItem.addedAt,
 
-            // Frontend fields from variant/product
-            productId: backendItem.variant?.productId || backendItem.productId,
-            productName: backendItem.variant?.product?.productName || backendItem.name,
-            price: backendItem.variant?.price || backendItem.price || 0,
-            image: backendItem.variant?.product?.image || backendItem.image,
-            size: backendItem.variant?.size || backendItem.size,
-            color: backendItem.variant?.color || backendItem.color,
-            sku: backendItem.variant?.sku,
-            stockQuantity: backendItem.variant?.stockQuantity,
+            // Frontend fields from product
+            productName: product?.productName || backendItem.productName,
+            name: product?.productName || backendItem.productName,
+            price: product?.price || backendItem.price || 0,
+            image: product?.image || backendItem.image,
+            // Parse size from JSON string array, take first size as default
+            size: (() => {
+                try {
+                    const sizes = product?.size || backendItem.size;
+                    if (typeof sizes === 'string') {
+                        const parsed = JSON.parse(sizes);
+                        return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : 'M';
+                    }
+                    return sizes || 'M';
+                } catch (e) {
+                    return 'M';
+                }
+            })(),
+            // Parse colors from JSON string array, take first color as default
+            color: (() => {
+                try {
+                    const colors = product?.colors || backendItem.colors || product?.color || backendItem.color;
+                    if (typeof colors === 'string') {
+                        const parsed = JSON.parse(colors);
+                        return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '#000';
+                    }
+                    return colors || '#000';
+                } catch (e) {
+                    return '#000';
+                }
+            })(),
+            colors: product?.colors || backendItem.colors,
+            sizes: product?.size || backendItem.size,
+            stockQuantity: product?.stockQuantity || backendItem.stockQuantity,
+            description: product?.description,
+            productCode: product?.productCode,
 
-            // Full objects for reference
-            variant: backendItem.variant,
-            product: backendItem.variant?.product,
+            // Full product object for reference
+            product: product,
         };
     } catch (error) {
         console.error('Error transforming cart item:', error);
@@ -142,10 +176,10 @@ export const addToCart = async (item, useMock = false) => {
             return addToCart(item, true);
         }
 
-        // Backend expects: { customerId, variantId, quantity }
+        // Backend expects: { productId, quantity }
+        // customerId is obtained from session on backend
         const cartItem = {
-            customerId: custId,
-            variantId: item.variantId || item.variant_id,
+            productId: item.productId,
             quantity: item.quantity || 1,
         };
 
@@ -153,6 +187,7 @@ export const addToCart = async (item, useMock = false) => {
 
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART_ADD}`, {
             method: 'POST',
+            credentials: 'include', // Important: include session cookie
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -160,7 +195,8 @@ export const addToCart = async (item, useMock = false) => {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -198,8 +234,10 @@ export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_M
             return { success: false, error: 'Item not found' };
         }
 
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}/${item.id}`, {
+        const cartId = item.cartId || item.id;
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}/items/${cartId}`, {
             method: 'PUT',
+            credentials: 'include', // Important: include session cookie
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -207,7 +245,8 @@ export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_M
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -238,15 +277,19 @@ export const removeFromCart = async (index, useMock = API_CONFIG.USE_MOCK) => {
             return { success: false, error: 'Item not found' };
         }
 
-        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART_REMOVE}/${item.id}`, {
+        // Use cartId from the item
+        const cartId = item.cartId || item.id;
+        const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}/items/${cartId}`, {
             method: 'DELETE',
+            credentials: 'include', // Important: include session cookie
             headers: {
                 'Content-Type': 'application/json',
             },
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -271,13 +314,15 @@ export const clearCart = async (useMock = API_CONFIG.USE_MOCK) => {
     try {
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}`, {
             method: 'DELETE',
+            credentials: 'include', // Important: include session cookie
             headers: {
                 'Content-Type': 'application/json',
             },
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -307,6 +352,7 @@ export const syncCartWithServer = async (useMock = API_CONFIG.USE_MOCK) => {
         const cart = await getCart(true);
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}`, {
             method: 'POST',
+            credentials: 'include', // Important: include session cookie
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -314,7 +360,8 @@ export const syncCartWithServer = async (useMock = API_CONFIG.USE_MOCK) => {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();

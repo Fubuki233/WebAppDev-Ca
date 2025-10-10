@@ -3,40 +3,45 @@
  * 
  * @author Yunhe
  * @date 2025-10-08
- * @version 1.1
+ * @version 1.2 - Using unified Navbar component
  */
 
 import React, { useState, useEffect } from 'react';
 import { getCart, updateCartItem, removeFromCart, getCartTotal } from '../api/cartApi';
+import Navbar from './Navbar';
 import '../styles/CartPage.css';
 
 const CartPage = () => {
     const [cart, setCart] = useState([]);
-    const [activeTab, setActiveTab] = useState('shopping-bag');
     const [agreeToTerms, setAgreeToTerms] = useState(false);
 
     useEffect(() => {
         loadCart();
     }, []);
 
-    const loadCart = () => {
-        const cartItems = getCart();
-        setCart(cartItems);
+    const loadCart = async () => {
+        try {
+            const cartItems = await getCart();
+            setCart(Array.isArray(cartItems) ? cartItems : []);
+        } catch (error) {
+            console.error('Error loading cart:', error);
+            setCart([]);
+        }
     };
 
-    const handleQuantityChange = (index, delta) => {
+    const handleQuantityChange = async (index, delta) => {
         const item = cart[index];
         const newQuantity = item.quantity + delta;
 
         if (newQuantity < 1) return;
 
-        updateCartItem(index, newQuantity);
-        loadCart();
+        await updateCartItem(index, newQuantity);
+        await loadCart();
     };
 
-    const handleRemoveItem = (index) => {
-        removeFromCart(index);
-        loadCart();
+    const handleRemoveItem = async (index) => {
+        await removeFromCart(index);
+        await loadCart();
     };
 
     const handleRefresh = (index) => {
@@ -57,71 +62,21 @@ const CartPage = () => {
 
     return (
         <div className="cart-page">
-            <nav className="cart-navbar">
-                <div className="cart-navbar-container">
-                    <div className="cart-navbar-logo">
-                        <a href="#home" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>
-                            <h1>AORI</h1>
-                            <span className="cart-logo-subtitle">-JAPAN</span>
-                        </a>
-                    </div>
-
-                    <div className="cart-navbar-menu">
-                        <a href="#home" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} className="cart-nav-link">Home</a>
-                        <a href="#products" className="cart-nav-link">Collections</a>
-                        <a href="#products?category=new" className="cart-nav-link">New</a>
-                        <a href="#products" className="cart-nav-link">Products</a>
-                    </div>
-
-                    <div className="cart-navbar-icons">
-                        <button className="cart-icon-button" onClick={() => window.location.hash = '#favourites'} title="Favourites">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
-
-                        <button className="cart-icon-button active-cart-button" title="Cart">
-                            <span className="cart-button-text">Cart</span>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
-                        </button>
-
-                        <button className="cart-icon-button" title="Account">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
 
             <div className="cart-content">
                 {/* Tabs */}
                 <div className="cart-tabs">
                     <button
-                        className={`cart-tab ${activeTab === 'shopping-bag' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('shopping-bag')}
+                        className={`cart-tab active`}
                     >
                         SHOPPING BAG
-                    </button>
-                    <button
-                        className={`cart-tab ${activeTab === 'favourites' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('favourites')}
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginRight: '8px' }}>
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" />
-                        </svg>
-                        FAVOURITES
                     </button>
                 </div>
 
                 <div className="cart-main">
                     <div className="cart-items">
-                        {activeTab === 'shopping-bag' && cart.length === 0 && (
+                        {cart.length === 0 && (
                             <div className="empty-cart">
                                 <p>Your shopping bag is empty</p>
                                 <button onClick={() => window.location.hash = '#products'}>
@@ -130,7 +85,7 @@ const CartPage = () => {
                             </div>
                         )}
 
-                        {activeTab === 'shopping-bag' && cart.map((item, index) => (
+                        {cart.map((item, index) => (
                             <div key={index} className="cart-item">
                                 <div className="item-image">
                                     <img src={item.image || '/placeholder-product.jpg'} alt={item.name} />
@@ -204,18 +159,9 @@ const CartPage = () => {
                                 </div>
                             </div>
                         ))}
-
-                        {activeTab === 'favourites' && (
-                            <div className="empty-cart">
-                                <p>You haven't added any favourites yet</p>
-                                <button onClick={() => window.location.hash = '#products'}>
-                                    Browse Products
-                                </button>
-                            </div>
-                        )}
                     </div>
 
-                    {activeTab === 'shopping-bag' && cart.length > 0 && (
+                    {cart.length > 0 && (
                         <div className="order-summary">
                             <h2>ORDER SUMMARY</h2>
 

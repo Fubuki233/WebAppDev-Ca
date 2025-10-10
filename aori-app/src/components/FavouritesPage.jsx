@@ -3,58 +3,64 @@
  * 
  * @author Yunhe
  * @date 2025-10-08
- * @version 1.1
+ * @version 1.2 - Using favouritesApi for backend integration
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
+import { getFavourites, removeFromFavourites as removeFromFavouritesApi } from '../api/favouritesApi';
+import { addToCart as addToCartApi } from '../api/cartApi';
 import '../styles/FavouritesPage.css';
 
 const FavouritesPage = () => {
     const [favourites, setFavourites] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         loadFavourites();
     }, []);
 
-    const loadFavourites = () => {
+    const loadFavourites = async () => {
         try {
-            const saved = localStorage.getItem('aori_favourites');
-            if (saved) {
-                setFavourites(JSON.parse(saved));
-            }
+            setLoading(true);
+            const items = await getFavourites();
+            setFavourites(Array.isArray(items) ? items : []);
         } catch (error) {
             console.error('Failed to load favourites:', error);
+            setFavourites([]);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const removeFromFavourites = (index) => {
-        const updated = favourites.filter((_, i) => i !== index);
-        setFavourites(updated);
-        localStorage.setItem('aori_favourites', JSON.stringify(updated));
+    const removeFromFavourites = async (index) => {
+        try {
+            const item = favourites[index];
+            if (!item) return;
+
+            const result = await removeFromFavouritesApi(item.productId);
+            if (result.success || result.success === undefined) {
+                await loadFavourites(); // Reload to get fresh data
+            }
+        } catch (error) {
+            console.error('Failed to remove from favourites:', error);
+        }
     };
 
-    const addToCart = (item) => {
+    const addToCart = async (item) => {
         try {
-            const cart = JSON.parse(localStorage.getItem('aori_shopping_cart') || '[]');
-            const existingIndex = cart.findIndex(
-                cartItem => cartItem.productId === item.productId &&
-                    cartItem.size === item.size &&
-                    cartItem.color === item.color
-            );
+            const result = await addToCartApi({
+                productId: item.productId || item.id,
+                quantity: 1
+            });
 
-            if (existingIndex >= 0) {
-                cart[existingIndex].quantity += 1;
+            if (result.success) {
+                alert('Added to cart!');
             } else {
-                cart.push({
-                    ...item,
-                    quantity: 1
-                });
+                alert('Failed to add to cart');
             }
-
-            localStorage.setItem('aori_shopping_cart', JSON.stringify(cart));
-            alert('Added to cart!');
         } catch (error) {
             console.error('Failed to add to cart:', error);
+            alert('Failed to add to cart');
         }
     };
 
@@ -72,7 +78,11 @@ const FavouritesPage = () => {
                     <p className="favourites-count">{favourites.length} {favourites.length === 1 ? 'item' : 'items'}</p>
                 </div>
 
-                {favourites.length === 0 ? (
+                {loading ? (
+                    <div className="loading-favourites">
+                        <p>Loading your favourites...</p>
+                    </div>
+                ) : favourites.length === 0 ? (
                     <div className="empty-favourites">
                         <div className="empty-icon">
                             <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
