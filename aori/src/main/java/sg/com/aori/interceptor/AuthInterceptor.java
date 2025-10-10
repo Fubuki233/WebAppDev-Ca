@@ -70,15 +70,15 @@ public class AuthInterceptor implements HandlerInterceptor {
         Map<String, String> requestMap = Map.of("path", path, "method", method);
         System.out.println("[LoggingInterceptor] Request map: " + requestMap);
 
+        if (AuthFilter.isAuthorized(requestMap)) {
+            System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
+            return true;
+        }
         // 1. Employee/Admin Check (For security, we need put this first)
         if (path.startsWith(EMPLOYEE_PATH_PREFIX) || path.contains("/admin")) {
             return AuthHandler.handleEmployeeAccess(request, response, handler, employeeService);
         }
 
-        if (AuthFilter.isAuthorized(requestMap)) {
-            System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
-            return true;
-        }
         // 2. Customer Access Check (Default for non-employee restricted paths)
         System.out.println("[LoggingInterceptor] Not a bypass request - Validating customer session for path: " + path
                 + ", method: " + method);

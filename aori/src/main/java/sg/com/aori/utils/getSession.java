@@ -19,11 +19,12 @@ public class getSession {
     public static String getCustomerId(HttpSession session) {
 
         // String email = (String) session.getAttribute("email");
-        // if (email == null) 
-        //     return null;
+        // if (email == null)
+        // return null;
         // Customer customer = customerService.findCustomerByEmail(email).orElse(null);
         // return customer != null ? customer.getCustomerId() : null;
         // ***** Use the statement below if customerId is stored in session
-        return (String) session.getAttribute("customerId");
+        // AuthController stores customerId as "id" in session
+        return (String) session.getAttribute("id");
     }
 }
