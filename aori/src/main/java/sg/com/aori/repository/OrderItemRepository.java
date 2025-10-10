@@ -46,4 +46,19 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
     // for product review
     Optional<OrderItem> findByOrderItemIdAndOrderId(String orderItemId, String orderId);
 
+    /**
+     * @author Jiang
+     * @date 10-10
+     */
+
+    List<OrderItem> findByOrderId(String orderId);
+    
+    List<OrderItem> findByProductId(String productId);
+    
+    long countByOrderId(String orderId);
+
+    @Query("SELECT oi FROM OrderItem oi JOIN FETCH oi.product WHERE oi.orderId = :orderId")
+    List<OrderItem> findByOrderIdWithProduct(@Param("orderId") String orderId);
+
+    boolean existsByOrderId(String orderId);
 }
