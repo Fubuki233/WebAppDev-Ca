@@ -1,6 +1,7 @@
 package sg.com.aori.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,5 +37,13 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
      * @return The number of order items linked to the product.
      */
     long countByProductId(String productId);
+    
+    /* @author Derek
+    * @date 2025-10-08
+    * @version 1.0
+    * */
+    
+    // for product review
+    Optional<OrderItem> findByOrderItemIdAndOrderId(String orderItemId, String orderId);
 
 }
