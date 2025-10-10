@@ -1,9 +1,32 @@
+/**
+ * Entity of Orders.(add validation constraint)
+ *
+ * @author YunHe / SunRui
+ * @date 2025-10-08
+ * @version 1.1
+ */
+
 package sg.com.aori.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 
 @Entity
 @Table(name = "orders")
@@ -29,32 +52,41 @@ public class Orders {
     @Column(name = "order_id", length = 36, nullable = false)
     private String orderId = UUID.randomUUID().toString();
 
+    @NotBlank(message = "orderNumber is required")
     @Column(name = "order_number", length = 30, nullable = false, unique = true)
     private String orderNumber;
 
+    @NotBlank(message = "customerId is required")
     @Column(name = "customer_id", length = 36, nullable = false)
     private String customerId;
 
+    @NotNull(message = "orderStatus is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
     private OrderStatus orderStatus;
 
+    @NotNull(message = "totalAmount is required")
+    @DecimalMin(value = "0.01", message = "totalAmount must be greater than 0")
     @Column(name = "total_amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal totalAmount;
 
+    @NotNull(message = "paymentStatus is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false)
     private PaymentStatus paymentStatus;
 
+    @PastOrPresent(message = "createdAt cannot be in the future")
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @PastOrPresent(message = "updatedAt cannot be in the future")
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", insertable = false, updatable = false)
     private Customer customer;
+
 
     @PrePersist
     protected void onCreate() {

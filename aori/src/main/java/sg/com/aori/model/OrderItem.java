@@ -1,5 +1,6 @@
 /**
  * Jiang: Modfied variant into product
+ * Sun Rui: add validation constraint
  * @date: 10-09
  */
 
@@ -8,6 +9,10 @@ package sg.com.aori.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.UUID;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "order_item")
@@ -17,15 +22,20 @@ public class OrderItem {
     @Column(name = "order_item_id", length = 36, nullable = false)
     private String orderItemId = UUID.randomUUID().toString();
 
+    @NotBlank(message = "orderId is required")
     @Column(name = "order_id", length = 36, nullable = false)
     private String orderId;
 
+    @NotBlank(message = "productId is required")
     @Column(name = "product_id", length = 36, nullable = false)
     private String productId;
 
+    @Positive(message = "quantity must be greater than zero")
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
+    @NotNull(message = "priceAtPurchase is required")
+    @DecimalMin(value = "0.00", message = "priceAtPurchase must be >= 0")
     @Column(name = "price_at_purchase", precision = 10, scale = 2, nullable = false)
     private BigDecimal priceAtPurchase;
 

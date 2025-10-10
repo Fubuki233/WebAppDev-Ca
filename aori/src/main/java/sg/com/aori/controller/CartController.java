@@ -114,7 +114,7 @@ public class CartController {
 
     // Add item to cart
     @PostMapping("/items")
-    public ResponseEntity<Map<String, Object>> addToCart(@Valid @RequestBody Map<String, Object> request,
+    public ResponseEntity<Map<String, Object>> addToCart(@RequestBody Map<String, Object> request,
             HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -143,7 +143,7 @@ public class CartController {
 
     // Remove item from cart
     @DeleteMapping("/items/{cartId}")
-    public ResponseEntity<Map<String, Object>> removeFromCart(@Valid @PathVariable String cartId, HttpSession session) {
+    public ResponseEntity<Map<String, Object>> removeFromCart(@PathVariable String cartId, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
             // ***** To reference session and get customerId
