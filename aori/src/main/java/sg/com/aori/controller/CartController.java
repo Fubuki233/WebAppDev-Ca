@@ -3,31 +3,40 @@
  * v1.2: Session applied
  * v1.3: Provide reference of how to get customerId from session
  * v1.4: Test completed
- * @author Jiang
+ * v 1.5: Add validation for addToCart
+ * @author Jiang, Sun Rui
  * @date 2025-10-10
  * @version 1.4
  */
 
 package sg.com.aori.controller;
 
-import sg.com.aori.utils.getSession;
-import sg.com.aori.interfaces.ICart;
-// import sg.com.aori.model.Customer;
-import sg.com.aori.model.ShoppingCart;
-// import sg.com.aori.service.CustomerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import jakarta.servlet.http.HttpSession;
+import sg.com.aori.interfaces.ICart;
+import sg.com.aori.model.ShoppingCart;
+import sg.com.aori.utils.getSession;
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
+
+    private static final int MAX_QTY_PER_ITEM = 100; // 业务自行调整 在类里加一个上限常量************
+
 
     @Autowired
     private ICart cartService;
@@ -190,6 +199,7 @@ public class CartController {
     // Add item to cart
     /*
      * JSON Input format:
+     * *********
     {
         "productId": "8afc68df-80fe-479d-83d1-eb817bfeb597",
         "quantity": 1
@@ -213,8 +223,60 @@ public class CartController {
                 // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            String productId = (String) request.get("productId");
-            Integer quantity = (Integer) request.get("quantity");
+            //String productId = (String) request.get("productId"); **********
+            //Integer quantity = (Integer) request.get("quantity"); *********
+
+            
+            // —— productId：必须存在且非空 —— //
+            Object pidObj = request.get("productId");
+            if (!(pidObj instanceof String pid) || pid.isBlank()) {
+                response.put("success", false);
+                response.put("message", "productId is required");
+                return ResponseEntity.badRequest().body(response);
+          }
+             String productId = (String) pidObj; // 或直接用上面的 pid
+
+            // —— quantity：必须存在；兼容 Integer/Long/Double/String；范围校验 —— //
+            Object qObj = request.get("quantity");
+            Integer quantity = null;
+            if (qObj instanceof Integer i) {
+                quantity = i;
+            } else if (qObj instanceof Long l) {
+               try {
+                    quantity = Math.toIntExact(l); // 防溢出
+               } catch (ArithmeticException ex) {
+                  response.put("success", false);
+                  response.put("message", "quantity is too large");
+                  return ResponseEntity.badRequest().body(response);
+              }
+           } else if (qObj instanceof Double d) {
+              quantity = (int) Math.floor(d); // JSON 里若是小数，向下取整
+           } else if (qObj instanceof String s) {
+               try {
+                      quantity = Integer.valueOf(s.trim());
+               } catch (NumberFormatException ex) {
+                   response.put("success", false);
+                   response.put("message", "quantity must be an integer");
+                   return ResponseEntity.badRequest().body(response);
+               }
+            } 
+
+            if (quantity == null) {
+                response.put("success", false);
+                response.put("message", "quantity is required");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (quantity < 1) {
+              response.put("success", false);
+              response.put("message", "quantity must be >= 1");
+              return ResponseEntity.badRequest().body(response);
+            }
+            if (quantity > MAX_QTY_PER_ITEM) {
+              response.put("success", false);
+              response.put("message", "quantity must be <= " + MAX_QTY_PER_ITEM);
+              return ResponseEntity.badRequest().body(response);
+            }  
+
 
             cartService.addToCart(customerId, productId, quantity);
 

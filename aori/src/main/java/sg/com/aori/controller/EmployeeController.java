@@ -1,26 +1,33 @@
 package sg.com.aori.controller;
 
+import java.util.List;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.model.Employee;
 import sg.com.aori.service.EmployeeService;
 
-import java.util.List;
-import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller for Employee entity.
  *
  * @author xiaobo, SunRui
- * @date 2025-10-07
+ * @date 2025-10-10
  * @version 1.1
  */
 
 @Controller // This enables Spring to resolve view names (e.g., "employee-list")
 @RequestMapping("/admin/employees")
+@Validated
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -83,7 +90,7 @@ public class EmployeeController {
     // --- DELETE EMPLOYEE ---
     // GET /employees/{id}/delete (Simple method often used for quick UI links)
     @GetMapping("/{id}/delete")
-    public String deleteEmployee(@PathVariable String id) {
+    public String deleteEmployee(@PathVariable @NotBlank(message = "Employee ID cannot be empty") String id) {
         employeeService.deleteEmployee(id);
         return "redirect:/admin/employees";
     }
