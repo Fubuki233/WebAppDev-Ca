@@ -6,6 +6,7 @@
  * @date 2025-10-10 (v2.0)
  * @version 1.0
  * @version 2.0 - Refactored to use Service Layer and add UX improvements
+ * @version 2.1 - Amended @PathVariable to @RequestParam for delete operation to enhance security
  */
 
 package sg.com.aori.controller;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import sg.com.aori.model.Product;
@@ -27,7 +29,7 @@ import sg.com.aori.model.Category;
 import sg.com.aori.repository.CategoryRepository;
 import sg.com.aori.service.CRUDProductService;
 
-@Controller // This enables Spring to resolve view names (e.g. "product-list")
+@Controller
 @RequestMapping("/admin/products")
 public class AdminProductController {
 
@@ -51,7 +53,7 @@ public class AdminProductController {
 		});
 
 		// return the view name 
-		return "admin/product-list";
+		return "admin/products/product-list";
 	}
 
 	// --- CREATE NEW PRODUCT (Display Form) ---
@@ -66,7 +68,7 @@ public class AdminProductController {
 		model.addAttribute("allCategories", allCategories);
 
 		// return the view name
-		return "admin/product-form";
+		return "admin/products/product-form";
 	}
 
 	// --- CREATE NEW PRODUCT (Processes Form) ---
@@ -93,8 +95,7 @@ public class AdminProductController {
 			model.addAttribute("product", oneOptProduct.get()); 
 			List<Category> allCategories = categoryRepository.findAll();
 			model.addAttribute("allCategories", allCategories);
-
-			return "admin/product-form"; 
+			return "admin/products/product-form";
 		} else {
 			redirectAttributes.addFlashAttribute("error", "Product not found with ID: " + id);
 			return "redirect:/admin/products";
@@ -127,8 +128,8 @@ public class AdminProductController {
 	*/
 
 	// --- DELETE EXISTING PRODUCT ---
-	@GetMapping("/delete/{id}")
-	public String deleteProduct(@PathVariable String id, RedirectAttributes redirectAttributes) {
+	@PostMapping("/delete")
+	public String deleteProduct(@RequestParam("productId") String id, RedirectAttributes redirectAttributes) {
     try {
         // Try to delete the product
         productService.deleteProduct(id);

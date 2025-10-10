@@ -1,0 +1,171 @@
+<!-- 
+ * Aori Admin Portal - Product List Page
+ * 
+ * @author Ying Chun
+ * @date 2025-10-10 
+ * @version 1.0 
+ */
+ -->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="layout.html"
+      layout:decorate="layout.html">
+<head>
+    <title>Product Management</title>
+</head>
+<body>
+
+<section layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Product Management</h2>
+        <a th:href="@{/admin/products/new}" class="btn btn-dark">Add New Product</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form class="row g-3" id="filter-form">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="search-input" placeholder="Search by name or code...">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="category-filter">
+                        <option value="">All Categories</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.name}" th:text="${cat.name}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" id="season-filter">
+                         <option value="">All Seasons</option>
+                         <option value="Spring">Spring</option>
+                         <option value="Summer">Summer</option>
+                         <option value="Autumn">Autumn</option>
+                         <option value="Winter">Winter</option>
+                    </select>
+                </div>
+                 <div class="col-md-2">
+                    <select class="form-select" id="collection-filter">
+                        <option value="">All Collections</option>
+                        <option th:each="col : ${collections}" th:value="${col}" th:text="${col}"></option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover" id="product-table">
+                <thead>
+                    <tr>
+                        <th>Product Code</th>
+                        <th style="cursor: pointer;" data-sort-dir="asc">Product Name &#x2195;</th>
+                        <th>Category</th>
+                        <th style="cursor: pointer;" data-sort-dir="asc">Price &#x2195;</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body">
+                    <tr th:each="product : ${products.content}">
+                        <td th:text="${product.productCode}">AORI-KSA-001</td>
+                        <td th:text="${product.productName}">Abstract Print Shirt</td>
+                        <td th:text="${product.category.categoryName}">Shirts</td>
+                        <td th:text="${#numbers.formatCurrency(product.price)}">$99.00</td>
+                        <td th:text="${product.stockQuantity}">150</td>
+                        <td>
+                            <a th:href="@{/admin/products/{id}(id=${product.productId})}" class="btn btn-sm btn-outline-secondary">View</a>
+                            <a th:href="@{/admin/products/edit/{id}(id=${product.productId})}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                    data-bs-target="#deleteConfirmationModal"
+                                    th:attr="data-product-id=${product.productId}, data-product-name=${product.productName}">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+    
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the product: <strong id="productNameInModal"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form th:action="@{/admin/products/delete}" method="post" class="d-inline">
+                         <input type="hidden" name="productId" id="productIdToDelete" />
+                         <button type="submit" class="btn btn-danger">Delete Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<th:block layout:fragment="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Client-side Filtering
+            const searchInput = document.getElementById('search-input');
+            const tableBody = document.getElementById('product-table-body');
+            const originalRows = Array.from(tableBody.querySelectorAll('tr'));
+
+            searchInput.addEventListener('keyup', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                tableBody.innerHTML = '';
+                originalRows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    if (rowText.includes(searchTerm)) {
+                        tableBody.appendChild(row);
+                    }
+                });
+            });
+
+            // Client-side Sorting
+            document.querySelectorAll('#product-table thead th[data-sort-dir]').forEach(headerCell => {
+                headerCell.addEventListener('click', () => {
+                    const table = headerCell.closest('table');
+                    const tbody = table.querySelector('tbody');
+                    const cellIndex = Array.from(headerCell.parentNode.children).indexOf(headerCell);
+                    const isNumeric = cellIndex === 3; // Price column
+                    const direction = headerCell.dataset.sortDir === 'asc' ? 1 : -1;
+
+                    Array.from(tbody.querySelectorAll('tr'))
+                        .sort((rowA, rowB) => {
+                            const valA = rowA.children[cellIndex].textContent.trim();
+                            const valB = rowB.children[cellIndex].textContent.trim();
+                            if (isNumeric) {
+                                return (parseFloat(valA.replace(/[^0-9.-]+/g,"")) - parseFloat(valB.replace(/[^0-9.-]+/g,""))) * direction;
+                            }
+                            return valA.localeCompare(valB) * direction;
+                        })
+                        .forEach(sortedRow => tbody.appendChild(sortedRow));
+                    
+                    headerCell.dataset.sortDir = direction === 1 ? 'desc' : 'asc';
+                });
+            });
+            
+            // Modal Logic
+            const deleteModal = document.getElementById('deleteConfirmationModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const productId = button.getAttribute('data-product-id');
+                const productName = button.getAttribute('data-product-name');
+                
+                deleteModal.querySelector('#productNameInModal').textContent = productName;
+                deleteModal.querySelector('#productIdToDelete').value = productId;
+            });
+        });
+    </script>
+</th:block>
+
+</body>
+</html>
