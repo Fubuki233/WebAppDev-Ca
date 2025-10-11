@@ -9,6 +9,12 @@
  * @author Sun Rui
  * @date 2025-10-11
  * @version 1.1
+ * 
+ * Added the broadCategoryId field to mock products to enable category filtering to work on offline data. 
+ * Also added filtering logic such as category/size/search to ensure that all filter options, including broad, also work on local data.
+ * @author Sun Rui
+ * @date 2025-10-12
+ * @version 1.2
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
@@ -40,7 +46,8 @@ const mockProducts = [
             'Machine washable',
             'Imported',
             'Model is 6\'1" and wearing size M'
-        ]
+        ],
+        broadCategoryId: 'men',
     },
     {
         id: 2,
@@ -54,7 +61,8 @@ const mockProducts = [
         inStock: true,
         size: ['S', 'M', 'L', 'XL', '2X'],
         tags: ['new'],
-        rating: 4.8
+        rating: 4.8,
+        broadCategoryId: 'men',
     },
     {
         id: 3,
@@ -68,7 +76,8 @@ const mockProducts = [
         inStock: true,
         size: ['M', 'L', 'XL'],
         tags: ['new'],
-        rating: 4.3
+        rating: 4.3,
+        broadCategoryId: 'men',
     },
     {
         id: 4,
@@ -82,7 +91,8 @@ const mockProducts = [
         inStock: false,
         size: ['S', 'M', 'L'],
         tags: [],
-        rating: 4.6
+        rating: 4.6,
+        broadCategoryId: 'women',
     },
     {
         id: 5,
@@ -96,7 +106,8 @@ const mockProducts = [
         inStock: true,
         size: ['XS', 'S', 'M', 'L', 'XL'],
         tags: ['best-seller'],
-        rating: 4.7
+        rating: 4.7,
+        broadCategoryId: 'women',
     },
     {
         id: 6,
@@ -110,7 +121,8 @@ const mockProducts = [
         inStock: true,
         size: ['S', 'M', 'L', 'XL'],
         tags: ['new'],
-        rating: 4.4
+        rating: 4.4,
+        broadCategoryId: 'women',
     },
     {
         id: 7,
@@ -124,7 +136,8 @@ const mockProducts = [
         inStock: true,
         size: ['M', 'L', 'XL', '2X'],
         tags: [],
-        rating: 4.2
+        rating: 4.2,
+        broadCategoryId: 'unisex',
     },
     {
         id: 8,
@@ -138,7 +151,8 @@ const mockProducts = [
         inStock: true,
         size: ['S', 'M', 'L'],
         tags: ['new', 'best-seller'],
-        rating: 4.9
+        rating: 4.9,
+        broadCategoryId: 'unisex',
     },
     {
         id: 9,
@@ -152,7 +166,8 @@ const mockProducts = [
         inStock: false,
         size: ['XS', 'S', 'M', 'L'],
         tags: [],
-        rating: 4.1
+        rating: 4.1,
+        broadCategoryId: 'girls',
     }
 ];
 
@@ -407,7 +422,7 @@ const transformBackendProduct = (item) => {
 export const fetchProducts = async (filters = {}, useMock = false) => {
     if (useMock) {
         await delay(500);
-        let filtered = [...mockProducts];
+        let filtered = applyClientSideFilters([...mockProducts], filters);
 
         if (filters.category && filters.category !== 'all') {
             filtered = filtered.filter(p => p.category === filters.category);
@@ -523,11 +538,53 @@ export const fetchProducts = async (filters = {}, useMock = false) => {
     } catch (error) {
         console.error('Error fetching products from API:', error);
         console.error('Falling back to mock data');
+
+        let filtered = applyClientSideFilters([...mockProducts], filters);
+
+        if (filters.category && filters.category !== 'all') {
+            filtered = filtered.filter(p => p.category === filters.category);
+        }
+
+        if (filters.size) {
+            filtered = filtered.filter(p => Array.isArray(p.size) && p.size.includes(filters.size));
+        }
+
+        if (filters.inStock !== undefined) {
+            filtered = filtered.filter(p => p.inStock === filters.inStock);
+        }
+
+        if (filters.priceMin !== undefined) {
+            filtered = filtered.filter(p => p.price >= Number(filters.priceMin));
+        }
+
+        if (filters.priceMax !== undefined) {
+            filtered = filtered.filter(p => p.price <= Number(filters.priceMax));
+        }
+
+        if (filters.tags && filters.tags.length > 0) {
+            filtered = filtered.filter(p =>
+                filters.tags.some(tag => Array.isArray(p.tags) && p.tags.includes(tag))
+            );
+        }
+
+        if (filters.search) {
+            const search = filters.search.toLowerCase();
+            filtered = filtered.filter(p =>
+                (p.name || '').toLowerCase().includes(search) ||
+                (p.type || '').toLowerCase().includes(search)
+            );
+        }
+
+        const page = filters.page || 1;
+        const limit = filters.limit || 12;
+        const start = (page - 1) * limit;
+        const end = start + limit;
+
         return {
-            products: mockProducts.slice(0, 12),
-            total: mockProducts.length,
-            page: 1,
-            totalPages: 1,
+            products: filtered.slice(start, end),
+            total: filtered.length,
+            page,
+            totalPages: Math.max(1, Math.ceil(filtered.length / limit)),
         };
     }
 };
