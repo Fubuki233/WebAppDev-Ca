@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 // import org.springframework.web.bind.annotation.RequestParam; - used in old method
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,6 +45,19 @@ import sg.com.aori.service.CRUDProductService;
 public class ProductController {
     @Autowired
     private CRUDProductService crudProductService;
+
+    String collectionDisplay = "Shizen"; // default collection display
+
+    @PostMapping("/admin/collectionDisplay")
+    public String setCollect(@RequestParam("collectionDisplay") String collectionDisplay) {
+        this.collectionDisplay = collectionDisplay;
+        return this.collectionDisplay;
+    }
+
+    @GetMapping("/collectionDisplay")
+    public String getCollect() {
+        return this.collectionDisplay;
+    }
 
     /**
      * Create a new product.

@@ -10,12 +10,15 @@
  * @author Sun Rui
  * @date 2025-10-11
  * @version 1.3
+ * 
+ * @author Yunhe
+ * @version 2.0 - enhanced style and added a humbuger menu
  */
 import React, { useEffect, useState } from 'react';
 import '../styles/Sidebar.css';
 
 const Sidebar = () => {
-    const categories = ['UNISEX', 'MEN', 'WOMEN', 'BOYS', 'GIRLS'];
+    const categories = ['UNISEX', 'MEN', 'WOMEN'];
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {

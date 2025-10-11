@@ -1,5 +1,13 @@
 package sg.com.aori.controller;
 
+/**
+ * Controller for Employee entity.
+ *
+ * @author xiaobo, SunRui
+ * @date 2025-10-10
+ * @version 1.1
+ */
+
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -15,15 +23,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.model.Employee;
 import sg.com.aori.service.EmployeeService;
-
-
-/**
- * Controller for Employee entity.
- *
- * @author xiaobo, SunRui
- * @date 2025-10-10
- * @version 1.1
- */
 
 @Controller // This enables Spring to resolve view names (e.g., "employee-list")
 @RequestMapping("/admin/employees")

@@ -18,28 +18,26 @@ import jakarta.validation.constraints.Size;
 import sg.com.aori.model.Customer;
 import sg.com.aori.service.LoginService;
 
-
 /**
  * Controller class for handling authentication-related requests.
- * not fully tested*
+ * 
  * 
  * @author Yunhe
  * @date 2025-10-07
- * @version 1.0
+ * @version 1.0 -not fully tested*
  * 
  *          ------------------------------------------------------------------------
- *          now, all the methods had been tested,they will return the correct
- *          response
- *          to the frontend
+ * 
  * @author Yunhe
  * @date 2025-10-09
- * @version 2.0
+ * @version 2.0 -now, all the methods had been tested,they will return the
+ *          correct response to the frontend
  * 
- *         ------------------------------------------------------------------------
- *             add validation 
- * * @author Sun Rui
+ *          ------------------------------------------------------------------------
+ * 
+ * @author Sun Rui
  * @date 2025-10-10
- * @version 2.1
+ * @version 2.1 -add validation
  */
 @CrossOrigin
 @RestController
@@ -77,9 +75,9 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> handleLogin(
-        @RequestParam("email") @Email(message = "Email format is incorrect") @NotBlank(message = "Email cannot be empty") String email,
-        @RequestParam("passwd") @NotBlank(message = "Password cannot be empty") @Size(min = 8, max = 128, message = "The password length must be between 8 and 128 characters.") String passwd,
-        HttpSession session) {
+            @RequestParam("email") @Email(message = "Email format is incorrect") @NotBlank(message = "Email cannot be empty") String email,
+            @RequestParam("passwd") @NotBlank(message = "Password cannot be empty") @Size(min = 8, max = 128, message = "The password length must be between 8 and 128 characters.") String passwd,
+            HttpSession session) {
         System.out.println("[LoginController] email: " + email + ", passwd: " + passwd);
         System.out.println("[LoginController] session id: " + session.getId());
 

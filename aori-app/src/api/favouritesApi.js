@@ -12,6 +12,10 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.2 - Updated to use getUserUuid() from apiUtils
+ * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 1.3 - Debug, now guest won't redirect to login when fetching favourites, but will redirect when adding/removing
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 import { getUserUuid } from './apiUtils';
@@ -62,7 +66,7 @@ const transformWishlistItem = (backendItem) => {
     }
 };
 
-export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) => {
+export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK, stayAsGuest = true) => {
     if (useMock) {
         try {
             const favourites = localStorage.getItem(FAVOURITES_KEY);
@@ -74,7 +78,7 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
     }
 
     try {
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(stayAsGuest);
         if (!custId) {
             console.warn('No customer UUID available, returning empty response');
             return [];
@@ -135,7 +139,7 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
 
             const newItem = {
                 ...item,
-                customerId: customerId || await getUserUuid(),
+                customerId: customerId || await getUserUuid(true),
                 addedAt: new Date().toISOString()
             };
 
@@ -270,7 +274,7 @@ export const removeFromFavouritesByProduct = async (productId, size = null, colo
 
 
     try {
-        const custId = await getUserUuid();
+        const custId = await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, falling back to localStorage');
             return removeFromFavouritesByProduct(productId, size, color, true);
@@ -316,7 +320,7 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
 
     try {
         // Call backend /exists endpoint
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, checking localStorage');
             const favourites = await getFavourites(null, false);
@@ -363,7 +367,7 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
 };
 
 
-export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK) => {
+export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK, stayAsGuest = true) => {
     try {
         const favourites = await getFavourites(useMock);
         // Check if user is a guest
@@ -378,7 +382,7 @@ export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK) => {
 };
 
 
-export const clearFavourites = async (useMock = API_CONFIG.USE_MOCK) => {
+export const clearFavourites = async (useMock = API_CONFIG.USE_MOCK, stayAsGuest = true) => {
     if (useMock) {
         try {
             localStorage.setItem(FAVOURITES_KEY, JSON.stringify([]));

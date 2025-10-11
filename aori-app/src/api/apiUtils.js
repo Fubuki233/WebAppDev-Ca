@@ -4,6 +4,12 @@
  * @author Yunhe
  * @date 2025-10-09
  * @version 1.0
+ * 
+ * @date 2025-10-10
+ * @version 1.1 - Added getUserUuid function to fetch user UUID from backend session
+ * 
+ * @date 2025-10-11
+ * @version 1.2 - Improved authentication error handling with stayAsGuest option
  */
 
 /**
@@ -22,10 +28,6 @@ export const handleAuthError = async (response, stayAsGuest = false) => {
 
         try {
             const errorData = await response.json();
-            if (errorData.stayAsGuest) {
-                // If the backend indicates to stay as guest, do nothing
-                return false;
-            }
             if (errorData.redirectTo) {
                 console.log('Authentication required, redirecting to:', errorData.redirectTo);
                 window.location.href = errorData.redirectTo;
@@ -103,7 +105,7 @@ import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
  * @param {boolean} stayAsGuest - If true, don't redirect on 401, just return null
  * @returns {Promise<string|null>} User UUID or null if not authenticated
  */
-export const getUserUuid = async (stayAsGuest = true) => {
+export const getUserUuid = async (stayAsGuest = false) => {
     try {
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_UUID}`, {
             method: 'GET',

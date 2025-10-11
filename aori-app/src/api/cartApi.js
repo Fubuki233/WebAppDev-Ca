@@ -13,13 +13,21 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.2 - Updated to use getUserUuid() from apiUtils
+ * 
+ * @author Yunhe
+ * @date 2025-10-9
+ * @version 1.3 - Fixed addToCart to use productId instead of variantId
+ * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 1.4 - will redirect to login when fetching cart for guest
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 import { getUserUuid } from './apiUtils';
 
 const CART_STORAGE_KEY = 'aori_shopping_cart';
 
-export const getCart = async (customerId, useMock = false) => {
+export const getCart = async (customerId, useMock = false, stayAsGuest = false) => {
     if (useMock) {
         try {
             const cart = localStorage.getItem(CART_STORAGE_KEY);
@@ -43,7 +51,7 @@ export const getCart = async (customerId, useMock = false) => {
 
         const response = await fetch(url, {
             method: 'GET',
-            credentials: 'include', // Important: include session cookie
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },

@@ -7,6 +7,10 @@
  * @version 1.0
  * @version 2.0 - Refactored to use Service Layer and add UX improvements
  * @version 2.1 - Amended @PathVariable to @RequestParam for delete operation to enhance security
+ * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 2.2 - Added collection display selector for frontend
  */
 
 package sg.com.aori.controller;
@@ -37,22 +41,24 @@ public class AdminProductController {
 	@Autowired
 	private CRUDProductService productService;
 
-	// inject CategoryRepository to populate the category dropdown in the form 
+	// inject CategoryRepository to populate the category dropdown in the form
 	@Autowired
 	private CategoryRepository categoryRepository;
 
-    // --- SHOW ALL PRODUCTS (Read) ---
-	@GetMapping ("/")
+	// --- SHOW ALL PRODUCTS (Read) ---
+	@GetMapping("/")
 	public String listAllProducts(Model model) {
 
-		// Get the list from the service. Optional has been used in other controllers, hence we maintain this.
+		// Get the list from the service. Optional has been used in other controllers,
+		// hence we maintain this.
 		Optional<List<Product>> optProducts = productService.getAllProducts();
 
 		// This will execute only if optProducts contain a list.
-		optProducts.ifPresent(products -> {model.addAttribute("products", products);
+		optProducts.ifPresent(products -> {
+			model.addAttribute("products", products);
 		});
 
-		// return the view name 
+		// return the view name
 		return "admin/products/product-list";
 	}
 
@@ -74,7 +80,7 @@ public class AdminProductController {
 	// --- CREATE NEW PRODUCT (Processes Form) ---
 	@PostMapping
 	public String createProduct(@ModelAttribute Product product, RedirectAttributes redirectAttributes) {
-		
+
 		// Use ServiceImpl to create the product
 		productService.createProduct(product);
 
@@ -92,7 +98,7 @@ public class AdminProductController {
 
 		if (oneOptProduct.isPresent()) {
 			// If product is found, add it and the categories to the model
-			model.addAttribute("product", oneOptProduct.get()); 
+			model.addAttribute("product", oneOptProduct.get());
 			List<Category> allCategories = categoryRepository.findAll();
 			model.addAttribute("allCategories", allCategories);
 			return "admin/products/product-form";
@@ -104,8 +110,9 @@ public class AdminProductController {
 
 	// --- UPDATE EXISTING PRODUCT (Processes form) ---
 	@PostMapping("/update/{id}")
-	public String updateProduct(@PathVariable String id, @ModelAttribute Product product, RedirectAttributes redirectAttributes) {
-		
+	public String updateProduct(@PathVariable String id, @ModelAttribute Product product,
+			RedirectAttributes redirectAttributes) {
+
 		productService.updateProduct(id, product);
 
 		redirectAttributes.addFlashAttribute("message", "Product updated successfully!");
@@ -113,35 +120,38 @@ public class AdminProductController {
 		return "redirect:/admin/products";
 	}
 
-	/* Older method before adding business logic to not delete products with orders
-	// --- DELETE EXISTING PRODUCT ---
-
-	@GetMapping("/delete/{id}")
-	public String deleteProduct(@PathVariable String id, @ModelAttribute Product product, RedirectAttributes redirectAttributes) {
-        
-		productService.deleteProduct(id);
-
-		redirectAttributes.addFlashAttribute("message", "Product deleted successfully!");
-
-        return "redirect:/admin/products";
-	}
-	*/
+	/*
+	 * Older method before adding business logic to not delete products with orders
+	 * // --- DELETE EXISTING PRODUCT ---
+	 * 
+	 * @GetMapping("/delete/{id}")
+	 * public String deleteProduct(@PathVariable String id, @ModelAttribute Product
+	 * product, RedirectAttributes redirectAttributes) {
+	 * 
+	 * productService.deleteProduct(id);
+	 * 
+	 * redirectAttributes.addFlashAttribute("message",
+	 * "Product deleted successfully!");
+	 * 
+	 * return "redirect:/admin/products";
+	 * }
+	 */
 
 	// --- DELETE EXISTING PRODUCT ---
 	@PostMapping("/delete")
 	public String deleteProduct(@RequestParam("productId") String id, RedirectAttributes redirectAttributes) {
-    try {
-        // Try to delete the product
-        productService.deleteProduct(id);
-        // If it succeeds, show a success message
-        redirectAttributes.addFlashAttribute("message", "Product deleted successfully!");
-    } catch (RuntimeException ex) {
-        // If the service throws an error (product not found or has orders), catch it
-        // and show the error message to the user.
-        redirectAttributes.addFlashAttribute("error", ex.getMessage());
-    }
+		try {
+			// Try to delete the product
+			productService.deleteProduct(id);
+			// If it succeeds, show a success message
+			redirectAttributes.addFlashAttribute("message", "Product deleted successfully!");
+		} catch (RuntimeException ex) {
+			// If the service throws an error (product not found or has orders), catch it
+			// and show the error message to the user.
+			redirectAttributes.addFlashAttribute("error", ex.getMessage());
+		}
 
-    return "redirect:/admin/products";
-}
+		return "redirect:/admin/products";
+	}
 
 }

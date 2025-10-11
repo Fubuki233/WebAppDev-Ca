@@ -3,12 +3,11 @@
  *
  * @author Xiaobo, Ying Chun
  * @date 2025-10-10
- * @version 1.0 (Xiaoba), 1.1 (Ying Chun)
+ * @version 1.0 (Xiaobo), 1.1 (Ying Chun)
  * v1 - Initial implementation by Xiaobo
  * v1.1 - Updated HTML template paths 
  * 
  */
-
 
 package sg.com.aori.controller;
 

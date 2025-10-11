@@ -772,3 +772,33 @@ export const fetchFilters = async (useMock = API_CONFIG.USE_MOCK) => {
         };
     }
 };
+
+/**
+ * Fetch the current collection display name from backend.
+ * Backend endpoint: GET /api/products/collectionDisplay
+ * Returns: String (collection name like "Shizen", "Fall 2025", etc.)
+ */
+export const fetchCollectionDisplay = async () => {
+    try {
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.COLLECTION_DISPLAY}`;
+        console.log('Fetching collection display from:', url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const collectionName = await response.text(); // Backend returns plain String
+        console.log('Fetched collection display from API:', collectionName);
+        return collectionName;
+    } catch (error) {
+        console.error('Error fetching collection display from API:', error);
+        return 'Shizen'; // Default fallback
+    }
+};

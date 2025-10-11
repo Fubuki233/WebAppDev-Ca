@@ -27,7 +27,8 @@ public class AuthFilter {
                 Map.of("path", "/admin/login", "method", "GET"), // To display the login form
                 Map.of("path", "/admin/login", "method", "POST"), // To process the login form submission
                 Map.of("path", "/admin/logout", "method", "GET"), // To handle logout
-                Map.of("path", "/api/wishlist", "method", "GET")); // To handle wishlist
+                Map.of("path", "/api/wishlist", "method", "GET"), // To handle wishlist
+                Map.of("path", "/api/products/collectionDisplay", "method", "GET")); // To handle collection display
         // --- END NEW RULES ---
 
         // Extract path and method from requestMap

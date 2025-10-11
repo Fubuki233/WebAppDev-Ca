@@ -22,14 +22,17 @@ import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.model.Category;
 import sg.com.aori.service.CategoryService;
 
-
 /**
  * REST Controller for Category operations.
- * All tests passed
- * all validation had been added
+ * 
+ * 
  *
+ * @author Yunhe
+ * @date 2025-10-06
+ * @version 1.0 -All tests passed
+ * 
  * @author Yunhe, Sun Rui
- * @date 2025-10-07
+ * @date 2025-10-09 -all validation had been added
  * @version 1.1
  */
 @CrossOrigin
@@ -59,7 +62,8 @@ public class CategoryController {
      * @return The category with the specified ID.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable @NotBlank(message = "CategoryID cannot be empty") String id) {
+    public ResponseEntity<Category> getCategoryById(
+            @PathVariable @NotBlank(message = "CategoryID cannot be empty") String id) {
         Optional<Category> category = categoryService.findCategoryById(id);
         return category.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -72,7 +76,8 @@ public class CategoryController {
      * @return The category with the specified name.
      */
     @GetMapping("/name/{name}")
-    public ResponseEntity<Category> getCategoryByName(@PathVariable @NotBlank(message = "Category Name cannot be empty") String name) {
+    public ResponseEntity<Category> getCategoryByName(
+            @PathVariable @NotBlank(message = "Category Name cannot be empty") String name) {
         Optional<Category> category = categoryService.findCategoryByName(name);
         return category.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -85,7 +90,8 @@ public class CategoryController {
      * @return The category with the specified code.
      */
     @GetMapping("/code/{code}")
-    public ResponseEntity<Category> getCategoryByCode(@PathVariable @NotBlank(message = "Category code cannot be empty") String code) {
+    public ResponseEntity<Category> getCategoryByCode(
+            @PathVariable @NotBlank(message = "Category code cannot be empty") String code) {
         Optional<Category> category = categoryService.findCategoryByCode(code);
         return category.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -98,7 +104,8 @@ public class CategoryController {
      * @return The category with the specified slug.
      */
     @GetMapping("/slug/{slug}")
-    public ResponseEntity<Category> getCategoryBySlug(@PathVariable @NotBlank(message = "Category slug cannot be empty") String slug) {
+    public ResponseEntity<Category> getCategoryBySlug(
+            @PathVariable @NotBlank(message = "Category slug cannot be empty") String slug) {
         Optional<Category> category = categoryService.findCategoryBySlug(slug);
         return category.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -134,7 +141,8 @@ public class CategoryController {
      * @return The updated category.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable String id, @NotBlank(message = "Category ID cannot be empty") @RequestBody Category category) {
+    public ResponseEntity<?> updateCategory(@PathVariable String id,
+            @NotBlank(message = "Category ID cannot be empty") @RequestBody Category category) {
         try {
             Category updatedCategory = categoryService.updateCategory(id, category);
             return ResponseEntity.ok(updatedCategory);
