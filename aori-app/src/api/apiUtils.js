@@ -9,12 +9,23 @@
 /**
  * Handle authentication error responses
  * @param {Response} response - Fetch response object
+ * @param {boolean} stayAsGuest - If true, don't redirect on 401, just return false
  * @returns {boolean} true if authentication error was handled, false otherwise
  */
-export const handleAuthError = async (response) => {
+export const handleAuthError = async (response, stayAsGuest = false) => {
     if (response.status === 401) {
+        if (stayAsGuest) {
+            // If stayAsGuest is true, don't redirect, just return false
+            console.log('Authentication required but staying as guest');
+            return false;
+        }
+
         try {
             const errorData = await response.json();
+            if (errorData.stayAsGuest) {
+                // If the backend indicates to stay as guest, do nothing
+                return false;
+            }
             if (errorData.redirectTo) {
                 console.log('Authentication required, redirecting to:', errorData.redirectTo);
                 window.location.href = errorData.redirectTo;
@@ -89,9 +100,10 @@ import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
 /**
  * Get current user's UUID from backend session
+ * @param {boolean} stayAsGuest - If true, don't redirect on 401, just return null
  * @returns {Promise<string|null>} User UUID or null if not authenticated
  */
-export const getUserUuid = async () => {
+export const getUserUuid = async (stayAsGuest = true) => {
     try {
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_UUID}`, {
             method: 'GET',
@@ -101,8 +113,8 @@ export const getUserUuid = async () => {
             },
         });
 
-        // Handle authentication errors - will redirect to login
-        if (await handleAuthError(response)) {
+        // Handle authentication errors - will redirect to login only if stayAsGuest is false
+        if (await handleAuthError(response, stayAsGuest)) {
             return null;
         }
 

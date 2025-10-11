@@ -3,6 +3,8 @@ package sg.com.aori.controller;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,12 @@ import sg.com.aori.service.WishlistService;
  * @author Derek
  * @date 2025-10-08
  * @version 1.0
+ * 
+ *          Improved the get method when user not logged in .
+ * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 1.1
  */
 
 @RestController
@@ -55,6 +63,10 @@ public class WishlistController {
 	@GetMapping
 	public ResponseEntity<List<Wishlist>> list(
 			@RequestParam String customerId) {
+		if (customerId == null) {
+			return ResponseEntity.ok(List.of());
+
+		}
 		return ResponseEntity.ok(wishlistService.list(customerId));
 	}
 

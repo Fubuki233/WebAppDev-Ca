@@ -23,7 +23,12 @@ const FavouritesPage = () => {
         try {
             setLoading(true);
             const items = await getFavourites();
-            setFavourites(Array.isArray(items) ? items : []);
+            // Check if user is a guest
+            if (items && items.stayAsGuest) {
+                setFavourites([]);
+            } else {
+                setFavourites(Array.isArray(items) ? items : []);
+            }
         } catch (error) {
             console.error('Failed to load favourites:', error);
             setFavourites([]);

@@ -26,7 +26,8 @@ public class AuthFilter {
                 // --- NEW RULES FOR EMPLOYEE THYMELEAF LOGIN ---
                 Map.of("path", "/admin/login", "method", "GET"), // To display the login form
                 Map.of("path", "/admin/login", "method", "POST"), // To process the login form submission
-                Map.of("path", "/admin/logout", "method", "GET")); // To handle logout
+                Map.of("path", "/admin/logout", "method", "GET"), // To handle logout
+                Map.of("path", "/api/wishlist", "method", "GET")); // To handle wishlist
         // --- END NEW RULES ---
 
         // Extract path and method from requestMap

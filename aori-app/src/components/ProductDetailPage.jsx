@@ -90,7 +90,11 @@ const ProductDetailPage = ({ productId }) => {
 
         const result = await toggleFavourite(favouriteItem);
 
-        if (result.success) {
+        if (result.requiresLogin) {
+            // User is not logged in, redirect to login page
+            console.log('Login required, redirecting to login page');
+            window.location.hash = '#login';
+        } else if (result.success) {
             // Use the 'added' field from backend to set the correct state
             setIsFavorite(result.added);
             // No alert - silent toggle

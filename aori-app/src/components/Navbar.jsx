@@ -7,15 +7,15 @@
  */
 import React from 'react';
 import '../styles/Navbar.css';
+import aoriLogo from '../aori.png';
 
 const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
                 <div className="navbar-logo">
-                    <a href="#home" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'baseline', cursor: 'pointer' }}>
-                        <h1>AORI</h1>
-                        <span className="logo-subtitle">-JAPAN</span>
+                    <a href="#home" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <img src={aoriLogo} alt="AORI" className="logo-image" />
                     </a>
                 </div>
 

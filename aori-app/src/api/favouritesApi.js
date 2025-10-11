@@ -76,9 +76,8 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
     try {
         const custId = customerId || await getUserUuid();
         if (!custId) {
-            console.warn('No customer UUID available, using localStorage');
-            const favourites = localStorage.getItem(FAVOURITES_KEY);
-            return favourites ? JSON.parse(favourites) : [];
+            console.warn('No customer UUID available, returning empty response');
+            return [];
         }
 
         // Backend gets customerId from session, but for now we pass it as query param
@@ -93,12 +92,12 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
             },
         });
 
+        if (response.status === 401) {
+            console.warn('Unauthorized, user is a guest');
+            return { stayAsGuest: true };
+        }
+
         if (!response.ok) {
-            if (response.status === 401) {
-                console.warn('Unauthorized, falling back to localStorage');
-                const favourites = localStorage.getItem(FAVOURITES_KEY);
-                return favourites ? JSON.parse(favourites) : [];
-            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
@@ -151,10 +150,14 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
     }
 
     try {
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
-            console.warn('No customer UUID available, falling back to localStorage');
-            return addToFavourites(item, customerId, true);
+            console.warn('No customer UUID available, user needs to login');
+            return {
+                success: false,
+                requiresLogin: true,
+                message: 'Please login to add items to favourites'
+            };
         }
 
         // Backend expects: { customerId, productId }
@@ -207,10 +210,14 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
 
     try {
         // Backend uses POST toggle to add/remove (not DELETE)
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
-            console.warn('No customer UUID available, falling back to localStorage');
-            return removeFromFavourites(productId, customerId, true);
+            console.warn('No customer UUID available, user needs to login');
+            return {
+                success: false,
+                requiresLogin: true,
+                message: 'Please login to manage favourites'
+            };
         }
 
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}&productId=${productId}`;
@@ -313,7 +320,11 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
         if (!custId) {
             console.warn('No customer UUID available, checking localStorage');
             const favourites = await getFavourites(null, false);
-            return favourites.some(item => item.productId === productId);
+            // Check if user is a guest
+            if (favourites && favourites.stayAsGuest) {
+                return false;
+            }
+            return Array.isArray(favourites) && favourites.some(item => item.productId === productId);
         }
 
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}/exists?customerId=${custId}&productId=${productId}`;
@@ -340,7 +351,11 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
         // Fallback to localStorage
         try {
             const favourites = await getFavourites(null, true);
-            return favourites.some(item => item.productId === productId);
+            // Check if user is a guest
+            if (favourites && favourites.stayAsGuest) {
+                return false;
+            }
+            return Array.isArray(favourites) && favourites.some(item => item.productId === productId);
         } catch (e) {
             return false;
         }
@@ -351,7 +366,11 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
 export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK) => {
     try {
         const favourites = await getFavourites(useMock);
-        return favourites.length;
+        // Check if user is a guest
+        if (favourites && favourites.stayAsGuest) {
+            return 0;
+        }
+        return Array.isArray(favourites) ? favourites.length : 0;
     } catch (error) {
         console.error('Failed to get favourites count:', error);
         return 0;
@@ -405,10 +424,15 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
 
     try {
         // Use backend toggle endpoint
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
-            console.warn('No customer UUID available, falling back to localStorage');
-            return toggleFavourite(item, customerId, true);
+            console.warn('No customer UUID available, user needs to login');
+            // Return a special response indicating login is required
+            return {
+                success: false,
+                requiresLogin: true,
+                message: 'Please login to add items to favourites'
+            };
         }
 
         const productId = item.productId || item.id;
