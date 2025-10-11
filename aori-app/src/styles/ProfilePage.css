@@ -529,12 +529,12 @@
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .item-image {
         width: 100%;
         height: 200px;
     }
-    
+
     .item-subtotal {
         width: 100%;
         text-align: left;

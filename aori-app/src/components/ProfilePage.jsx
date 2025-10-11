@@ -394,8 +394,8 @@ const ProfilePage = () => {
                                                         return (
                                                             <div key={index} className="order-item-detail">
                                                                 <div className="item-image">
-                                                                    <img 
-                                                                        src={item.product?.image || item.image || 'https://via.placeholder.com/80?text=No+Image'} 
+                                                                    <img
+                                                                        src={item.product?.image || item.image || 'https://via.placeholder.com/80?text=No+Image'}
                                                                         alt={item.product?.productName || item.productName || 'Product'}
                                                                         onError={(e) => { e.target.src = 'https://via.placeholder.com/80?text=No+Image'; }}
                                                                     />

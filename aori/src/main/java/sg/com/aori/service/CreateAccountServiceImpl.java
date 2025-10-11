@@ -1,9 +1,10 @@
 /**
  * Service Implementation for Create Customer Account
- *
+ *optimize logic
+ * 
  * @author SunRui
- * @date 2025-10-08
- * @version 1.2
+ * @date 2025-10-10
+ * @version 1.3
  */
 
 package sg.com.aori.service;
@@ -66,11 +67,16 @@ public class CreateAccountServiceImpl implements ICreateAccount {
     @Transactional
     @Override
     public CustomerAddress addInitialAddress(CustomerAddress address) {
-        // 保持最小业务逻辑：若该用户目前没有默认地址，则将本地址设为默认
-        if (address.getCustomerId() != null
-                && addressRepository.findFirstByCustomerIdAndIsDefaultTrue(address.getCustomerId()).isEmpty()) {
+        String cid = address.getCustomerId();
+        if (cid == null || !customerRepository.existsById(cid)) {
+            throw new IllegalArgumentException("Customer not found");
+        }
+
+        // 若该用户目前没有默认地址，则将本地址设为默认
+        if (addressRepository.findFirstByCustomerIdAndIsDefaultTrue(cid).isEmpty()) {
             address.setIsDefault(true);
         }
+
         return addressRepository.save(address);
     }
 

@@ -1,9 +1,14 @@
 /**
- *  ProductsPage.jsx
+ * ProductsPage.jsx
  * 
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.1
+ * 
+ * Receive new props, store filters, and ensure they take effect on load.
+ * @author Sun Rui
+ * @date 2025-10-11
+ * @version 1.2
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -12,7 +17,7 @@ import ProductCard from './ProductCard';
 import { fetchProducts, fetchCategories } from '../api/productApi';
 import '../styles/ProductsPage.css';
 
-const ProductsPage = () => {
+const ProductsPage = ({ initialBroadCategory }) => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -32,6 +37,22 @@ const ProductsPage = () => {
     useEffect(() => {
         loadProducts();
     }, [filters]);
+
+    useEffect(() => {
+        if (initialBroadCategory) {
+            setFilters(prev => {
+                const normalized = initialBroadCategory.toLowerCase();
+                if (prev.broadCategory === normalized) return prev;
+                return { ...prev, broadCategory: normalized };
+            });
+        } else {
+            setFilters(prev => {
+                if (!prev.broadCategory) return prev;
+                const { broadCategory, ...rest } = prev;
+                return rest;
+            });
+        }
+    }, [initialBroadCategory]);
 
     const loadProducts = async () => {
         setLoading(true);

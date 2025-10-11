@@ -4,6 +4,11 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.0
+ * 
+ * Add conditions in applyClientSideFilters and append parameters to the query string.
+ * @author Sun Rui
+ * @date 2025-10-11
+ * @version 1.1
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
@@ -462,6 +467,9 @@ export const fetchProducts = async (filters = {}, useMock = false) => {
         if (filters.search) params.append('search', filters.search);
         if (filters.page) params.append('page', filters.page);
         if (filters.limit) params.append('limit', filters.limit);
+        if (filters.broadCategory && filters.broadCategory !== 'all') {
+            params.append('broadCategory', filters.broadCategory);
+        }
 
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.PRODUCTS}?${params.toString()}`;
         console.log('Fetching products from:', url);
