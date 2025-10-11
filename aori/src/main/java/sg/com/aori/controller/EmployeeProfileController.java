@@ -43,10 +43,10 @@ public class EmployeeProfileController {
      * Displays the employee profile page.
      * Fetches currently logged-in employee's details.
      */
-    @GetMapping("/{id}")
+    @GetMapping
     public String viewProfilePage(Model model, HttpSession session) {
         // 1. Check the session for logged-in employee's ID (primary key)
-        String loggedInEmployeeId = (String) session.getAttribute("loggedInEmployeeId");
+        String loggedInEmployeeId = (String) session.getAttribute("employeeId"); // changed this on 11 Oct
 
         // 2. If not logged in, redirect to login page
         if (loggedInEmployeeId == null) {
@@ -58,7 +58,7 @@ public class EmployeeProfileController {
                     .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
             model.addAttribute("employee", employee);
-            return "admin/profile"; // Path to your Thymeleaf template
+            return "admin/account/account-profile"; // Path to your Thymeleaf template
         } catch (EntityNotFoundException e) {
             // Only if the user was deleted while their session was active
             session.invalidate(); // Clear the invalid session
@@ -72,7 +72,7 @@ public class EmployeeProfileController {
                               RedirectAttributes redirectAttributes,
                               HttpSession session) {
 
-        String loggedInEmployeeId = (String) session.getAttribute("loggedInEmployeeId");
+        String loggedInEmployeeId = (String) session.getAttribute("employeeId"); // changed this on 11 Oct
 
         if (loggedInEmployeeId == null) {
             return "redirect:/admin/login";
@@ -81,7 +81,7 @@ public class EmployeeProfileController {
         // Basic check to prevent a user from updating another user's profile via a crafted request
         if (!loggedInEmployeeId.equals(employeeDetails.getEmployeeId())) {
              redirectAttributes.addFlashAttribute("error", "Unauthorized action.");
-             return "redirect:/admin/profile";
+             return "redirect:/admin/dashboard";
         }
 
         if (bindingResult.hasErrors()) {
@@ -89,7 +89,7 @@ public class EmployeeProfileController {
             // Since we return to the profile view, we need to add the employee object
             // back to the model to repopulate the form with the incorrect data.
             // A better way is to not redirect but return the view name directly.
-            return "employee-profile";
+            return "admin/account/account-profile";
         }
 
         try {
@@ -99,7 +99,7 @@ public class EmployeeProfileController {
             redirectAttributes.addFlashAttribute("error", "An error occurred while updating your profile.");
         }
 
-        return "redirect:/admin/profile";
+        return "redirect:/admin/dashboard";
     }
     
 }
