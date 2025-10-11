@@ -8,8 +8,8 @@
  -->
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="layout"
-      layout:decorate="layout"> 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
   <head>
     <title>Aori Admin Dashboard</title>
 </head>
@@ -18,7 +18,7 @@
     <div class="container mt-4">
         <h1>Admin Dashboard</h1>
         <hr>
-        <p>Welcome to the Aori Admin Portal, <span th:object="${employee}"></span>!</p>
+        <p>Welcome to the Aori Admin Portal, <span th:text="${employee.firstName}"></span>!</p>
         </div>
 </main>
 </body>
