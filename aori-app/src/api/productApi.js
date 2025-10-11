@@ -613,7 +613,6 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
         return categories.map(cat => ({
             id: cat,
             name: cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' '),
-            count: mockProducts.filter(p => p.category === cat).length,
         }));
     }
 
@@ -654,7 +653,6 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
                     id: cat.categoryId,
                     name: cat.categoryName,
                     category: slug,
-                    count: 0,
                 };
             });
         }
@@ -671,7 +669,6 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
             categoryName: cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' '),
             slug: cat,
             category: cat,
-            count: mockProducts.filter(p => p.category === cat).length,
         }));
     }
 };

@@ -244,10 +244,6 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
                             </div>
                         ) : (
                             <>
-                                <div className="products-count">
-                                    Showing {products.length} of {totalProducts} products
-                                </div>
-
                                 <div className="products-grid">
                                     {products.map((product) => (
                                         <ProductCard key={product.id} product={product} />

@@ -193,7 +193,7 @@ const ProductFilters = ({ onFilterChange, categories, activeCategory, availableC
                                 checked={showAvailable}
                                 onChange={() => handleAvailabilityChange('available')}
                             />
-                            <span>Availability <span className="count">(450)</span></span>
+                            <span>Availability</span>
                         </label>
                         <label className="checkbox-label">
                             <input
@@ -201,7 +201,7 @@ const ProductFilters = ({ onFilterChange, categories, activeCategory, availableC
                                 checked={showOutOfStock}
                                 onChange={() => handleAvailabilityChange('outOfStock')}
                             />
-                            <span>Out Of Stack <span className="count">(18)</span></span>
+                            <span>Out Of Stack</span>
                         </label>
                     </div>
                 )}
