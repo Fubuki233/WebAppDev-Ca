@@ -1,9 +1,9 @@
 /**
  * Main application component for Aori e-commerce platform.
- * 
- * @author Yunhe
- * @date 2025-10-08
- * @version 1.0
+ * Enhance getPageFromHash to parse the selected category from the URL hash.
+ * @author Yunhe, Sun Rui
+ * @date 2025-10-11
+ * @version 1.1
  */
 import { useState, useEffect } from 'react';
 import HomePage from "./components/HomePage";
@@ -20,11 +20,25 @@ import './styles/global.css';
 function App() {
   const getPageFromHash = () => {
     const hash = window.location.hash;
+    const parseBroadCategory = (hashValue) => {
+      const queryStart = hashValue.indexOf('?');
+      if (queryStart === -1) return null;
+      const query = hashValue.slice(queryStart + 1);
+      const params = new URLSearchParams(query);
+      const broad = params.get('broad');
+      return broad ? broad.toLowerCase() : null;
+    };
+
     if (hash.startsWith('#product/')) {
       const productId = hash.replace('#product/', '');
       return { page: 'product-detail', productId: productId };
     }
-    if (hash === '#products') return { page: 'products' };
+    if (hash.startsWith('#products')) {
+      return {
+        page: 'products',
+        broadCategory: parseBroadCategory(hash),
+      };
+    }
     if (hash === '#favourites') return { page: 'favourites' };
     if (hash === '#cart') return { page: 'cart' };
     if (hash === '#checkout') return { page: 'checkout' };
@@ -53,7 +67,9 @@ function App() {
   return (
     <div>
       {currentRoute.page === 'home' && <HomePage />}
-      {currentRoute.page === 'products' && <ProductsPage />}
+      {currentRoute.page === 'products' && (
+        <ProductsPage initialBroadCategory={currentRoute.broadCategory} />
+      )}
       {currentRoute.page === 'product-detail' && <ProductDetailPage productId={currentRoute.productId} />}
       {currentRoute.page === 'favourites' && <FavouritesPage />}
       {currentRoute.page === 'cart' && <CartPage />}

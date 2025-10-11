@@ -1,9 +1,10 @@
 /**
  *  Sidebar.jsx
+ * Changed Sidebar categories to buttons/event handlers instead of pure anchors.
  * 
- * @author Yunhe
- * @date 2025-10-08
- * @version 1.1
+ * @author Yunhe, Sun Rui
+ * @date 2025-10-11
+ * @version 1.2
  */
 import React from 'react';
 import '../styles/Sidebar.css';
@@ -11,13 +12,23 @@ import '../styles/Sidebar.css';
 const Sidebar = () => {
     const categories = ['UNISEX', 'MEN', 'WOMEN', 'BOYS', 'GIRLS'];
 
+    const handleCategoryClick = (category) => {
+        const normalized = category.toLowerCase();
+        window.location.hash = `#products?broad=${encodeURIComponent(normalized)}`;
+    };
+
     return (
         <aside className="sidebar">
             <div className="category-list">
                 {categories.map((category, index) => (
-                    <a href={`#${category.toLowerCase()}`} key={index} className="category-link">
+                    <button
+                        type="button"
+                        key={index}
+                        className="category-link"
+                        onClick={() => handleCategoryClick(category)}
+                    >
                         {category}
-                    </a>
+                    </button>
                 ))}
             </div>
 
