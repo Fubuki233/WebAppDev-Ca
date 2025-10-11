@@ -3,7 +3,8 @@
  * v1.2: Session applied
  * v1.3: Provide reference of how to get customerId from session
  * v1.4: Test completed
- * v 1.5: Add validation for addToCart
+ * v1.5(Sun): Add validation for addToCart
+ * v1.6: Change annotation into English
  * @author Jiang, Sun Rui
  * @date 2025-10-10
  * @version 1.4
@@ -35,8 +36,8 @@ import sg.com.aori.utils.getSession;
 @RequestMapping("/api/cart")
 public class CartController {
 
-    private static final int MAX_QTY_PER_ITEM = 100; // 业务自行调整 在类里加一个上限常量************
-
+    // Business self-adjustment: Add an upper limit constant in the class
+    private static final int MAX_QTY_PER_ITEM = 100;
 
     @Autowired
     private ICart cartService;
@@ -199,7 +200,6 @@ public class CartController {
     // Add item to cart
     /*
      * JSON Input format:
-     * *********
     {
         "productId": "8afc68df-80fe-479d-83d1-eb817bfeb597",
         "quantity": 1
@@ -227,30 +227,30 @@ public class CartController {
             //Integer quantity = (Integer) request.get("quantity"); *********
 
             
-            // —— productId：必须存在且非空 —— //
+            // The productId must exist and not null
             Object pidObj = request.get("productId");
             if (!(pidObj instanceof String pid) || pid.isBlank()) {
                 response.put("success", false);
                 response.put("message", "productId is required");
                 return ResponseEntity.badRequest().body(response);
           }
-             String productId = (String) pidObj; // 或直接用上面的 pid
+             String productId = (String) pidObj; // Or use the pid
 
-            // —— quantity：必须存在；兼容 Integer/Long/Double/String；范围校验 —— //
+            // The quantity must exist, can be Integer/Long/Double/String
             Object qObj = request.get("quantity");
             Integer quantity = null;
             if (qObj instanceof Integer i) {
                 quantity = i;
             } else if (qObj instanceof Long l) {
                try {
-                    quantity = Math.toIntExact(l); // 防溢出
+                    quantity = Math.toIntExact(l); // Prevent overflow
                } catch (ArithmeticException ex) {
                   response.put("success", false);
                   response.put("message", "quantity is too large");
                   return ResponseEntity.badRequest().body(response);
               }
            } else if (qObj instanceof Double d) {
-              quantity = (int) Math.floor(d); // JSON 里若是小数，向下取整
+              quantity = (int) Math.floor(d); // If it is a decimal in JSON, round down
            } else if (qObj instanceof String s) {
                try {
                       quantity = Integer.valueOf(s.trim());

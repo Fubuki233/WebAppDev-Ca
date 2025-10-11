@@ -1,9 +1,10 @@
 /**
  * v1.1: Small adjustments, including a simple validation before creating order
- * ATTETION: orderItem can't be added correctly, further modification needed
+ * v1.2: Repaired the problem that orderItem cannot be added correctly.
+ * v1.3: Added the function of auto generating order_number
  * @author Jiang
  * @date 2025-10-10
- * @version 1.1
+ * @version 1.3
  */
 
 package sg.com.aori.service;
@@ -12,6 +13,7 @@ import sg.com.aori.interfaces.ICart;
 import sg.com.aori.model.*;
 import sg.com.aori.repository.CartRepository;
 import sg.com.aori.repository.InventoryRepository;
+import sg.com.aori.repository.OrderItemRepository;
 import sg.com.aori.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +37,9 @@ public class CartService implements ICart {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     // Find cart by customer ID
     public List<ShoppingCart> findCartByCustomerId(String customerId) {
@@ -63,61 +69,87 @@ public class CartService implements ICart {
     // Create order from cart
     public String createOrder(String customerId) {
 
-        List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
-
-        if (cartItems == null || cartItems.isEmpty()) {
-            throw new RuntimeException("Cannot create order: Shopping cart is empty");
-        }
-        
-        // Create order
-        Orders order = new Orders();
-        order.setOrderId(java.util.UUID.randomUUID().toString());
-        
-        // Set customer (in real app, get from authenticated user)
-        // ***** Check this part again though it can work
-        Customer customer = new Customer();
-        customer.setCustomerId(customerId);
-        order.setCustomer(customer);
-        order.setCustomerId(customerId);
-
-        order.setOrderStatus(Orders.OrderStatus.Pending);
-        order.setPaymentStatus(Orders.PaymentStatus.Pending);
-        
-        // Calculate total amount
-        BigDecimal totalAmount = calculateTotal(cartItems);
-        order.setTotalAmount(totalAmount);
-        order.setCreatedAt(LocalDateTime.now());
-
-        // ***** Check if we should set a order_number
-        // order.setOrderNumber(order.getOrderId());
-        
-        // Save order
-        System.out.println("-----------------------------------"+order.getOrderId());
-        Orders savedOrder = orderRepository.save(order);
-        
-        // Create order items and update inventory
-        for (ShoppingCart cartItem : cartItems) {
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrderItemId(java.util.UUID.randomUUID().toString());
-            orderItem.setOrder(savedOrder);
-            orderItem.setOrderId(savedOrder.getOrderId());
-            orderItem.setProduct(cartItem.getProduct());
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPriceAtPurchase(cartItem.getProduct().getPrice());
-            orderItem.setDiscountApplied(BigDecimal.ZERO);
+        try {
+            System.out.println("Starting createOrder for customer: " + customerId);
             
-            // Update inventory
-            Product product = cartItem.getProduct();
-            product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
-            inventoryRepository.save(product);
+            List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
+            System.out.println("Found " + cartItems.size() + " cart items");
+            
+            if (cartItems == null || cartItems.isEmpty()) {
+                throw new RuntimeException("Cannot create order: Shopping cart is empty");
+            }
+            
+            // Check Inventory
+            boolean inventoryAvailable = checkInventory(customerId);
+            if (!inventoryAvailable) {
+                throw new RuntimeException("Insufficient inventory for some items");
+            }
+            
+            // Create order
+            Orders order = new Orders();
+            String orderId = java.util.UUID.randomUUID().toString();
+            order.setOrderId(orderId);
+            System.out.println("Creating order with ID: " + orderId);
+            
+            Customer customer = new Customer();
+            customer.setCustomerId(customerId);
+            order.setCustomer(customer);
+            order.setCustomerId(customerId);
+            
+            order.setOrderStatus(Orders.OrderStatus.Pending);
+            order.setPaymentStatus(Orders.PaymentStatus.Pending);
+            
+            BigDecimal totalAmount = calculateTotal(cartItems);
+            order.setTotalAmount(totalAmount);
+            order.setCreatedAt(LocalDateTime.now());
+
+            String orderNumber = generateOrderNumber(orderId, LocalDateTime.now());
+            order.setOrderNumber(orderNumber);
+            
+            System.out.println("Saving order to database...");
+            Orders savedOrder = orderRepository.save(order);
+            System.out.println("Order saved successfully");
+            
+            // Create order items
+            System.out.println("Creating order items...");
+            for (ShoppingCart cartItem : cartItems) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setOrderId(savedOrder.getOrderId());
+                orderItem.setProductId(cartItem.getProductId());
+                orderItem.setQuantity(cartItem.getQuantity());
+                orderItem.setPriceAtPurchase(cartItem.getProduct().getPrice());
+                orderItem.setDiscountApplied(BigDecimal.ZERO);
+                
+                System.out.println("Saving order item: " + orderItem);
+                orderItemRepository.save(orderItem);
+                
+                // Update inventory
+                Product product = cartItem.getProduct();
+                int newStock = product.getStockQuantity() - cartItem.getQuantity();
+                System.out.println("Updating product " + product.getProductId() + " stock from " + 
+                                product.getStockQuantity() + " to " + newStock);
+                product.setStockQuantity(newStock);
+                inventoryRepository.save(product);
+            }
+            
+            // Delete cart
+            System.out.println("Clearing cart for customer: " + customerId);
+            cartRepository.deleteByCustomerId(customerId);
+            
+            System.out.println("Order creation completed successfully");
+            return savedOrder.getOrderId();
+            
+        } catch (Exception e) {
+            System.err.println("Error in createOrder: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        
-        // Clear cart
-        cartRepository.deleteByCustomerId(customerId);
-        System.out.println("-----------------------------------"+savedOrder.getCustomerId());
-        System.out.println("-----------------------------------"+order.getCustomerId());
-        
-        return savedOrder.getOrderId();
+    }
+
+    private String generateOrderNumber(String orderId, LocalDateTime createdAt) {
+        String timePart = createdAt.format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+        String idPart = orderId.substring(0, 4);
+        return "ORD-" + timePart + "-" + idPart;
     }
 
     // Add item to cart
