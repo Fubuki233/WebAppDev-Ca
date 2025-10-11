@@ -8,7 +8,7 @@
  * Receive new props, store filters, and ensure they take effect on load.
  * @author Sun Rui
  * @date 2025-10-11
- * @version 1.2
+ * @version 1.3
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -17,12 +17,18 @@ import ProductCard from './ProductCard';
 import { fetchProducts, fetchCategories } from '../api/productApi';
 import '../styles/ProductsPage.css';
 
-const ProductsPage = ({ initialBroadCategory }) => {
+const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filters, setFilters] = useState({});
-    const [searchQuery, setSearchQuery] = useState('');
+    const [filters, setFilters] = useState(() => {
+        const base = {};
+        if (initialSearch && initialSearch.trim()) {
+            base.search = initialSearch.trim();
+        }
+        return base;
+    });
+    const [searchQuery, setSearchQuery] = useState(initialSearch ? initialSearch.trim() : '');
     const [activeCategory, setActiveCategory] = useState('all');
     const [totalProducts, setTotalProducts] = useState(0);
     const [categoryTabs, setCategoryTabs] = useState([]);
@@ -37,6 +43,21 @@ const ProductsPage = ({ initialBroadCategory }) => {
     useEffect(() => {
         loadProducts();
     }, [filters]);
+
+    useEffect(() => {
+        const normalized = initialSearch ? initialSearch.trim() : '';
+        setSearchQuery(normalized);
+        setFilters(prev => {
+            const hasSearch = normalized.length > 0;
+            if (hasSearch) {
+                if (prev.search === normalized) return prev;
+                return { ...prev, search: normalized };
+            }
+            if (!prev.search) return prev;
+            const { search, ...rest } = prev;
+            return rest;
+        });
+    }, [initialSearch]);
 
     useEffect(() => {
         if (initialBroadCategory) {
@@ -137,7 +158,16 @@ const ProductsPage = ({ initialBroadCategory }) => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        setFilters(prev => ({ ...prev, search: searchQuery }));
+        const trimmed = searchQuery.trim();
+        if (trimmed.length > 0) {
+            setFilters(prev => ({ ...prev, search: trimmed }));
+        } else {
+            setFilters(prev => {
+                if (!prev.search) return prev;
+                const { search, ...rest } = prev;
+                return rest;
+            });
+        }
     };
 
     const handleCategoryClick = (categoryId) => {

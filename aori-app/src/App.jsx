@@ -26,13 +26,20 @@ import './styles/global.css';
 function App() {
   const getPageFromHash = () => {
     const hash = window.location.hash;
-    const parseBroadCategory = (hashValue) => {
-      const queryStart = hashValue.indexOf('?');
-      if (queryStart === -1) return null;
-      const query = hashValue.slice(queryStart + 1);
-      const params = new URLSearchParams(query);
-      const broad = params.get('broad');
-      return broad ? broad.toLowerCase() : null;
+    const parseProductsRoute = (hashValue) => {
+      const queryIndex = hashValue.indexOf('?');
+      const params = queryIndex !== -1
+        ? new URLSearchParams(hashValue.slice(queryIndex + 1))
+        : new URLSearchParams();
+
+      const broadParam = params.get('broad');
+      const searchParam = params.get('search');
+
+      return {
+        page: 'products',
+        broadCategory: broadParam ? broadParam.toLowerCase() : null,
+        searchTerm: searchParam ? searchParam.trim() : '',
+      };
     };
 
     if (hash.startsWith('#product/')) {
@@ -40,10 +47,7 @@ function App() {
       return { page: 'product-detail', productId: productId };
     }
     if (hash.startsWith('#products')) {
-      return {
-        page: 'products',
-        broadCategory: parseBroadCategory(hash),
-      };
+      return parseProductsRoute(hash);
     }
     if (hash === '#favourites') return { page: 'favourites' };
     if (hash === '#cart') return { page: 'cart' };
@@ -74,7 +78,10 @@ function App() {
     <div>
       {currentRoute.page === 'home' && <HomePage />}
       {currentRoute.page === 'products' && (
-        <ProductsPage initialBroadCategory={currentRoute.broadCategory} />
+        <ProductsPage
+          initialBroadCategory={currentRoute.broadCategory}
+          initialSearch={currentRoute.searchTerm}
+        />
       )}
       {currentRoute.page === 'product-detail' && <ProductDetailPage productId={currentRoute.productId} />}
       {currentRoute.page === 'favourites' && <FavouritesPage />}
