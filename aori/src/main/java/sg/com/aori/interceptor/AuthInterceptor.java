@@ -56,7 +56,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
             HttpServletResponse response, Object handler) throws Exception {
 
-        DebugMode.DEBUG = false;
+        DebugMode.DEBUG = true;
 
         if (DebugMode.DEBUG) {
             System.out.println(

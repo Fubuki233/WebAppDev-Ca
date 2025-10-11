@@ -23,13 +23,16 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
         // Find all orders by customer ID
         List<Orders> findByCustomerId(String customerId);
 
+        // Find all orders by customer ID ordered by creation date descending
+        List<Orders> findByCustomerIdOrderByCreatedAtDesc(String customerId);
+
         List<Orders> findByOrderId(String orderId);
 
         // Find latest order by customer ID
         Orders findTopByCustomerIdOrderByCreatedAtDesc(String customerId);
 
-        // Find order items by order ID
-        @Query("SELECT oi FROM OrderItem oi WHERE oi.order.id = :orderId")
+        // Find order items by order ID with product information
+        @Query("SELECT oi FROM OrderItem oi LEFT JOIN FETCH oi.product WHERE oi.order.id = :orderId")
         List<OrderItem> findOrderItemsByOrderId(@Param("orderId") String orderId);
 
         // Find orders by status

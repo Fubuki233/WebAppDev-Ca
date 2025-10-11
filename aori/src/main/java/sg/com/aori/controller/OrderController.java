@@ -27,37 +27,57 @@ public class OrderController {
     @Autowired
     private IOrder orderService;
 
-    // Display order details page
-    /*
-    {
-        "success": true,
-        "orderItems": [],
-        "order": 
-        {
-            "orderId": "be5e8714-d0bc-4ef4-ad7a-a9b3cc5c2b64",
-            "orderNumber": null,
-            "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
-            "orderStatus": "Pending",
-            "totalAmount": 249.00,
-            "paymentStatus": "Pending",
-            "createdAt": "2025-10-10T00:42:15.918278",
-            "updatedAt": "2025-10-10T00:42:15.918278",
-            "customer": 
-            {
-                "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
-                "firstName": "John",
-                "lastName": "Doe1",
-                "email": "john@example.com",
-                "password": "SecurePass123!",
-                "phoneNumber": null,
-                "gender": "Female",
-                "dateOfBirth": "1995-03-16",
-                "createdAt": "2025-10-09T00:20:58.212149",
-                "updatedAt": "2025-10-09T18:14:49.590697",
-                "hibernateLazyInitializer": {}
+    /**
+     * Get all orders for a customer
+     * GET /api/orders
+     * Returns: List of orders for the logged-in customer
+     */
+    @GetMapping("")
+    public ResponseEntity<List<Orders>> getUserOrders(jakarta.servlet.http.HttpSession session) {
+        try {
+            String customerId = (String) session.getAttribute("id");
+            if (customerId == null) {
+                return ResponseEntity.status(401).build();
             }
+
+            List<Orders> orders = orderService.findOrdersByCustomerId(customerId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
+
+    // Display order details page
+    /*
+     * {
+     * "success": true,
+     * "orderItems": [],
+     * "order":
+     * {
+     * "orderId": "be5e8714-d0bc-4ef4-ad7a-a9b3cc5c2b64",
+     * "orderNumber": null,
+     * "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+     * "orderStatus": "Pending",
+     * "totalAmount": 249.00,
+     * "paymentStatus": "Pending",
+     * "createdAt": "2025-10-10T00:42:15.918278",
+     * "updatedAt": "2025-10-10T00:42:15.918278",
+     * "customer":
+     * {
+     * "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+     * "firstName": "John",
+     * "lastName": "Doe1",
+     * "email": "john@example.com",
+     * "password": "SecurePass123!",
+     * "phoneNumber": null,
+     * "gender": "Female",
+     * "dateOfBirth": "1995-03-16",
+     * "createdAt": "2025-10-09T00:20:58.212149",
+     * "updatedAt": "2025-10-09T18:14:49.590697",
+     * "hibernateLazyInitializer": {}
+     * }
+     * }
+     * }
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<Map<String, Object>> getOrder(@PathVariable String orderId) {
@@ -65,12 +85,12 @@ public class OrderController {
         try {
             Orders order = orderService.findOrderById(orderId);
             List<OrderItem> orderItems = orderService.findOrderItemsByOrderId(orderId);
-            
+
             response.put("success", true);
             response.put("order", order);
             response.put("orderItems", orderItems);
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
@@ -82,30 +102,30 @@ public class OrderController {
     // Be aware: timeout counter starts here
     /**
      * When payment success:
-    {
-        "success": true,
-        "orderStatus": "Paid",
-        "message": "Payment processed successfully",
-        "paymentStatus": "Paid"
-    }
+     * {
+     * "success": true,
+     * "orderStatus": "Paid",
+     * "message": "Payment processed successfully",
+     * "paymentStatus": "Paid"
+     * }
      * When payment fail:
-    {
-        "success": false,
-        "message": "Payment failed",
-        "paymentStatus": "Failed"
-    }
+     * {
+     * "success": false,
+     * "message": "Payment failed",
+     * "paymentStatus": "Failed"
+     * }
      * When order or payment status is not 'Pending':
-    {
-        "success": false,
-        "message": "Order cannot be paid"
-    }
+     * {
+     * "success": false,
+     * "message": "Order cannot be paid"
+     * }
      */
     @PostMapping("/{orderId}/payment")
     public ResponseEntity<Map<String, Object>> processPayment(@Valid @PathVariable String orderId) {
         Map<String, Object> response = new HashMap<>();
         try {
             boolean paymentSuccess = orderService.processPayment(orderId);
-            
+
             if (paymentSuccess) {
                 response.put("success", true);
                 response.put("message", "Payment processed successfully");
@@ -117,9 +137,9 @@ public class OrderController {
                 response.put("message", "Payment failed");
                 response.put("paymentStatus", "Failed");
             }
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
@@ -130,23 +150,23 @@ public class OrderController {
     // Cancel order
     // Be aware: only changes order_status, doesn't change payment_status
     /*
-    {
-        "success": true,
-        "orderStatus": "Cancelled",
-        "message": "Order cancelled successfully"
-    }
+     * {
+     * "success": true,
+     * "orderStatus": "Cancelled",
+     * "message": "Order cancelled successfully"
+     * }
      */
     @PostMapping("/{orderId}/cancellation")
     public ResponseEntity<Map<String, Object>> cancelOrder(@Valid @PathVariable String orderId) {
         Map<String, Object> response = new HashMap<>();
         try {
             orderService.cancelOrder(orderId);
-            
+
             response.put("success", true);
             response.put("message", "Order cancelled successfully");
             response.put("orderStatus", "Cancelled");
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
@@ -156,29 +176,29 @@ public class OrderController {
 
     // Get order status
     /*
-    {
-        "orderId": "be5e8714-d0bc-4ef4-ad7a-a9b3cc5c2b64",
-        "orderNumber": null,
-        "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
-        "orderStatus": "Pending",
-        "totalAmount": 249.00,
-        "paymentStatus": "Pending",
-        "createdAt": "2025-10-10T00:42:15.918278",
-        "updatedAt": "2025-10-10T00:42:15.918278",
-        "customer": {
-            "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
-            "firstName": "John",
-            "lastName": "Doe1",
-            "email": "john@example.com",
-            "password": "SecurePass123!",
-            "phoneNumber": null,
-            "gender": "Female",
-            "dateOfBirth": "1995-03-16",
-            "createdAt": "2025-10-09T00:20:58.212149",
-            "updatedAt": "2025-10-09T18:14:49.590697",
-            "hibernateLazyInitializer": {}
-        }
-    }
+     * {
+     * "orderId": "be5e8714-d0bc-4ef4-ad7a-a9b3cc5c2b64",
+     * "orderNumber": null,
+     * "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+     * "orderStatus": "Pending",
+     * "totalAmount": 249.00,
+     * "paymentStatus": "Pending",
+     * "createdAt": "2025-10-10T00:42:15.918278",
+     * "updatedAt": "2025-10-10T00:42:15.918278",
+     * "customer": {
+     * "customerId": "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a",
+     * "firstName": "John",
+     * "lastName": "Doe1",
+     * "email": "john@example.com",
+     * "password": "SecurePass123!",
+     * "phoneNumber": null,
+     * "gender": "Female",
+     * "dateOfBirth": "1995-03-16",
+     * "createdAt": "2025-10-09T00:20:58.212149",
+     * "updatedAt": "2025-10-09T18:14:49.590697",
+     * "hibernateLazyInitializer": {}
+     * }
+     * }
      */
     @GetMapping("/{orderId}/status")
     public ResponseEntity<Orders> getOrderStatus(@PathVariable String orderId) {

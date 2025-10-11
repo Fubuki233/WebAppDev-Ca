@@ -12,10 +12,18 @@ import java.util.List;
 
 public interface IOrder {
     Orders findOrderById(String orderId);
+
     Orders findLatestOrderByCustomerId(String customerId);
+
+    List<Orders> findOrdersByCustomerId(String customerId);
+
     List<OrderItem> findOrderItemsByOrderId(String orderId);
+
     boolean processPayment(String orderId);
+
     void cancelOrder(String orderId);
+
     void updateOrderStatus(String orderId, Orders.OrderStatus status);
+
     boolean validateOrderData(Orders order);
 }

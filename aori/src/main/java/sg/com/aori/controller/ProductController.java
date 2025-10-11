@@ -67,10 +67,33 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
+    /**
+     * Get all products or filter by category.
+     * 
+     * @param category Optional category slug or categoryId to filter products
+     * @return List of products
+     * 
+     *         Examples:
+     *         - GET /api/products - returns all products
+     *         - GET /api/products?category=women-loungewear - returns products in
+     *         women-loungewear category
+     *         - GET /api/products?category=9c3b9b6a-2319-52ba-ac5a-68f9345d64fa -
+     *         returns products by categoryId
+     */
     @GetMapping()
-    public Optional<List<Product>> getAllProducts() {
+    public Optional<List<Product>> getAllProducts(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String category) {
+
+        if (category != null && !category.trim().isEmpty()) {
+            System.out.println("[ProductController] Fetching products by category: " + category);
+            Optional<List<Product>> products = crudProductService.getProductsByCategorySlugOrId(category);
+            System.out.println("[ProductController] Found " + products.map(List::size).orElse(0) + " products");
+            return products;
+        }
+
         Optional<List<Product>> products = crudProductService.getAllProducts();
-        System.out.println("[ProductController] Fetching all products: " + products);
+        System.out.println(
+                "[ProductController] Fetching all products: " + products.map(List::size).orElse(0) + " products");
         return products;
     }
 
@@ -112,7 +135,8 @@ public class ProductController {
      * @return The product with the specified ID.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable @NotBlank(message = "Product ID Cannot be empty") String id) {
+    public ResponseEntity<Product> getProductById(
+            @PathVariable @NotBlank(message = "Product ID Cannot be empty") String id) {
         System.out.println("[ProductController] Fetching product with ID: " + id);
         Optional<Product> product = crudProductService.getProductById(id);
 
@@ -147,23 +171,31 @@ public class ProductController {
      * @return The created product.
      */
 
-/* Previous method by Yunhe 
-    @PutMapping("/admin")
-
-    public ResponseEntity<Product> updateProduct(@RequestParam("id") @NotBlank(message = "Product Id cannot be empty") String id, @Valid @RequestBody Product product) {
-
-        Product updatedProduct = crudProductService.updateProduct(id, product);
-        System.out.println("[ProductController] Updated product: " + updatedProduct);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
-    }
-
-    @DeleteMapping("/admin")
-    public ResponseEntity<Product> deleteProduct(@RequestParam("id") @NotBlank(message = "Product Id annot be empty") String productId) {
-        System.out.println("[ProductController] Deleting product with ID: " + productId);
-        Product deletedProduct = crudProductService.deleteProduct(productId);
-        return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
-    }
-*/
+    /*
+     * Previous method by Yunhe
+     * 
+     * @PutMapping("/admin")
+     * 
+     * public ResponseEntity<Product>
+     * updateProduct(@RequestParam("id") @NotBlank(message =
+     * "Product Id cannot be empty") String id, @Valid @RequestBody Product product)
+     * {
+     * 
+     * Product updatedProduct = crudProductService.updateProduct(id, product);
+     * System.out.println("[ProductController] Updated product: " + updatedProduct);
+     * return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
+     * }
+     * 
+     * @DeleteMapping("/admin")
+     * public ResponseEntity<Product>
+     * deleteProduct(@RequestParam("id") @NotBlank(message =
+     * "Product Id annot be empty") String productId) {
+     * System.out.println("[ProductController] Deleting product with ID: " +
+     * productId);
+     * Product deletedProduct = crudProductService.deleteProduct(productId);
+     * return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
+     * }
+     */
 
     /**
      * REFACTORED: Now uses @PathVariable for a more standard RESTful URL.

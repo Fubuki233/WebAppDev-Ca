@@ -36,12 +36,13 @@ public interface ProductRepository extends JpaRepository<Product, String>, JpaSp
 
     List<Product> findByCollectionAndSeason(String collection, Product.Season season);
 
-    /** search products by name and category
-    *
-    * @author Simon Lei
-    * @date 2025-10-08
-    * @version 1.0
-    */
+    /**
+     * search products by name and category
+     *
+     * @author Simon Lei
+     * @date 2025-10-08
+     * @version 1.0
+     */
     Page<Product> findByProductNameContainingIgnoreCase(
             String keyword, Pageable pageable);
 
@@ -49,21 +50,20 @@ public interface ProductRepository extends JpaRepository<Product, String>, JpaSp
             String keyword, Collection<String> categoryIds, Pageable pageable);
 
     @Query("""
-        select p from Product p
-        left join p.category c
-        where (
-            :kw is null 
-            or lower(p.productName) like lower(concat('%', :kw, '%'))
-            or (c is not null and lower(c.categoryName) like lower(concat('%', :kw, '%')))
-        )
-        and (:hasCats = false or p.categoryId in :catIds)
-    """)
+                select p from Product p
+                left join p.category c
+                where (
+                    :kw is null
+                    or lower(p.productName) like lower(concat('%', :kw, '%'))
+                    or (c is not null and lower(c.categoryName) like lower(concat('%', :kw, '%')))
+                )
+                and (:hasCats = false or p.categoryId in :catIds)
+            """)
     Page<Product> searchByKeywordAndCategories(
             @Param("kw") String keyword,
             @Param("catIds") Collection<String> categoryIds,
             @Param("hasCats") boolean hasCategories,
             Pageable pageable);
-
 
     // List<Product> findByPriceBetween(double minPrice, double maxPrice);
 
@@ -73,6 +73,9 @@ public interface ProductRepository extends JpaRepository<Product, String>, JpaSp
 
     @Query("SELECT p FROM Product p JOIN p.category c WHERE c.categoryName = :categoryName")
     List<Product> findProductsByCategoryName(@Param("categoryName") String categoryName);
+
+    @Query("SELECT p FROM Product p JOIN p.category c WHERE c.slug = :slug")
+    List<Product> findProductsByCategorySlug(@Param("slug") String slug);
 
     @Modifying
     @Transactional

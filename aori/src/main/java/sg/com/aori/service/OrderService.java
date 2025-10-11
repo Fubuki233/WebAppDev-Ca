@@ -48,6 +48,12 @@ public class OrderService implements IOrder {
         return orderRepository.findTopByCustomerIdOrderByCreatedAtDesc(customerId);
     }
 
+    // Find all orders by customer ID
+    @Override
+    public List<Orders> findOrdersByCustomerId(String customerId) {
+        return orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId);
+    }
+
     // Find order items by order ID
     public List<OrderItem> findOrderItemsByOrderId(String orderId) {
         return orderRepository.findOrderItemsByOrderId(orderId);
@@ -87,7 +93,7 @@ public class OrderService implements IOrder {
         try {
             // Wait for payment result with timeout
             Boolean paymentSuccess = paymentFuture.get(65, TimeUnit.SECONDS);
-            
+
             if (paymentSuccess) {
                 // Update order status
                 order.setOrderStatus(Orders.OrderStatus.Paid);
@@ -103,7 +109,7 @@ public class OrderService implements IOrder {
                 restoreInventory(orderId);
                 return false;
             }
-            
+
         } catch (Exception e) {
             // Payment timeout or error - restore inventory
             order.setPaymentStatus(Orders.PaymentStatus.Failed);
@@ -136,7 +142,7 @@ public class OrderService implements IOrder {
     // Restore inventory when order is cancelled or payment fails
     private void restoreInventory(String orderId) {
         List<OrderItem> orderItems = findOrderItemsByOrderId(orderId);
-        
+
         for (OrderItem item : orderItems) {
             Product product = item.getProduct();
             product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
@@ -156,9 +162,9 @@ public class OrderService implements IOrder {
 
     // Validate order data
     public boolean validateOrderData(Orders order) {
-        return order != null && 
-               order.getTotalAmount() != null &&
-               order.getTotalAmount().compareTo(BigDecimal.ZERO) > 0 &&
-               order.getCustomer() != null;
+        return order != null &&
+                order.getTotalAmount() != null &&
+                order.getTotalAmount().compareTo(BigDecimal.ZERO) > 0 &&
+                order.getCustomer() != null;
     }
 }

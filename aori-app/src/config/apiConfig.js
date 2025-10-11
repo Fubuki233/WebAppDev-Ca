@@ -43,8 +43,8 @@ export const API_ENDPOINTS = {
     FAVOURITES_ADD: '/wishlist',
     FAVOURITES_REMOVE: '/wishlist',
 
-    ORDERS: '/orders',
-    ORDER_CREATE: '/orders/create',
+    ORDERS: '/order',
+    ORDER_CREATE: '/order/create',
 
 };
 

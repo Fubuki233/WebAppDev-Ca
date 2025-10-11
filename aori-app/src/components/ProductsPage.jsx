@@ -38,7 +38,9 @@ const ProductsPage = () => {
         try {
             const result = await fetchProducts(filters);
             console.log('Loaded products result:', result);
+            console.log('Current filters:', filters);
             const productsData = result?.products || [];
+            console.log('Products data sample:', productsData[0]);
             setProducts(productsData);
             setTotalProducts(result?.total || 0);
 
@@ -85,6 +87,7 @@ const ProductsPage = () => {
     const loadCategories = async () => {
         try {
             const cats = await fetchCategories();
+            console.log('Loaded categories:', cats);
             setCategories(cats);
 
             // Generate category tabs from fetched categories
@@ -94,6 +97,7 @@ const ProductsPage = () => {
                     label: (cat.categoryName || cat.name || '').toUpperCase(),
                     categoryId: cat.categoryId,
                 }));
+                console.log('Category tabs:', tabs);
                 setCategoryTabs(tabs);
             }
         } catch (error) {
@@ -116,6 +120,7 @@ const ProductsPage = () => {
     };
 
     const handleCategoryClick = (categoryId) => {
+        console.log('Category clicked:', categoryId);
         setActiveCategory(categoryId);
         if (categoryId === 'all') {
             const { category, ...rest } = filters;

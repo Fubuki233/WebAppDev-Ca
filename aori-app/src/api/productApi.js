@@ -160,7 +160,57 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const applyClientSideFilters = (products, filters) => {
     let filtered = [...products];
 
-    // Color filter
+    // Category filter - Filter by categoryId or category.categoryId
+    if (filters.category && filters.category !== 'all') {
+        console.log('[applyClientSideFilters] Filtering by category:', filters.category);
+        console.log('[applyClientSideFilters] Total products before filter:', filtered.length);
+        console.log('[applyClientSideFilters] Sample product structure:', filtered[0]);
+        console.log('[applyClientSideFilters] First 3 products categories:', filtered.slice(0, 3).map(p => ({
+            name: p.productName,
+            category: p.category,
+            categoryId: p.categoryId,
+            categoryData: p.categoryData
+        })));
+
+        filtered = filtered.filter(p => {
+            // Product.category is a slug string, not an object
+            // Check if product.category (slug) matches filters.category (slug or categoryId)
+            if (p.category === filters.category) {
+                console.log('[Match by p.category]', p.productName, p.category);
+                return true;
+            }
+
+            // Check if product.categoryId matches filters.category (categoryId)
+            if (p.categoryId === filters.category) {
+                console.log('[Match by p.categoryId]', p.productName, p.categoryId);
+                return true;
+            }
+
+            // Check if product.categoryData (original category object) matches
+            if (p.categoryData && typeof p.categoryData === 'object') {
+                // Match by categoryId
+                if (p.categoryData.categoryId === filters.category) {
+                    console.log('[Match by p.categoryData.categoryId]', p.productName);
+                    return true;
+                }
+                // Match by slug (case-insensitive)
+                const categoryLower = filters.category.toLowerCase();
+                if (p.categoryData.slug && p.categoryData.slug.toLowerCase() === categoryLower) {
+                    console.log('[Match by p.categoryData.slug]', p.productName, p.categoryData.slug);
+                    return true;
+                }
+                // Match by categoryName (case-insensitive)
+                if (p.categoryData.categoryName && p.categoryData.categoryName.toLowerCase() === categoryLower) {
+                    console.log('[Match by p.categoryData.categoryName]', p.productName, p.categoryData.categoryName);
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        console.log('[applyClientSideFilters] Products after category filter:', filtered.length);
+    }    // Color filter
     if (filters.colors && Array.isArray(filters.colors) && filters.colors.length > 0) {
         filtered = filtered.filter(p =>
             p.colors && Array.isArray(p.colors) &&
