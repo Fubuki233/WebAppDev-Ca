@@ -13,9 +13,11 @@
     box-shadow: 0 2px 4px rgba(0,0,0,.04);
 }
 
-/* Change the main "AORI" brand color to a deep blue */
+/* Brand Font and Colour for Aori*/ 
 .navbar-brand {
-    color: #0056b3 !important;
+    font-family: 'Aboreto', cursive; /* Use Aboreto font */
+    color: #212529 !important;      /* Set color to black/dark grey */
+    font-size: 1.5rem;              /* Optional: Adjust font size */
 }
 
 /* Custom Button Colors */

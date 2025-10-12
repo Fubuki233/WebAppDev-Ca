@@ -33,6 +33,10 @@ public class AdminDashboardController {
         employeeRepository.findById(employeeId).ifPresent(employee -> {
             model.addAttribute("employee", employee);
         });
+
+        // Set the active page for navigation highlighting
+        model.addAttribute("activePage", "dashboard");
+
         // Return the path to the HTML view: /templates/admin/dashboard.html
         return "admin/dashboard";
     }

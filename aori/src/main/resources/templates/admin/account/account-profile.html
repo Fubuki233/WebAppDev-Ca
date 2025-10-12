@@ -11,9 +11,24 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Employee Profile Page</title>
+    <title>Employee Profile</title>
 </head>
 <body>
-<h1>HELLO <span th:object="${employee}"></span>, this is your account profile.</h1>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">My Profile</h1>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">
+                Hello, <span th:text="${employee.firstName} + ' ' + ${employee.lastName}"></span>!
+            </h5>
+            <p class="card-text">
+                Welcome to your account profile page.
+            </p>
+            </div>
+    </div>
+</div>
 </body>
 </html>

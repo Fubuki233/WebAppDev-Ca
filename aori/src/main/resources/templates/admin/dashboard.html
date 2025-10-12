@@ -6,7 +6,8 @@
  * @version 1.0 
  */ 
  -->
-<!DOCTYPE html lang="en" xmlns:th="http://www.thymeleaf.org"
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
   <head>
@@ -15,7 +16,7 @@
 <body>
     <div layout:fragment="content">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Dashboard</h1>
+        <h1 class="h2">Dashboard</h1>
         </div>
         
         <div class="alert alert-primary" role="alert">
@@ -26,7 +27,7 @@
             <div class="col-md-4">
                 <div class="card text-center mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">New Orders</h5>
+                        <h5 class="card-title">Orders</h5>
                         <p class="card-text fs-2 fw-bold">12</p>
                         <a th:href="@{/admin/orders}" class="btn btn-primary">View Orders</a>
                     </div>
@@ -35,18 +36,18 @@
             <div class="col-md-4">
                  <div class="card text-center mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Products in Stock</h5>
+                        <h5 class="card-title">Products</h5>
                         <p class="card-text fs-2 fw-bold">457</p>
-                        <a th:href="@{/admin/products}" class="btn btn-secondary">Manage Products</a>
+                        <a th:href="@{/admin/products}" class="btn btn-primary">Manage Products</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card text-center mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Total Employees</h5>
+                        <h5 class="card-title">Employees</h5>
                         <p class="card-text fs-2 fw-bold">34</p>
-                        <a th:href="@{/admin/employees}" class="btn btn-secondary">View Employees</a>
+                        <a th:href="@{/admin/employees}" class="btn btn-primary">View Employees</a>
                     </div>
                 </div>
             </div>

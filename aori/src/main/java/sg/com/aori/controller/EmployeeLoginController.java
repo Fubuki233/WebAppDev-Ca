@@ -81,7 +81,7 @@ public class EmployeeLoginController {
     }
 
     // --- 3. LOGOUT (GET /admin/logout) ---
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
         session.invalidate(); // Clear the session
         redirectAttributes.addFlashAttribute("success", "You have been logged out successfully.");

@@ -19,6 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Aboreto&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/custom.css}">
 
     <style>
@@ -26,9 +27,18 @@
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+        }
+
+        .brand-font{
+            font-family: 'Aboreto', cursive;
+
+        }
+        .login-logo {
+            width: 150px;
         }
         .login-card {
             max-width: 400px;
@@ -38,10 +48,11 @@
 
 </head>
 <body>
+    <img th:src="@{/images/aori-logo.png}" alt="Aori Logo" class="login-logo mb-4">
 
 <div class="card login-card shadow-sm">
     <div class="card-body p-4">
-        <h3 class="card-title text-center mb-4 fw-bold" style="color: #0056b3;">AORI ADMIN LOGIN</h3>
+        <h3 class="card-title text-center mb-4 fw-bold brand-font" style="color: #212529">Aori Admin Login</h3>
 
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>

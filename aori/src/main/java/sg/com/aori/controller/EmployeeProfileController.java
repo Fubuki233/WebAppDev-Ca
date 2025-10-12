@@ -27,7 +27,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
-@RequestMapping("/admin/account/profile")
+@RequestMapping("/admin/account")
 public class EmployeeProfileController {
 
     private final IEmployeeProfile manageEmployeeProfile;
@@ -58,7 +58,12 @@ public class EmployeeProfileController {
                     .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
             model.addAttribute("employee", employee);
-            return "admin/account/account-profile"; // Path to your Thymeleaf template
+
+            // Set the active page for navigation highlighting
+            model.addAttribute("activePage", "profile");
+
+            return "admin/account/account-profile"; // Path to the Thymeleaf template
+
         } catch (EntityNotFoundException e) {
             // Only if the user was deleted while their session was active
             session.invalidate(); // Clear the invalid session
@@ -66,11 +71,13 @@ public class EmployeeProfileController {
         }
     }
     
-    @PostMapping("/edit")
+    
+    @PostMapping("/profile/edit")
     public String updateProfile(@Valid @ModelAttribute("employee") Employee employeeDetails,
                               BindingResult bindingResult,
                               RedirectAttributes redirectAttributes,
-                              HttpSession session) {
+                              HttpSession session,
+                              Model model) {
 
         String loggedInEmployeeId = (String) session.getAttribute("employeeId"); // changed this on 11 Oct
 
@@ -85,10 +92,11 @@ public class EmployeeProfileController {
         }
 
         if (bindingResult.hasErrors()) {
+            // If validation fails, re-render the page. Employee object will be added back to the model.
             redirectAttributes.addFlashAttribute("error", "Invalid data. Please check the fields.");
-            // Since we return to the profile view, we need to add the employee object
-            // back to the model to repopulate the form with the incorrect data.
-            // A better way is to not redirect but return the view name directly.
+            // Then we need to add the activePage attribute to ensure the navigation highlighting works.
+
+            model.addAttribute("activePage", "profile"); 
             return "admin/account/account-profile";
         }
 
