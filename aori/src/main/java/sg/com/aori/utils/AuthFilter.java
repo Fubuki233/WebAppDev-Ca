@@ -32,6 +32,8 @@ public class AuthFilter {
                 Map.of("path", "/admin/logout", "method", "GET"),
                 Map.of("path", "/api/wishlist", "method", "GET"),
                 Map.of("path", "/api/view-history", "method", "GET"),
+                Map.of("path", "/css/custom.css", "method", "GET"),
+                Map.of("path", "/images/aori-logo.png", "method", "GET"),
                 Map.of("path", "/api/products/collectionDisplay", "method", "GET"));
 
         System.out.println("[AuthFilter] checking requestMap: " + requestMap);
