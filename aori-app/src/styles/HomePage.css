@@ -196,3 +196,105 @@
         font-size: 14px;
     }
 }
+
+/* Recommendations Section Integration */
+.homepage .recommendations-section {
+    max-width: 100%;
+    margin: 0;
+    padding: 80px 60px;
+    background-color: #f9f9f9;
+}
+
+.homepage .recommendations-section:nth-of-type(even) {
+    background-color: #ffffff;
+}
+
+.homepage .recommendations-section h2 {
+    font-size: 56px;
+    font-weight: 300;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    text-align: left;
+    margin-bottom: 60px;
+    color: #1a1a1a;
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.homepage .recommendations-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 2px;
+    background-color: #1a1a1a;
+}
+
+.homepage .recommendations-section:first-of-type {
+    margin-top: 0;
+    padding-top: 100px;
+}
+
+/* Product grid inside homepage recommendations */
+.homepage .recommendations-section .products-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+    .homepage .recommendations-section {
+        padding: 60px 40px;
+    }
+
+    .homepage .recommendations-section h2 {
+        font-size: 48px;
+        letter-spacing: 6px;
+        margin-bottom: 50px;
+    }
+
+    .homepage .recommendations-section:first-of-type {
+        padding-top: 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .homepage .recommendations-section {
+        padding: 50px 30px;
+    }
+
+    .homepage .recommendations-section h2 {
+        font-size: 36px;
+        letter-spacing: 4px;
+        margin-bottom: 40px;
+    }
+
+    .homepage .recommendations-section h2::after {
+        width: 60px;
+    }
+
+    .homepage .recommendations-section:first-of-type {
+        padding-top: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .homepage .recommendations-section {
+        padding: 40px 20px;
+    }
+
+    .homepage .recommendations-section h2 {
+        font-size: 28px;
+        letter-spacing: 3px;
+        margin-bottom: 30px;
+    }
+
+    .homepage .recommendations-section h2::after {
+        width: 50px;
+        height: 1px;
+    }
+
+    .homepage .recommendations-section:first-of-type {
+        padding-top: 50px;
+    }
+}

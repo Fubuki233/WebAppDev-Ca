@@ -14,14 +14,13 @@
 
 /**
  * Handle authentication error responses
- * @param {Response} response - Fetch response object
- * @param {boolean} stayAsGuest - If true, don't redirect on 401, just return false
- * @returns {boolean} true if authentication error was handled, false otherwise
+ * @param {Response} response 
+ * @param {boolean} stayAsGuest
+ * @returns {boolean} 
  */
 export const handleAuthError = async (response, stayAsGuest = false) => {
     if (response.status === 401) {
         if (stayAsGuest) {
-            // If stayAsGuest is true, don't redirect, just return false
             console.log('Authentication required but staying as guest');
             return false;
         }
@@ -36,7 +35,6 @@ export const handleAuthError = async (response, stayAsGuest = false) => {
                 window.location.href = '/#login';
             }
         } catch (e) {
-            // If response is not JSON, just redirect to login
             console.log('Authentication required, redirecting to login');
             window.location.href = '/#login';
         }
@@ -63,9 +61,7 @@ export const authenticatedFetch = async (url, options = {}) => {
 
     const response = await fetch(url, defaultOptions);
 
-    // Handle authentication errors
     if (await handleAuthError(response)) {
-        // Return a rejected promise to stop further processing
         throw new Error('Authentication required');
     }
 
@@ -115,7 +111,6 @@ export const getUserUuid = async (stayAsGuest = false) => {
             },
         });
 
-        // Handle authentication errors - will redirect to login only if stayAsGuest is false
         if (await handleAuthError(response, stayAsGuest)) {
             return null;
         }

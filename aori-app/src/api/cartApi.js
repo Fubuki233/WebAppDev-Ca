@@ -1,15 +1,6 @@
 /**
  * Cart API module for managing shopping cart operations.
  * 
- * Backend ShoppingCart Entity:
- * - cartId (String, UUID)
- * - customerId (String, UUID) - Required
- * - variantId (String, UUID) - ProductVariant ID
- * - quantity (Integer)
- * - addedAt (LocalDateTime)
- * - customer (Customer object)
- * - variant (ProductVariant object with product details)
- * 
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.2 - Updated to use getUserUuid() from apiUtils
@@ -64,8 +55,7 @@ export const getCart = async (customerId, useMock = false, stayAsGuest = false) 
         const data = await response.json();
         console.log('Cart data from API:', data);
 
-        // Transform backend cart items to frontend format
-        // Backend returns: { success, cartItems, totalAmount, itemCount }
+
         if (Array.isArray(data)) {
             return data.map(transformCartItem).filter(item => item !== null);
         } else if (data.cartItems && Array.isArray(data.cartItems)) {
@@ -91,7 +81,6 @@ const transformCartItem = (backendItem) => {
     if (!backendItem) return null;
 
     try {
-        // Backend returns product directly, not variant
         const product = backendItem.product;
 
         return {
@@ -101,12 +90,10 @@ const transformCartItem = (backendItem) => {
             quantity: backendItem.quantity,
             addedAt: backendItem.addedAt,
 
-            // Frontend fields from product
             productName: product?.productName || backendItem.productName,
             name: product?.productName || backendItem.productName,
             price: product?.price || backendItem.price || 0,
             image: product?.image || backendItem.image,
-            // Parse size from JSON string array, take first size as default
             size: (() => {
                 try {
                     const sizes = product?.size || backendItem.size;
@@ -119,7 +106,6 @@ const transformCartItem = (backendItem) => {
                     return 'M';
                 }
             })(),
-            // Parse colors from JSON string array, take first color as default
             color: (() => {
                 try {
                     const colors = product?.colors || backendItem.colors || product?.color || backendItem.color;
@@ -138,7 +124,6 @@ const transformCartItem = (backendItem) => {
             description: product?.description,
             productCode: product?.productCode,
 
-            // Full product object for reference
             product: product,
         };
     } catch (error) {
@@ -184,8 +169,6 @@ export const addToCart = async (item, useMock = false) => {
             return addToCart(item, true);
         }
 
-        // Backend expects: { productId, quantity }
-        // customerId is obtained from session on backend
         const cartItem = {
             productId: item.productId,
             quantity: item.quantity || 1,
@@ -195,7 +178,7 @@ export const addToCart = async (item, useMock = false) => {
 
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART_ADD}`, {
             method: 'POST',
-            credentials: 'include', // Important: include session cookie
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -214,7 +197,6 @@ export const addToCart = async (item, useMock = false) => {
         console.error('Error adding to cart via API:', error);
         console.error('Falling back to localStorage');
 
-        // Fallback to localStorage
         return addToCart(item, true);
     }
 };
@@ -245,7 +227,7 @@ export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_M
         const cartId = item.cartId || item.id;
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}/items/${cartId}`, {
             method: 'PUT',
-            credentials: 'include', // Important: include session cookie
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -285,11 +267,10 @@ export const removeFromCart = async (index, useMock = API_CONFIG.USE_MOCK) => {
             return { success: false, error: 'Item not found' };
         }
 
-        // Use cartId from the item
         const cartId = item.cartId || item.id;
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}/items/${cartId}`, {
             method: 'DELETE',
-            credentials: 'include', // Important: include session cookie
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -322,7 +303,7 @@ export const clearCart = async (useMock = API_CONFIG.USE_MOCK) => {
     try {
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}`, {
             method: 'DELETE',
-            credentials: 'include', // Important: include session cookie
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -360,7 +341,7 @@ export const syncCartWithServer = async (useMock = API_CONFIG.USE_MOCK) => {
         const cart = await getCart(true);
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}`, {
             method: 'POST',
-            credentials: 'include', // Important: include session cookie
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },

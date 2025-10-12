@@ -18,7 +18,6 @@ import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
  * Validation utility functions
  */
 const ValidationRules = {
-    // Name validation: only alphabets, max 50 characters
     name: {
         pattern: /^[A-Za-z]+$/,
         maxLength: 50,
@@ -36,7 +35,6 @@ const ValidationRules = {
         }
     },
 
-    // Email validation
     email: {
         pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         maxLength: 255,
@@ -54,7 +52,6 @@ const ValidationRules = {
         }
     },
 
-    // Password validation: min 8 characters
     password: {
         minLength: 8,
         maxLength: 255,
@@ -72,7 +69,6 @@ const ValidationRules = {
         }
     },
 
-    // Phone number validation: E.164 format
     phone: {
         pattern: /^\+?[1-9]\d{1,14}$/,
         maxLength: 15,
@@ -94,29 +90,24 @@ const ValidationRules = {
 
 /**
  * Validate user registration data
- * @param {Object} userData - User data to validate
- * @returns {Object} Validation result with success flag and errors
+ * @param {Object} userData 
+ * @returns {Object}s
  */
 const validateRegistrationData = (userData) => {
     const errors = {};
 
-    // Validate first name
     const firstNameError = ValidationRules.name.validate(userData.firstName, 'First name');
     if (firstNameError) errors.firstName = firstNameError;
 
-    // Validate last name
     const lastNameError = ValidationRules.name.validate(userData.lastName, 'Last name');
     if (lastNameError) errors.lastName = lastNameError;
 
-    // Validate email
     const emailError = ValidationRules.email.validate(userData.email);
     if (emailError) errors.email = emailError;
 
-    // Validate password
     const passwordError = ValidationRules.password.validate(userData.password);
     if (passwordError) errors.password = passwordError;
 
-    // Validate phone (optional)
     if (userData.phone) {
         const phoneError = ValidationRules.phone.validate(userData.phone);
         if (phoneError) errors.phone = phoneError;
@@ -130,18 +121,16 @@ const validateRegistrationData = (userData) => {
 
 /**
  * Validate login data
- * @param {string} email - User email
- * @param {string} password - User password
- * @returns {Object} Validation result with success flag and errors
+ * @param {string} email
+ * @param {string} password 
+ * @returns {Object}
  */
 const validateLoginData = (email, password) => {
     const errors = {};
 
-    // Validate email
     const emailError = ValidationRules.email.validate(email);
     if (emailError) errors.email = emailError;
 
-    // Validate password (just check if not empty for login)
     if (!password || password.trim() === '') {
         errors.password = 'Password is required';
     }
@@ -154,23 +143,21 @@ const validateLoginData = (email, password) => {
 
 /**
  * Login user
- * @param {string} email - User email
- * @param {string} password - User password
- * @returns {Promise<Object>} Response with user data and session info
+ * @param {string} email 
+ * @param {string} password 
+ * @returns {Promise<Object>} 
  */
 export const login = async (email, password) => {
     try {
-        // Validate input data
         const validation = validateLoginData(email, password);
         if (!validation.isValid) {
             return {
                 success: false,
-                message: Object.values(validation.errors)[0], // Return first error
+                message: Object.values(validation.errors)[0],
                 errors: validation.errors
             };
         }
 
-        // Use query parameters as per API specification
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_LOGIN}?email=${encodeURIComponent(email)}&passwd=${encodeURIComponent(password)}`;
 
         const response = await fetch(url, {
@@ -178,12 +165,11 @@ export const login = async (email, password) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include', // Important for session cookies
+            credentials: 'include',
         });
 
         const data = await response.json();
 
-        // Backend returns { success, message, user, sessionId }
         if (data.success) {
             return {
                 success: true,
@@ -208,12 +194,11 @@ export const login = async (email, password) => {
 
 /**
  * Register new user
- * @param {Object} userData - User registration data
- * @returns {Promise<Object>} Response with success status
+ * @param {Object} userData 
+ * @returns {Promise<Object>} 
  */
 export const register = async (userData) => {
     try {
-        // Validate input data
         const validation = validateRegistrationData(userData);
         if (!validation.isValid) {
             return {
@@ -260,7 +245,7 @@ export const register = async (userData) => {
 
 /**
  * Logout user
- * @returns {Promise<Object>} Response with success status
+ * @returns {Promise<Object>}
  */
 export const logout = async () => {
     try {
@@ -271,7 +256,6 @@ export const logout = async () => {
 
         const data = await response.json();
 
-        // Clear local storage regardless of response
         localStorage.removeItem('user');
 
         return {
@@ -280,7 +264,6 @@ export const logout = async () => {
         };
     } catch (error) {
         console.error('Logout error:', error);
-        // Still clear local storage on error
         localStorage.removeItem('user');
         return {
             success: false,
@@ -291,7 +274,7 @@ export const logout = async () => {
 
 /**
  * Check if user is authenticated
- * @returns {boolean} Authentication status
+ * @returns {boolean} 
  */
 export const isAuthenticated = () => {
     const user = localStorage.getItem('user');
@@ -300,7 +283,7 @@ export const isAuthenticated = () => {
 
 /**
  * Get current user from local storage
- * @returns {Object|null} User object or null
+ * @returns {Object|null} 
  */
 export const getCurrentUser = () => {
     const user = localStorage.getItem('user');

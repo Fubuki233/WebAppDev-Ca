@@ -8,9 +8,6 @@
  * @version 2.0 - Refactored to use Service Layer and add UX improvements
  * @version 2.1 - Amended @PathVariable to @RequestParam for delete operation to enhance security
  * 
- * @author Yunhe
- * @date 2025-10-11
- * @version 2.2 - Added collection display selector for frontend
  */
 
 package sg.com.aori.controller;

@@ -38,7 +38,6 @@ const transformWishlistItem = (backendItem) => {
             createdAt: backendItem.createdAt,
             updatedAt: backendItem.updatedAt,
 
-            // Frontend fields from product
             id: product.productId || backendItem.productId,
             name: product.productName,
             productName: product.productName,
@@ -53,11 +52,9 @@ const transformWishlistItem = (backendItem) => {
             inStock: product.inStock === 'true' || product.inStock === true,
             tags: typeof product.tags === 'string' ? product.tags.split(',') : product.tags,
 
-            // Category info
             categoryId: product.categoryId,
             category: product.category,
 
-            // Full product object
             product: product,
         };
     } catch (error) {
@@ -84,7 +81,6 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK, s
             return [];
         }
 
-        // Backend gets customerId from session, but for now we pass it as query param
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}`;
         console.log('Fetching wishlist from:', url);
 
@@ -108,7 +104,6 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK, s
         const data = await response.json();
         console.log('Wishlist data from API:', data);
 
-        // Backend returns List<Wishlist> directly (an array)
         if (Array.isArray(data)) {
             const transformed = data.map(transformWishlistItem).filter(item => item !== null);
             console.log('Transformed favourites:', transformed);
@@ -164,7 +159,6 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
             };
         }
 
-        // Backend expects: { customerId, productId }
         const wishlistItem = {
             customerId: custId,
             productId: item.productId || item.id,
@@ -213,7 +207,6 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
     }
 
     try {
-        // Backend uses POST toggle to add/remove (not DELETE)
         const custId = customerId || await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, user needs to login');
@@ -241,7 +234,6 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
 
         const data = await response.json();
         console.log('Toggled wishlist:', data);
-        // data = { added: false } means removed
         return { success: true, message: 'Removed from favourites', data };
     } catch (error) {
         console.error('Failed to remove from favourites via API:', error);
@@ -319,12 +311,10 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
     }
 
     try {
-        // Call backend /exists endpoint
         const custId = customerId || await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, checking localStorage');
             const favourites = await getFavourites(null, false);
-            // Check if user is a guest
             if (favourites && favourites.stayAsGuest) {
                 return false;
             }
@@ -352,10 +342,8 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
     } catch (error) {
         console.error('Failed to check favourites via API:', error);
         console.error('Falling back to localStorage');
-        // Fallback to localStorage
         try {
             const favourites = await getFavourites(null, true);
-            // Check if user is a guest
             if (favourites && favourites.stayAsGuest) {
                 return false;
             }
@@ -370,7 +358,6 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
 export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK, stayAsGuest = true) => {
     try {
         const favourites = await getFavourites(useMock);
-        // Check if user is a guest
         if (favourites && favourites.stayAsGuest) {
             return 0;
         }
@@ -427,11 +414,9 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
     }
 
     try {
-        // Use backend toggle endpoint
         const custId = customerId || await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, user needs to login');
-            // Return a special response indicating login is required
             return {
                 success: false,
                 requiresLogin: true,
@@ -448,7 +433,7 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include', // Important for session authentication
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -458,7 +443,7 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
         const data = await response.json();
         console.log('Toggle result:', data);
 
-        // data.added: true = added, false = removed
+
         return {
             success: true,
             added: data.added

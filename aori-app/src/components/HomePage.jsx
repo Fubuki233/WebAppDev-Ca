@@ -11,6 +11,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import ProductCarousel from './ProductCarousel';
+import RecommendationsSection from './RecommendationsSection';
 import { fetchProducts, fetchCollectionDisplay } from '../api/productApi';
 import '../styles/HomePage.css';
 
@@ -82,6 +83,20 @@ const HomePage = () => {
                     products={products.collection || []}
                     newProducts={products.newThisWeek || []}
                     collection={collection}
+                />
+
+                {/* Recommendations based on browsing history */}
+                <RecommendationsSection
+                    limit={12}
+                    title="You May Also Like"
+                    useViewHistoryRecommendations={true}
+                />
+
+                {/* Recommendations based on purchase history */}
+                <RecommendationsSection
+                    limit={12}
+                    title="Picked For You"
+                    useCartRecommendations={false}
                 />
             </div>
         </div>

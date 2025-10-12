@@ -29,7 +29,6 @@ const RegisterPage = () => {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
-        // Clear error for this field
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
@@ -93,7 +92,6 @@ const RegisterPage = () => {
             });
 
             if (response.success) {
-                // Navigate to login page after successful registration using hash
                 window.location.hash = '#login';
             } else {
                 setErrors({ general: response.message || 'Registration failed. Please try again.' });

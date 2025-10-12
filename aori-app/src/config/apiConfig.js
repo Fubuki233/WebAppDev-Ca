@@ -51,6 +51,9 @@ export const API_ENDPOINTS = {
     ORDERS: '/order',
     ORDER_CREATE: '/order/create',
 
+    VIEW_HISTORY: '/view-history',
+
+
 };
 
 export const API_CONFIG = {
