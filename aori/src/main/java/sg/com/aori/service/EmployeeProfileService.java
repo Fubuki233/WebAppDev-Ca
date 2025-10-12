@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 
+import sg.com.aori.dto.EmployeeProfileDTO;
 import sg.com.aori.interfaces.IEmployeeProfile;
 import sg.com.aori.repository.EmployeeRepository;
 import sg.com.aori.model.Employee;
@@ -31,17 +32,14 @@ public class EmployeeProfileService implements IEmployeeProfile {
     }
 
     @Override
-    public Employee updateEmployeeProfile(String employeeId, Employee employeeDetails) {
-        // 1. Locate the existing employee in the database
+    public Employee updateEmployeeProfile(String employeeId, EmployeeProfileDTO profileDto) {
+        // Locate the existing employee in the database
         Employee existingEmployee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + employeeId));
 
-        // Update only permitted fields that can be changed from the profile page
-        // Permitted fields: firstName, lastName, phoneNumber
-        // Non-permitted fields: email, role, department, etc.
-        existingEmployee.setFirstName(employeeDetails.getFirstName());
-        existingEmployee.setLastName(employeeDetails.getLastName());
-        existingEmployee.setPhoneNumber(employeeDetails.getPhoneNumber());
+        // Update only permitted fields that can be changed from the profile page: PhoneNumber
+        // This is already encapsulated in the DTO; validation applied.
+        existingEmployee.setPhoneNumber(profileDto.getPhoneNumber());
 
         // Save the updated employee back to the database
         return employeeRepository.save(existingEmployee);

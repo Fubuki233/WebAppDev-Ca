@@ -15,9 +15,9 @@
 
 /* Brand Font and Colour for Aori*/ 
 .navbar-brand {
-    font-family: 'Aboreto', cursive; /* Use Aboreto font */
-    color: #212529 !important;      /* Set color to black/dark grey */
-    font-size: 1.5rem;              /* Optional: Adjust font size */
+    font-family: 'Aboreto', cursive;
+    color: #212529 !important;      /* Overrides for branding*/
+    font-size: 1.5rem;              
 }
 
 /* Custom Button Colors */
