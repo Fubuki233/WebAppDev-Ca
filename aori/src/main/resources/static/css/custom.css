@@ -7,6 +7,17 @@
  * @version 1.0 
  */
 
+/* Make the navbar a light gray and add a subtle shadow */
+.navbar {
+    background-color: #f8f9fa !important; /* Overrides bg-white */
+    box-shadow: 0 2px 4px rgba(0,0,0,.04);
+}
+
+/* Change the main "AORI" brand color to a deep blue */
+.navbar-brand {
+    color: #0056b3 !important;
+}
+
 /* Custom Button Colors */
 .btn-primary {
     background-color: #212529;  /* Dark Grey/Black */
