@@ -20,7 +20,7 @@ public class SkuTool {
     public static String createSku(String uuid, String colour, String size,
             CRUDProductService productService) {
         Optional<Product> product = productService.getProductById(uuid);
-        String sku = product.get().getProductName() + "&" + colour + "&" + size;
+        String sku = product.get().getProductCode() + "&" + colour + "&" + size;
         return sku;
     }
 
