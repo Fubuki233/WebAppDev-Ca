@@ -131,12 +131,12 @@ public class CreateAccountServiceImpl implements ICreateAccount {
      * throws: IllegalArgumentException if input is invalid.
      */
     private boolean isPasswordStrong(String pwd) {
-        if (pwd == null)
-            return false;
-        boolean hasUpper = pwd.matches(".*[A-Z].*");
-        boolean hasLower = pwd.matches(".*[a-z].*");
-        boolean hasDigit = pwd.matches(".*\\d.*");
-        boolean hasSymbol = pwd.matches(".*[^A-Za-z0-9].*");
+        // if (pwd == null)
+        // return false;
+        // boolean hasUpper = pwd.matches(".*[A-Z].*");
+        // boolean hasLower = pwd.matches(".*[a-z].*");
+        // boolean hasDigit = pwd.matches(".*\\d.*");
+        // boolean hasSymbol = pwd.matches(".*[^A-Za-z0-9].*");
         return true;
         // return hasUpper && hasLower && hasDigit && hasSymbol && pwd.length() >= 8;
     }

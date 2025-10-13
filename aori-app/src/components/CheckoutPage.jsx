@@ -34,12 +34,6 @@ const CheckoutPage = () => {
 
     useEffect(() => {
         const loadCart = async () => {
-<<<<<<< HEAD
-            const cartItems = await getCart();
-            setCart(Array.isArray(cartItems) ? cartItems : []);
-            const total = await getCartTotal();
-            setSubtotal(total);
-=======
             try {
                 const cartItems = await getCart();
                 if (Array.isArray(cartItems)) {
@@ -63,7 +57,6 @@ const CheckoutPage = () => {
                 console.error('Error loading cart:', error);
                 setCart([]);
             }
->>>>>>> 37641306e133c1c544ac437ffd2360df18242722
         };
         loadCart();
     }, []);
@@ -98,27 +91,6 @@ const CheckoutPage = () => {
     };
 
     const handleSubmitOrder = async () => {
-<<<<<<< HEAD
-        try {
-            setSubmitting(true);
-            const result = await checkout();
-            if (result.success) {
-                setOrderId(result.orderId);
-                // 可以弹窗、跳到订单详情、清空本地 cart 等
-            } else {
-                setError(result.message || 'Checkout failed');
-            }
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-
-    const subtotal = getCartTotal();
-    const shipping = 0; // "CALCULATED AT NEXT STEP"
-=======
         if (isSubmitting) return;
 
         setIsSubmitting(true);
@@ -146,7 +118,6 @@ const CheckoutPage = () => {
     };
 
     const shipping = formData.shippingMethod === 'express' ? 15.00 : 0.00;
->>>>>>> 37641306e133c1c544ac437ffd2360df18242722
     const total = subtotal + shipping;
 
     const steps = [
