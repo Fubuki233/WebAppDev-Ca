@@ -1,5 +1,15 @@
 package sg.com.aori.service;
 
+/**
+ * SKU Service for managing stock keeping units (SKUs).
+ * @author Yunehe
+ * @date 2025-10-13
+ * @version 1.0
+ * 
+ * @author Jiang
+ * @date 2025-10-13
+ * @version 1.1 - Debug
+ */
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sg.com.aori.interfaces.ISku;
@@ -17,6 +27,7 @@ public class SkuService implements ISku {
         newSku.setSku(sku);
         newSku.setQuantity(quantity);
         skuRepository.save(newSku);
+        System.out.println("Created SKU: " + sku + " with quantity: " + quantity);
         return sku;
     }
 

@@ -4,6 +4,10 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.1
+ * 
+ * @author Yunhe
+ * @date 2025-10-13
+ * @version 1.2 - Added SKU validation
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -12,6 +16,7 @@ import { addToCart } from '../api/cartApi';
 import { toggleFavourite, isInFavourites } from '../api/favouritesApi';
 import { addViewHistory } from '../api/viewHistoryApi';
 import { getUserUuid } from '../api/apiUtils';
+import { getSkuQuantity } from '../api/skuApi';
 import '../styles/ProductDetailPage.css';
 
 const ProductDetailPage = ({ productId }) => {
@@ -22,6 +27,8 @@ const ProductDetailPage = ({ productId }) => {
     const [selectedSize, setSelectedSize] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [availableQuantity, setAvailableQuantity] = useState(null);
+    const [isCheckingStock, setIsCheckingStock] = useState(false);
 
     useEffect(() => {
         const loadProduct = async () => {
@@ -65,9 +72,42 @@ const ProductDetailPage = ({ productId }) => {
         checkFavorite();
     }, [product]); // Only check when product changes, not size/color
 
+    // Check SKU availability when color or size changes
+    useEffect(() => {
+        const checkSkuAvailability = async () => {
+            if (product && selectedColor && selectedSize) {
+                setIsCheckingStock(true);
+                try {
+                    const qty = await getSkuQuantity(product.id, selectedColor, selectedSize);
+                    setAvailableQuantity(qty);
+                    console.log(`[ProductDetailPage] Available quantity: ${qty}`);
+                } catch (error) {
+                    console.error('[ProductDetailPage] Error checking SKU:', error);
+                    setAvailableQuantity(0);
+                } finally {
+                    setIsCheckingStock(false);
+                }
+            } else {
+                setAvailableQuantity(null);
+            }
+        };
+
+        checkSkuAvailability();
+    }, [product, selectedColor, selectedSize]);
+
     const handleAddToCart = async () => {
         if (!selectedSize) {
             alert('Please select a size');
+            return;
+        }
+
+        if (availableQuantity !== null && availableQuantity < quantity) {
+            alert(`Only ${availableQuantity} items available in stock`);
+            return;
+        }
+
+        if (availableQuantity === 0) {
+            alert('This item is currently out of stock');
             return;
         }
 
@@ -79,6 +119,7 @@ const ProductDetailPage = ({ productId }) => {
             size: selectedSize,
             quantity: quantity,
             image: product.images ? product.images[0] : product.image,
+            sku: `${product.id}-${selectedColor}-${selectedSize}`
         };
 
         const result = await addToCart(cartItem);
@@ -245,12 +286,31 @@ const ProductDetailPage = ({ productId }) => {
                             </div>
                         </div>
 
+                        {/* Stock Status Display */}
+                        {selectedColor && selectedSize && (
+                            <div className="stock-status-detail">
+                                {isCheckingStock ? (
+                                    <span className="checking-stock">Checking availability...</span>
+                                ) : availableQuantity !== null ? (
+                                    availableQuantity > 0 ? (
+                                        <span className="in-stock-detail">
+                                            In Stock
+                                        </span>
+                                    ) : (
+                                        <span className="out-of-stock-detail">
+                                            Out of Stock
+                                        </span>
+                                    )
+                                ) : null}
+                            </div>
+                        )}
+
                         <button
                             className="add-to-cart-button"
                             onClick={handleAddToCart}
-                            disabled={!selectedSize}
+                            disabled={!selectedSize || availableQuantity === 0 || isCheckingStock}
                         >
-                            ADD
+                            {!selectedSize ? 'SELECT SIZE' : availableQuantity === 0 ? 'OUT OF STOCK' : 'ADD'}
                         </button>
 
                         {product.details && (
