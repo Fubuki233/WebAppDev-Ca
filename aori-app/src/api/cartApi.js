@@ -12,6 +12,10 @@
  * @author Yunhe
  * @date 2025-10-11
  * @version 1.4 - will redirect to login when fetching cart for guest
+ * 
+  * @author Sun Rui
+ * @date 2025-10-13
+ * @version 1.5 add checkout API
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 import { getUserUuid } from './apiUtils';
@@ -72,6 +76,31 @@ export const getCart = async (customerId, useMock = false, stayAsGuest = false) 
         return cart ? JSON.parse(cart) : [];
     }
 };
+
+/**
+ * 
+ * Checkout the cart and create an order
+ */
+
+export const checkout = async (useMock = false) => {
+    if (useMock) {
+        return { success: true, orderId: crypto.randomUUID(), message: 'Mock checkout' };
+    }
+
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART_CHECKOUT}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+};
+
 
 /**
  * Transform backend cart item to frontend format
