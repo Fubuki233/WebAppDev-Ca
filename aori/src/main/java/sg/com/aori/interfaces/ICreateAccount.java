@@ -7,6 +7,8 @@
  */
 
 package sg.com.aori.interfaces;
+import java.util.Optional;
+
 import sg.com.aori.model.Customer;
 import sg.com.aori.model.CustomerAddress;
 
@@ -35,5 +37,14 @@ public interface ICreateAccount{
      * throws: IllegalArgumentException if input is invalid.
      */
     CustomerAddress addInitialAddress(CustomerAddress address);
+
+    /**
+     * Retrieves a Customer by email.
+     *
+     * param email Email address to search for.
+     * return: Optional containing Customer if found; otherwise empty.
+     * throws: IllegalArgumentException if input is invalid.
+     */
+    Optional<Customer> getCustomerByEmail(String email);
 
 }

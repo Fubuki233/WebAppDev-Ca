@@ -16,11 +16,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import sg.com.aori.interfaces.IProductReview;
 import sg.com.aori.model.ProductReview;
 import sg.com.aori.model.ProductReview.ReviewStatus;
 import sg.com.aori.repository.ProductReviewRepository;
-
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +63,8 @@ public class ProductReviewService {
         Map<Integer, Long> buckets = new HashMap<>();
         reviewRepo.ratingBuckets(productId, ReviewStatus.Approved)
                 .forEach(obj -> buckets.put((Integer) obj[0], (Long) obj[1]));
-        for (int i = 1; i <= 5; i++) buckets.putIfAbsent(i, 0L);
+        for (int i = 1; i <= 5; i++)
+            buckets.putIfAbsent(i, 0L);
         return buckets;
     }
 
@@ -87,4 +86,3 @@ public class ProductReviewService {
     }
 
 }
-

@@ -1,7 +1,6 @@
 package sg.com.aori.service;
 
 import java.math.BigDecimal;
-import lombok.Data;
 
 // View Model for Product Summary in search results
 // @author Simon Lei  

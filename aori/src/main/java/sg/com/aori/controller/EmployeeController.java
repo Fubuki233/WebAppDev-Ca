@@ -41,37 +41,33 @@ public class EmployeeController {
     }
 
     // --- SHOW ALL EMPLOYEES (Read) ---
-    // GET /admin/employees and /admin/employees/
-    @GetMapping(value = { "", "/" })
+    // GET /admin/employees
+    @GetMapping("/")
     public String listEmployees(Model model) {
         List<Employee> employees = employeeService.getAllEmployees();
-        // DEBUGGING: Check how many records were fetched
-        System.out.println("DEBUG: listEmployees() called. Retrieved " + employees.size() + " employees.");
+
         // Pass the list of employees to the view template
         model.addAttribute("employees", employees);
 
         // Return the name of the Thymeleaf template
-        return "admin/employee/employee-list";
+        return "employee-list";
     }
 
     // --- RENDER FORM FOR NEW EMPLOYEE (Create - GET) ---
     // GET /admin/employees/new
-    @GetMapping(value = "/new")
+    @GetMapping("/new")
     public String showCreateForm(Model model) {
-        System.out.println("DEBUG: showCreateForm() called. Initializing new Employee object.");
         model.addAttribute("employee", new Employee());
         /** load all roles for creator to choose for the new employee */
         model.addAttribute("allRoles", roleService.getAllRoles());
-        return "admin/employee/employee-form"; // Use the same form template for create and update
+        return "employee-form"; // Use the same form template for create and update
     }
 
     // --- PROCESS NEW EMPLOYEE (Create - POST) ---
-    // POST /admin/employees/
-    @PostMapping(value = "/")
+    // POST /admin/employees
+    @PostMapping("/")
     public String createEmployee(@Valid @ModelAttribute("employee") Employee employee) {
         employeeService.createEmployee(employee);
-        // DEBUGGING: Show the data submitted from the form (before validation check)
-        System.out.println("DEBUG: createEmployee() called. Submitted data: " + employee.toString());
         // Redirect to the list view after successful creation
         return "redirect:/admin/employees";
     }
@@ -80,22 +76,13 @@ public class EmployeeController {
     // GET /admin/employees/{id}/edit
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable String id, Model model) {
-        // DEBUGGING: Check the ID from the URL path
-        System.out.println("DEBUG: showEditForm() called. Employee ID from path: " + id);
-
         Employee employee = employeeService.getEmployeeById(id);
-
-        if (employee == null) {
-            System.out.println("ERROR: Employee not found with ID: " + id);
-            return "redirect:/admin/employees";
-        }
-
-        System.out.println("DEBUG: Retrieved Employee for edit: " + employee.getEmail());
 
         // Pass the existing Employee data to pre-populate the form
         model.addAttribute("employee", employee);
 
-        return "admin/employee/employee-form";
+        model.addAttribute("allRoles", roleService.getAllRoles());
+        return "employee-form";
     }
 
     // --- PROCESS EDITED EMPLOYEE (Update - POST/PUT) ---
@@ -104,13 +91,7 @@ public class EmployeeController {
     @PostMapping("/{id}")
     public String updateEmployee(@PathVariable String id,
             @Valid @ModelAttribute("employee") Employee employeeDetails) {
-        // DEBUGGING: Check the path ID and the bound object data
-        System.out.println("DEBUG: updateEmployee() called. Path ID: " + id);
-        System.out.println("DEBUG: Submitted update data: " + employeeDetails.toString());
-
         employeeService.updateEmployee(id, employeeDetails);
-        // DEBUGGING
-        System.out.println("DEBUG: Employee updated successfully. Redirecting to list.");
         return "redirect:/admin/employees";
     }
 
@@ -118,11 +99,7 @@ public class EmployeeController {
     // GET /employees/{id}/delete (Simple method often used for quick UI links)
     @GetMapping("/{id}/delete")
     public String deleteEmployee(@PathVariable @NotBlank(message = "Employee ID cannot be empty") String id) {
-        // DEBUGGING: Confirm the ID being targeted for deletion
-        System.out.println("DEBUG: deleteEmployee() called. ID to delete: " + id);
-
         employeeService.deleteEmployee(id);
-        System.out.println("DEBUG: Employee deleted successfully. Redirecting to list.");
         return "redirect:/admin/employees";
     }
 }

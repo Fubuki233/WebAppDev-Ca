@@ -90,12 +90,8 @@ public class AdminProductController {
 		// Pass the list of all categories to the form for dropdown menu
 		model.addAttribute("categories", categoryRepository.findAll());
 
-		System.out.println(model.getAttribute("product"));
-		System.out.println(model.getAttribute("categories"));
-
 		// return the view name
 		return "admin/products/product-form";
-
 	}
 
 	// --- CREATE NEW PRODUCT (Processes Form) ---

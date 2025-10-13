@@ -8,7 +8,7 @@
  * @date 2025-10-11
  * @version 1.2 - Integrated ProductCarousel for displaying collections and new products
  */
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import ProductCarousel from './ProductCarousel';
 import RecommendationsSection from './RecommendationsSection';
@@ -16,78 +16,88 @@ import { fetchProducts, fetchCollectionDisplay } from '../api/productApi';
 import '../styles/HomePage.css';
 
 const HomePage = () => {
-
-    // ----Status-----
-    const [products, setProducts] = useState([]);
+    const [products, setProducts] = useState({ collection: [], newThisWeek: [] });
+    const [collection, setCollection] = useState('');
     const [loading, setLoading] = useState(true);
-    const [searching, setSearching] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchMessage, setSearchMessage] = useState('');
 
-    // ---- 加载/搜索逻辑 ----
-    const loadProducts = useCallback(async (query = '') => {
-        const trimmed = query.trim();
-        const isSearch = trimmed.length > 0;
-        isSearch ? setSearching(true) : setLoading(true);
-        setSearchMessage('');
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const currentCollection = await fetchCollectionDisplay();
+                setCollection(currentCollection);
 
-        try {
-            const result = await fetchProducts(isSearch ? { search: trimmed, limit: 9 } : {});
-            const list = result?.products ?? [];
-            setProducts(list);
+                const result = await fetchProducts({ collections: [currentCollection] });
+                const collectionProducts = result.products || [];
 
-            if (isSearch && list.length === 0) {
-                setSearchMessage(`没有找到与 “${trimmed}” 匹配的商品。`);
+                const allProductsResult = await fetchProducts();
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+                const collectionProductIds = new Set(
+                    collectionProducts.map(p => p.id || p.productId)
+                );
+
+                const newProducts = (allProductsResult.products || [])
+                    .filter(product => {
+                        const productId = product.id || product.productId;
+                        if (collectionProductIds.has(productId)) {
+                            return false;
+                        }
+
+                        if (product.createdAt) {
+                            const createdDate = new Date(product.createdAt);
+                            return createdDate >= oneWeekAgo;
+                        }
+                        return false;
+                    })
+                    .slice(0, 8);
+
+                console.log('[HomePage] Collection products:', collectionProducts.length);
+                console.log('[HomePage] Collection product IDs:', Array.from(collectionProductIds));
+                console.log('[HomePage] New products this week (after removing duplicates):', newProducts.length);
+                console.log('[HomePage] New products data:', newProducts);
+
+                setProducts({
+                    collection: collectionProducts,
+                    newThisWeek: newProducts
+                });
+                setLoading(false);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error loading products:', error);
-            setProducts([]);
-            setSearchMessage(isSearch ? '搜索失败，请稍后再试。' : '加载商品失败。');
-        } finally {
-            isSearch ? setSearching(false) : setLoading(false);
-        }
+        };
+
+        loadData();
     }, []);
 
-    // ---- 初次加载 ----
-    useEffect(() => {
-        loadProducts();
-    }, [loadProducts]);
+    if (loading) {
+        return <div className="loading">Loading...</div>;
+    }
 
-    // ---- 处理搜索事件 ----
-    const handleSearch = (query) => {
-        setSearchQuery(query);
-        if (!query.trim()) {
-            loadProducts();
-            return;
-        }
-        loadProducts(query);
-    };
-
-    // ---- 页面渲染 ----
     return (
         <div className="homepage">
             <Navbar />
             <div className="main-content">
-                <Sidebar onSearch={handleSearch} initialQuery={searchQuery} />
+                <ProductCarousel
+                    products={products.collection || []}
+                    newProducts={products.newThisWeek || []}
+                    collection={collection}
+                />
 
-                {loading || searching ? (
-                    <div className="home-content-placeholder">加载中…</div>
-                ) : searchMessage ? (
-                    <div className="home-content-placeholder">
-                        <p>{searchMessage}</p>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setSearchQuery('');
-                                loadProducts();
-                            }}
-                        >
-                            View all products
-                        </button>
-                    </div>
-                ) : (
-                    <ProductCarousel products={products} />
-                )}
+                {/* Recommendations based on browsing history */}
+                <RecommendationsSection
+                    limit={12}
+                    title="You May Also Like"
+                    useViewHistoryRecommendations={true}
+                />
+
+                {/* Recommendations based on purchase history */}
+                <RecommendationsSection
+                    limit={12}
+                    title="Picked For You"
+                    useCartRecommendations={false}
+                />
             </div>
         </div>
     );

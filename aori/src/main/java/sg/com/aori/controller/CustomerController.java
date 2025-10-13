@@ -1,10 +1,10 @@
 
 /**
- * use uuid to get instead of email
+ * Detailed description of the class.
  *
  * @author Sun Rui
  * @date 2025-10-08
- * @version 1.3
+ * @version 1.2
  */
 
 package sg.com.aori.controller;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -67,11 +68,20 @@ public class CustomerController {
                 .body(saved);
     }
 
-
     /**
      * Get a customer by id from query parameter.
      *
+     * param: customerId Customer primary key (String UUID).
+     * return: 200 OK with Customer if found, otherwise 404 Not Found.
+     */
+    @GetMapping
+    public ResponseEntity<Customer> getCustomerByIdQuery(@RequestParam("customerId") String customerId) {
+        return buildCustomerResponse(customerService.findCustomerById(customerId));
+    }
+
+    /**
      * Add an initial address for the given customer.
+     * If the customer has no default address yet, this address will be marked as
      * default.
      *
      * param: customerId The Customer primary key (String UUID) from the path.
