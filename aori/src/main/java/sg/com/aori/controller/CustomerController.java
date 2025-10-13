@@ -19,10 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-<<<<<<< Updated upstream
 import org.springframework.web.bind.annotation.RequestParam;
-=======
->>>>>>> Stashed changes
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -71,7 +68,6 @@ public class CustomerController {
                 .body(saved);
     }
 
-<<<<<<< Updated upstream
     /**
      * Get a customer by id from query parameter.
      *
@@ -82,9 +78,6 @@ public class CustomerController {
     public ResponseEntity<Customer> getCustomerByIdQuery(@RequestParam("customerId") String customerId) {
         return buildCustomerResponse(customerService.findCustomerById(customerId));
     }
-=======
-    
->>>>>>> Stashed changes
 
     /**
      * Add an initial address for the given customer.

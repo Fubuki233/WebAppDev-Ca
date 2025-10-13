@@ -53,7 +53,9 @@
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" id="email" th:field="*{email}" 
                            th:attr="readonly=${employee.employeeId != null}" required>
-                    <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</span>
+                    <div class="text-danger" th:if="${#fields.hasErrors('email')}">
+                        <p th:each="err : ${#fields.errors('email')}" th:text="${err}"></p>
+                    </div>
                 </div>
 
                 <div class="mb-3" th:if="${employee.employeeId == null}">

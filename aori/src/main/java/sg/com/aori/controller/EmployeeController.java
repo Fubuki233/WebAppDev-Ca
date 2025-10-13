@@ -13,11 +13,13 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -95,6 +97,9 @@ public class EmployeeController {
         // Pass the existing Employee data to pre-populate the form
         model.addAttribute("employee", employee);
 
+        // Also pass the list of all roles for the dropdown
+        model.addAttribute("allRoles", roleService.getAllRoles());
+
         return "admin/employee/employee-form";
     }
 
@@ -102,15 +107,31 @@ public class EmployeeController {
     // POST /employees/{id} (Often used instead of PUT in pure form submissions for
     // simplicity)
     @PostMapping("/{id}")
-    public String updateEmployee(@PathVariable String id,
-            @Valid @ModelAttribute("employee") Employee employeeDetails) {
+    public String updateEmployee(@PathVariable String id, @Valid @ModelAttribute("employee") Employee employeeDetails,
+            BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         // DEBUGGING: Check the path ID and the bound object data
         System.out.println("DEBUG: updateEmployee() called. Path ID: " + id);
         System.out.println("DEBUG: Submitted update data: " + employeeDetails.toString());
 
-        employeeService.updateEmployee(id, employeeDetails);
+        if (bindingResult.hasErrors()) {
+            // If validation fails, return to the form and display errors
+            model.addAttribute("allRoles", roleService.getAllRoles()); // Repopulate roles for the form
+            return "admin/employee/employee-form";
+        }
+
+        try {
+            employeeService.updateEmployee(id, employeeDetails);
+        } catch (IllegalArgumentException e) {
+            // Catch business validation errors from the service
+            model.addAttribute("allRoles", roleService.getAllRoles());
+            // Add the error to the 'email' field to display it next to the input
+            bindingResult.rejectValue("email", "error.employee", e.getMessage());
+            return "admin/employee/employee-form";
+        }
+
         // DEBUGGING
         System.out.println("DEBUG: Employee updated successfully. Redirecting to list.");
+        redirectAttributes.addFlashAttribute("success", "Employee updated successfully!");
         return "redirect:/admin/employees";
     }
 
