@@ -8,10 +8,15 @@
  *  @author Sun Rui
  * @date 2025-10-13
  * @version 1.2 -update the checkout page UI and logic
+ * 
+ * @author Yunhe
+ * @date 2025-10-13
+ * @version 1.3 - Added SKU checkout integration
  */
 import React, { useState, useEffect } from 'react';
-import { getCart, getCartTotal } from '../api/cartApi';
+import { getCart, getCartTotal, checkout } from '../api/cartApi';
 import { createOrderFromCart } from '../api/orderApi';
+import { checkoutSku } from '../api/skuApi';
 import '../styles/CheckoutPage.css';
 
 const CheckoutPage = () => {
@@ -77,19 +82,68 @@ const CheckoutPage = () => {
     };
 
     const handleSubmitOrder = async () => {
+        setIsSubmitting(true);
+
         try {
-            setSubmitting(true);
-            const result = await checkout();
-            if (result.success) {
-                setOrderId(result.orderId);
-                // 可以弹窗、跳到订单详情、清空本地 cart 等
-            } else {
-                setError(result.message || 'Checkout failed');
+            console.log('[CheckoutPage] Starting checkout process...');
+            console.log('[CheckoutPage] Cart items:', cart);
+
+            // Step 1: Checkout SKU for each cart item
+            const skuCheckoutPromises = cart.map(async (item) => {
+                try {
+                    // Extract SKU info from cart item
+                    const productId = item.productId;
+                    const colour = item.color || item.colours?.[0] || item.product?.colors?.[0] || 'default';
+                    const size = item.size || item.sizes?.[0] || item.product?.sizes?.[0] || 'M';
+
+                    console.log(`[CheckoutPage] Checking out SKU for product ${productId}:`, { colour, size, quantity: item.quantity });
+
+                    // Checkout each quantity
+                    for (let i = 0; i < item.quantity; i++) {
+                        const result = await checkoutSku(productId, colour, size);
+                        if (result === -1) {
+                            throw new Error(`Insufficient stock for ${item.name || item.productName} (${colour}, ${size})`);
+                        }
+                        console.log(`[CheckoutPage] SKU checkout ${i + 1}/${item.quantity} successful. Remaining: ${result}`);
+                    }
+
+                    return { success: true, item };
+                } catch (error) {
+                    console.error(`[CheckoutPage] SKU checkout failed for item:`, item, error);
+                    return { success: false, item, error: error.message };
+                }
+            });
+
+            const skuResults = await Promise.all(skuCheckoutPromises);
+            const failedItems = skuResults.filter(r => !r.success);
+
+            if (failedItems.length > 0) {
+                const errorMessage = failedItems.map(f => f.error).join('\n');
+                alert(`Checkout failed:\n${errorMessage}`);
+                setIsSubmitting(false);
+                return;
             }
-        } catch (err) {
-            setError(err.message);
+
+            console.log('[CheckoutPage] All SKU checkouts successful');
+
+            // Step 2: Create order from cart
+            const result = await checkout();
+
+            if (result && result.orderId) {
+                alert(`✓ Order placed successfully!\nOrder ID: ${result.orderId}`);
+                console.log('[CheckoutPage] Order created:', result);
+
+                // Redirect to home or order confirmation
+                window.location.hash = '#products';
+            } else {
+                throw new Error('Failed to create order');
+            }
+
+        } catch (error) {
+            console.error('[CheckoutPage] Checkout error:', error);
+            alert(`Checkout failed: ${error.message}`);
         } finally {
-            setSubmitting(false);
+            setIsSubmitting(false);
         }
     };
 

@@ -3,13 +3,13 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title th:text="${product.productName}">Product Details</title>
+    <title th:text="${product.productName}"></title>
 </head>
 <body>
 
 <section layout:fragment="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 th:text="${product.productName}">Product Name</h2>
+        <h2 th:text="${product.productName}"></h2>
         <div>
             <a th:href="@{/admin/products/edit/{id}(id=${product.productId})}" class="btn btn-primary">Edit</a>
             <a th:href="@{/admin/products}" class="btn btn-secondary">Back to List</a>
@@ -23,16 +23,16 @@
                  <div class="card-body">
                      <dl class="row">
                         <dt class="col-sm-3">Product Code</dt>
-                        <dd class="col-sm-9" th:text="${product.productCode}">AORI-KSA-001</dd>
+                        <dd class="col-sm-9" th:text="${product.productCode}"></dd>
 
                         <dt class="col-sm-3">Category</dt>
-                        <dd class="col-sm-9" th:text="${product.category.categoryName}">Shirts</dd>
+                        <dd class="col-sm-9" th:text="${product.category.categoryName}"></dd>
 
                         <dt class="col-sm-3">Collection</dt>
-                        <dd class="col-sm-9" th:text="${product.collection}">XIV Collections 23-24</dd>
+                        <dd class="col-sm-9" th:text="${product.collection}"></dd>
 
                         <dt class="col-sm-3">Description</dt>
-                        <dd class="col-sm-9"><p th:text="${product.description}">Relaxed-fit shirt.</p></dd>
+                        <dd class="col-sm-9"><p th:text="${product.description}"></p></dd>
                      </dl>
                  </div>
             </div>
@@ -42,13 +42,13 @@
                 <div class="card-body">
                     <dl class="row">
                         <dt class="col-sm-3">Season</dt>
-                        <dd class="col-sm-9" th:text="${product.season}">Summer</dd>
+                        <dd class="col-sm-9" th:text="${product.season}"></dd>
                         
                         <dt class="col-sm-3">Material</dt>
-                        <dd class="col-sm-9" th:text="${product.material}">Cotton</dd>
+                        <dd class="col-sm-9" th:text="${product.material}"></dd>
 
                         <dt class="col-sm-3">Care Instructions</dt>
-                        <dd class="col-sm-9" th:text="${product.careInstructions}">Machine wash cold.</dd>
+                        <dd class="col-sm-9" th:text="${product.careInstructions}"></dd>
                     </dl>
                 </div>
             </div>
@@ -60,29 +60,29 @@
                  <div class="card-body">
                      <dl class="row">
                          <dt class="col-sm-6">Price</dt>
-                         <dd class="col-sm-6" th:text="${#numbers.formatCurrency(product.price)}">$99.00</dd>
+                         <dd class="col-sm-6" th:text="${#numbers.formatCurrency(product.price)}"></dd>
 
                          <dt class="col-sm-6">Total Stock</dt>
-                         <dd class="col-sm-6" th:text="${product.stockQuantity}">150</dd>
+                         <dd class="col-sm-6" th:text="${product.stockQuantity}"></dd>
                      </dl>
                  </div>
              </div>
              <div class="card mb-4">
                 <div class="card-header">Available Colors</div>
                 <div class="card-body">
-                    <div th:each="color : ${product.getColorsAsList()}" class="d-flex align-items-center mb-1">
+                    <div th:if="${product.colorsAsList != null}" th:each="color : ${product.colorsAsList}" class="d-flex align-items-center mb-1">
                         <div style="width: 20px; height: 20px; border-radius: 50%;" th:style="'background-color:' + ${color.value}"></div>
-                        <span class="ms-2" th:text="${color.name}">Black</span>
+                        <span class="ms-2" th:text="${color.name}"></span>
                     </div>
                 </div>
             </div>
             <div class="card mb-4">
                 <div class="card-header">Available Sizes & Stock</div>
                 <div class="card-body">
-                    <ul class="list-group list-group-flush" th:if="${!product.getSizesAsList().isEmpty()}">
-                         <li th:each="sizeInfo : ${product.getSizesAsList()}" class="list-group-item d-flex justify-content-between align-items-center">
-                            <span th:text="${sizeInfo.size}">L</span>
-                            <span class="badge bg-secondary rounded-pill" th:text="${sizeInfo.quantity} + ' units'">50 units</span>
+                    <ul class="list-group list-group-flush" th:if="${product.sizesAsList != null and !product.sizesAsList.isEmpty()}">
+                         <li th:each="sizeInfo : ${product.sizesAsList}" class="list-group-item d-flex justify-content-between align-items-center">
+                            <span th:text="${sizeInfo.size}"></span>
+                            <span class="badge bg-secondary rounded-pill" th:text="${sizeInfo.quantity} + ' units'"></span>
                         </li>
                     </ul>
                 </div>

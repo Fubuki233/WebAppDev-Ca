@@ -102,7 +102,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form th:action="@{/admin/products/delete}" method="post" class="d-inline">
+                    <form id="deleteForm" method="post" class="d-inline" th:action="@{/admin/products/delete}">
                          <input type="hidden" name="productId" id="productIdToDelete" />
                          <button type="submit" class="btn btn-danger">Delete Product</button>
                     </form>
@@ -167,6 +167,9 @@
                 
                 deleteModal.querySelector('#productNameInModal').textContent = productName;
                 deleteModal.querySelector('#productIdToDelete').value = productId;
+                // Dynamically set the form action to ensure it's always correct
+                const deleteForm = deleteModal.querySelector('#deleteForm');
+                deleteForm.action = `/admin/products/delete`;
             });
         });
     </script>
