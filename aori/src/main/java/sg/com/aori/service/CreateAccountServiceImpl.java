@@ -9,8 +9,6 @@
 
 package sg.com.aori.service;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,19 +75,6 @@ public class CreateAccountServiceImpl implements ICreateAccount {
         }
 
         return addressRepository.save(address);
-    }
-
-    /**
-     * Retrieves a Customer by email.
-     *
-     * param: email. Email address to search for.
-     * return: Optional containing Customer if found; otherwise empty.
-     * throws: IllegalArgumentException if input is invalid.
-     */
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<Customer> getCustomerByEmail(String email) {
-        return customerRepository.findCustomerByEmail(email);
     }
 
     /*------Validaiton part------- */

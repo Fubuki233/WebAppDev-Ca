@@ -107,13 +107,17 @@ public class CRUDProductService implements IProduct {
         return Optional.ofNullable(productRepository.findAll());
     }
 
+    /* 
+     * Commented out old update method as this is now handled by saveProduct
+     *
     @Override
     public Product updateProduct(String productId, Product product) {
         product.setProductId(productId);
         return productRepository.save(product);
     }
+    */
 
-    // New method to handle both create and update
+    // New method to handle both create and update product
     @Override
     public void saveProduct(Product product) {
         productRepository.save(product);
