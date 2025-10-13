@@ -31,6 +31,7 @@ public class AuthFilter {
                 Map.of("path", "/admin/login", "method", "POST"),
                 Map.of("path", "/admin/logout", "method", "GET"),
                 Map.of("path", "/api/wishlist", "method", "GET"),
+                Map.of("path", "/css/custom.css", "method", "GET"),
                 Map.of("path", "/api/view-history", "method", "GET"),
                 Map.of("path", "/css/custom.css", "method", "GET"),
                 Map.of("path", "/images/aori-logo.png", "method", "GET"),
