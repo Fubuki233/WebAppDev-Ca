@@ -31,35 +31,11 @@
         background-color: #f8f9fa;
     }
 
-    .stick-top{
-        z-index: 1100; /* ensure navigation bar sticks to the top */
-    }
-
-    main {
-        /* This is the positioning boundary for the alert bar */
-        position: relative;
-    }
-
-    /* This is the style for the full-width bar */
-    .toast-container {
-        position: absolute;
-        top: 0;
-        left: 0;   /* This anchors it to the left */
-        right: 0;  /* This stretches it to the right */
-        z-index: 1080;
-    }
-
-    /* This styles the alert itself to look like a clean bar */
-    .toast-container .alert {
-        text-align: center;
-        margin-bottom: 0;
-        border-radius: 0;
-    }
 </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container-fluid">
         <a class="navbar-brand fw-bold" th:href="@{/}">AORI</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
