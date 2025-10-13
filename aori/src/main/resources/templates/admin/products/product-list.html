@@ -22,6 +22,19 @@
         <h2>Product Management</h2>
         <a th:href="@{/admin/products/new}" class="btn btn-dark">Add New Product</a>
     </div>
+    
+        <!-- Alerts -->
+    <div class="toast-container">
+        <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
 
     <div class="card mb-4">
         <div class="card-body">
