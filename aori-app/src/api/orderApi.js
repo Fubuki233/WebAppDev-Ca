@@ -136,7 +136,7 @@ export const getOrderStatus = async (orderId) => {
  */
 export const createOrderFromCart = async () => {
     try {
-        const response = await authenticatedFetch(`${API_CONFIG.BASE_URL}/api/cart/checkout`, {
+        const response = await authenticatedFetch(`${API_CONFIG.BASE_URL}/cart/checkout`, {
             method: 'POST',
         });
 

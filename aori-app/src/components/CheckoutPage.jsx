@@ -4,10 +4,6 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.1
- * 
- * * @author Sun Rui
- * @date 2025-10-13
- * @version 1.2- update useEffect, handleSubmitOrder to integrate with backend APIs
  */
 import React, { useState, useEffect } from 'react';
 import { getCart, getCartTotal } from '../api/cartApi';

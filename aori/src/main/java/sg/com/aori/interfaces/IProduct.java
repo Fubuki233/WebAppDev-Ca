@@ -38,7 +38,7 @@ public interface IProduct {
 
     Optional<List<Product>> getAllProducts();
 
-    // Product updateProduct(String productId, Product product);
+    Product updateProduct(String productId, Product product);
 
     Product deleteProduct(String productId);
 

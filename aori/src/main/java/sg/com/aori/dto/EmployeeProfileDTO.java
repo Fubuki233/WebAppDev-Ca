@@ -13,7 +13,9 @@ public class EmployeeProfileDTO {
 
     private String employeeId;
 
-    @Pattern(regexp = "^\\+65 ?\\d{4} ?\\d{4}$", message = "Phone number must be in the format +65 XXXX XXXX")
+    // @Pattern(regexp = "^\\+65 ?\\d{4} ?\\d{4}$", message = "Phone number must be
+    // in the format +65 XXXX XXXX")
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Phone number must follow this exact format (e.g. +6581234567) with no spaces.")
     private String phoneNumber;
 
     // Getters and Setters
