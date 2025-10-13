@@ -65,12 +65,12 @@
                     <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
                 </div>
                 
-                <div class="mb-3">
-                    <label for="phoneNumber" class="form-label">Phone Number (E.164)</label>
+             <div class="mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number</label>
                     <input type="tel" class="form-control" id="phoneNumber" th:field="*{phoneNumber}">
                     <div class="form-text">e.g., +6598765432</div>
-                    <span class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}">Phone Number Error</span>
-                </div>
+                    <span class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}">Invalid Phone Number Input</span>
+            </div>
                 
                 <div class="mb-3">
                     <label for="role" class="form-label">Role</label>

@@ -29,7 +29,6 @@ import sg.com.aori.service.RoleService;
 
 @Controller
 @RequestMapping("/admin/employees")
-@Validated
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -114,8 +113,13 @@ public class EmployeeController {
         System.out.println("DEBUG: Submitted update data: " + employeeDetails.toString());
 
         if (bindingResult.hasErrors()) {
-            // If validation fails, return to the form and display errors
-            model.addAttribute("allRoles", roleService.getAllRoles()); // Repopulate roles for the form
+            // CRITICAL FIX: To prevent the Whitelabel Error Page,
+            // you MUST re-add any model attributes the form needs, like 'allRoles'.
+            model.addAttribute("allRoles", roleService.getAllRoles());
+
+            // Ensure the ID is correctly set on the model object for the form action to
+            // work
+            employeeDetails.setEmployeeId(id);
             return "admin/employee/employee-form";
         }
 
