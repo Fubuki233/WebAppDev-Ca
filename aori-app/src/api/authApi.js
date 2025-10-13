@@ -219,7 +219,16 @@ export const register = async (userData) => {
                 lastName: userData.lastName,
                 email: userData.email,
                 password: userData.password,
+<<<<<<< HEAD
+                phone_number: userData.phone || null,
+                address: null,
+                city: null,
+                state: null,
+                zipCode: null,
+                country: null
+=======
                 phone: userData.phone || null,
+>>>>>>> 37641306e133c1c544ac437ffd2360df18242722
             }),
         });
 
