@@ -5,6 +5,9 @@
  * @date 2025-10-08
  * @version 1.1
  * 
+ * * @author Sun Rui
+ * @date 2025-10-13
+ * @version 1.2 - remove the category buttons below the search bar
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -215,7 +218,7 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
                             />
                         </form>
 
-                        <div className="category-tabs">
+                        {/* <div className="category-tabs">
                             <button
                                 className={`category-tab ${activeCategory === 'all' ? 'active' : ''}`}
                                 onClick={() => handleCategoryClick('all')}
@@ -231,7 +234,7 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
                                     {tab.label}
                                 </button>
                             ))}
-                        </div>
+                        </div> */}
 
                         {loading ? (
                             <div className="loading-container">

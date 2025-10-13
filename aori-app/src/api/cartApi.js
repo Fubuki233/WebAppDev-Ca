@@ -12,6 +12,10 @@
  * @author Yunhe
  * @date 2025-10-11
  * @version 1.4 - will redirect to login when fetching cart for guest
+ * 
+ * * @author Sun Rui
+ * @date 2025-10-13
+ * @version 1.5 - add checkout function
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 import { getUserUuid } from './apiUtils';
