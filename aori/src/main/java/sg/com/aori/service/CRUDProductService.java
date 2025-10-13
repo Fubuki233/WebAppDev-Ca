@@ -1,11 +1,19 @@
 package sg.com.aori.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.criteria.Predicate;
 import sg.com.aori.interfaces.IProduct;
 import sg.com.aori.repository.OrderItemRepository;
 import sg.com.aori.repository.ProductRepository;
@@ -105,6 +113,11 @@ public class CRUDProductService implements IProduct {
         return productRepository.save(product);
     }
 
+    // New method to handle both create and update
+    @Override
+    public void saveProduct(Product product) {
+        productRepository.save(product);
+    }
     /*
      * Commented out old delete method
      * 
@@ -139,4 +152,56 @@ public class CRUDProductService implements IProduct {
         // 5. Return the full object that was just deleted.
         return productToDelete;
     }
+
+    /*
+     * New pagination method with dynamic filtering
+     */
+
+    @Override
+    public Page<Product> findPaginated(int page, int size, String keyword, String category, String season,
+            String collection) {
+        
+        // 1. Create a Pageable object with default sorting by product name.
+        Pageable pageable = PageRequest.of(page, size, Sort.by("productName").ascending());
+
+        // 2. Create a Specification to build the dynamic query.
+        Specification<Product> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 3. Add predicates only if the filter criteria are provided.
+
+            // Keyword filter (searches product name and code)
+            if (StringUtils.hasText(keyword)) {
+                Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%");
+                Predicate codeLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("productCode")), "%" + keyword.toLowerCase() + "%");
+                predicates.add(criteriaBuilder.or(nameLike, codeLike));
+            }
+
+            // Category filter (by category name, requires a join)
+            if (StringUtils.hasText(category)) {
+                predicates.add(criteriaBuilder.equal(root.join("category").get("categoryName"), category));
+            }
+
+            // Season filter (converts String to Enum)
+            if (StringUtils.hasText(season)) {
+                try {
+                    Product.Season seasonEnum = Product.Season.valueOf(season);
+                    predicates.add(criteriaBuilder.equal(root.get("season"), seasonEnum));
+                } catch (IllegalArgumentException e) {
+                    // Ignore if the season string is invalid
+                }
+            }
+
+            // Collection filter
+            if (StringUtils.hasText(collection)) {
+                predicates.add(criteriaBuilder.equal(root.get("collection"), collection));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // 4. Execute the query using the repository.
+        return productRepository.findAll(spec, pageable);
+    }
+
 }

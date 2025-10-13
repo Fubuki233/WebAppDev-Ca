@@ -1,3 +1,13 @@
+ /** 
+ * @author Yunhe & Ying Chun
+ * @date 2025-10-08 (v1.0, v2.0)
+ * @date 2025-10-10 (v2.1, 2.2)
+ * @version 1.0 - initial version
+ * @version 2.0 - added new fields to map to database changes
+ * @version 2.1 - removed inStock field, added stockQuantity field
+ * @version 2.2 - added a way to convert colors JSON string and sizes JSON string to List of Maps for easier frontend handling
+ */
+
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
@@ -6,7 +16,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Entity representing a product in the system.
@@ -31,10 +47,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * "rating": 4.7,
  * "tags": "best-seller"
  * }
- * 
- * @author Yunhe
- * @date 2025-10-08
- * @version 2.1
+
  */
 @Entity
 @Table(name = "product")
@@ -314,4 +327,35 @@ public class Product {
 				+ ", price=" + price + ", stockQuantity=" + stockQuantity + ", size=" + size + ", rating=" + rating
 				+ ", tags=" + tags + ", category=" + category + "]";
 	}
+
+    // Utility method to convert colors JSON string to List of Maps
+    @Transient
+    @JsonIgnore
+    public List<Map<String, String>> getColorsAsList() {
+    if (this.colors == null || this.colors.isBlank()) {
+        return Collections.emptyList();
+    }
+    try {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(this.colors, new TypeReference<List<Map<String, String>>>() {});
+    } catch (Exception e) {
+        return Collections.emptyList(); // for exception handling
+    }
+    }
+
+    // Utility method to convert size JSON string to List of Maps
+    @Transient
+    @JsonIgnore
+    public List<Map<String, Object>> getSizesAsList() {
+        if (this.size == null || this.size.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(this.size, new TypeReference<List<Map<String, Object>>>() {});
+        } catch (Exception e) {
+            return Collections.emptyList(); // for exception handling
+        }
+    }
+
 }

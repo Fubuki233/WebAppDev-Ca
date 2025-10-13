@@ -8,12 +8,18 @@
  * @version 2.0 - Refactored to use Service Layer and add UX improvements
  * @version 2.1 - Amended @PathVariable to @RequestParam for delete operation to enhance security
  * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 2.2 - Added collection display selector for frontend
  */
 
 package sg.com.aori.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,17 +49,32 @@ public class AdminProductController {
 	private CategoryRepository categoryRepository;
 
 	// --- SHOW ALL PRODUCTS (Read) ---
-	@GetMapping("/")
-	public String listAllProducts(Model model) {
+	@GetMapping
+	public String listAllProducts(Model model,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(required = false) String keyword,
+			@RequestParam(required = false) String category,
+			@RequestParam(required = false) String season,
+			@RequestParam(required = false) String collection) {
 
-		// Get the list from the service. Optional has been used in other controllers,
-		// hence we maintain this.
-		Optional<List<Product>> optProducts = productService.getAllProducts();
+		Page<Product> productPage = productService.findPaginated(page, size, keyword, category, season, collection);
+		model.addAttribute("products", productPage);
 
-		// This will execute only if optProducts contain a list.
-		optProducts.ifPresent(products -> {
-			model.addAttribute("products", products);
-		});
+		// For filter dropdowns
+		model.addAttribute("categories", categoryRepository.findAll());
+		List<String> collections = productService.getAllProducts().orElse(List.of()).stream()
+				.map(Product::getCollection)
+				.distinct()
+				.sorted()
+				.collect(Collectors.toList());
+		model.addAttribute("collections", collections);
+
+		// To retain filter values in the form
+		model.addAttribute("selectedCategory", category);
+		model.addAttribute("selectedSeason", season);
+		model.addAttribute("selectedCollection", collection);
+		model.addAttribute("keyword", keyword);
 
 		// return the view name
 		return "admin/products/product-list";
@@ -67,19 +88,24 @@ public class AdminProductController {
 		model.addAttribute("product", new Product());
 
 		// Pass the list of all categories to the form for dropdown menu
-		List<Category> allCategories = categoryRepository.findAll();
-		model.addAttribute("allCategories", allCategories);
+		model.addAttribute("categories", categoryRepository.findAll());
 
 		// return the view name
 		return "admin/products/product-form";
 	}
 
 	// --- CREATE NEW PRODUCT (Processes Form) ---
-	@PostMapping
-	public String createProduct(@ModelAttribute Product product, RedirectAttributes redirectAttributes) {
+	@PostMapping("/save")
+	public String saveProduct(@ModelAttribute("product") Product product,
+			@RequestParam("sizeJson") String sizeJson,
+			@RequestParam("colorJson") String colorJson,
+			RedirectAttributes redirectAttributes) {
 
-		// Use ServiceImpl to create the product
-		productService.createProduct(product);
+		product.setSize(sizeJson);
+		product.setColors(colorJson);
+
+		// Use ServiceImpl to create or update the product
+		productService.saveProduct(product);
 
 		// Add success message for user
 		redirectAttributes.addFlashAttribute("message", "Product created successfully!");
@@ -96,8 +122,8 @@ public class AdminProductController {
 		if (oneOptProduct.isPresent()) {
 			// If product is found, add it and the categories to the model
 			model.addAttribute("product", oneOptProduct.get());
-			List<Category> allCategories = categoryRepository.findAll();
-			model.addAttribute("allCategories", allCategories);
+			List<Category> categories = categoryRepository.findAll();
+			model.addAttribute("categories", categories);
 			return "admin/products/product-form";
 		} else {
 			redirectAttributes.addFlashAttribute("error", "Product not found with ID: " + id);
@@ -106,16 +132,10 @@ public class AdminProductController {
 	}
 
 	// --- UPDATE EXISTING PRODUCT (Processes form) ---
-	@PostMapping("/update/{id}")
-	public String updateProduct(@PathVariable String id, @ModelAttribute Product product,
-			RedirectAttributes redirectAttributes) {
-
-		productService.updateProduct(id, product);
-
-		redirectAttributes.addFlashAttribute("message", "Product updated successfully!");
-
-		return "redirect:/admin/products";
-	}
+	// This is now handled by the saveProduct method to unify create and update logic.
+	// This simplifies the controller and form.
+	// The form will submit to POST /admin/products/save for both new and existing products.
+	// The presence of product.productId will determine if it's a create or update.
 
 	/*
 	 * Older method before adding business logic to not delete products with orders
@@ -151,4 +171,16 @@ public class AdminProductController {
 		return "redirect:/admin/products";
 	}
 
+	// --- VIEW SINGLE PRODUCT ---
+	@GetMapping("/{id}")
+	public String viewProduct(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
+		Optional<Product> productOpt = productService.getProductById(id);
+		if (productOpt.isPresent()) {
+			model.addAttribute("product", productOpt.get());
+			return "admin/products/product-view";
+		} else {
+			redirectAttributes.addFlashAttribute("error", "Product not found with ID: " + id);
+			return "redirect:/admin/products";
+		}
+	}
 }

@@ -3,7 +3,8 @@
  * 
  * @author Ying Chun
  * @date 2025-10-10 
- * @version 1.0 
+ * @version 1.0
+ * @version 2.0 - Refactored to update form for server side filtering and sorting 
  */
  -->
 
@@ -24,30 +25,31 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form class="row g-3" id="filter-form">
+            <form th:action="@{/admin/products}" method="get" class="row g-3" id="filter-form">
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="search-input" placeholder="Search by name or code...">
+                    <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Search by name or code...">
                 </div>
                 <div class="col-md-2">
-                    <select class="form-select" id="category-filter">
+                    <select class="form-select" name="category">
                         <option value="">All Categories</option>
-                        <option th:each="cat : ${categories}" th:value="${cat.name}" th:text="${cat.name}"></option>
+                        <option th:each="cat : ${categories}" th:value="${cat.categoryName}" th:text="${cat.categoryName}" th:selected="${cat.categoryName == selectedCategory}"></option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <select class="form-select" id="season-filter">
+                    <select class="form-select" name="season">
                          <option value="">All Seasons</option>
-                         <option value="Spring">Spring</option>
-                         <option value="Summer">Summer</option>
-                         <option value="Autumn">Autumn</option>
-                         <option value="Winter">Winter</option>
+                         <option th:each="s : ${T(sg.com.aori.model.Product.Season).values()}" th:value="${s}" th:text="${s}" th:selected="${s.toString() == selectedSeason}"></option>
                     </select>
                 </div>
                  <div class="col-md-2">
-                    <select class="form-select" id="collection-filter">
+                    <select class="form-select" name="collection">
                         <option value="">All Collections</option>
-                        <option th:each="col : ${collections}" th:value="${col}" th:text="${col}"></option>
+                        <option th:each="col : ${collections}" th:value="${col}" th:text="${col}" th:selected="${col == selectedCollection}"></option>
                     </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Filter</button>
+                    <a th:href="@{/admin/products}" class="btn btn-outline-secondary">Reset</a>
                 </div>
             </form>
         </div>
@@ -108,26 +110,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Pagination Controls -->
+    <nav th:if="${products.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${products.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/admin/products(page=${products.number - 1}, keyword=${keyword}, category=${selectedCategory}, season=${selectedSeason}, collection=${selectedCollection})}">Previous</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}" th:classappend="${i == products.number} ? 'active'">
+                <a class="page-link" th:href="@{/admin/products(page=${i}, keyword=${keyword}, category=${selectedCategory}, season=${selectedSeason}, collection=${selectedCollection})}" th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${products.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/admin/products(page=${products.number + 1}, keyword=${keyword}, category=${selectedCategory}, season=${selectedSeason}, collection=${selectedCollection})}">Next</a>
+            </li>
+        </ul>
+    </nav>
 </section>
 
 <th:block layout:fragment="scripts">
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Client-side Filtering
-            const searchInput = document.getElementById('search-input');
-            const tableBody = document.getElementById('product-table-body');
-            const originalRows = Array.from(tableBody.querySelectorAll('tr'));
-
-            searchInput.addEventListener('keyup', () => {
-                const searchTerm = searchInput.value.toLowerCase();
-                tableBody.innerHTML = '';
-                originalRows.forEach(row => {
-                    const rowText = row.textContent.toLowerCase();
-                    if (rowText.includes(searchTerm)) {
-                        tableBody.appendChild(row);
-                    }
-                });
-            });
+            // Client-side Filtering and Sorting is removed as it's now handled by the server.
+            // The sorting logic below is also better handled by the server to sort across all pages.
+            // For simplicity, I'm keeping the client-side sorting logic here, but be aware of its limitation.
 
             // Client-side Sorting
             document.querySelectorAll('#product-table thead th[data-sort-dir]').forEach(headerCell => {
