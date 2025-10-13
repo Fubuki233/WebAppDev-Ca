@@ -1,21 +1,19 @@
 /**
  * v1.1: Modified variant related code
+ * v1.2: Optimized import
  * @author Jiang
- * @date 2025-10-07
- * @version 1.1
+ * @date 2025-10-13
+ * @version 1.2
  */
 
 package sg.com.aori.repository;
 
 import sg.com.aori.model.ShoppingCart;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public interface CartRepository extends JpaRepository<ShoppingCart, String> {

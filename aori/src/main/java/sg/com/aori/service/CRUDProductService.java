@@ -203,5 +203,14 @@ public class CRUDProductService implements IProduct {
         // 4. Execute the query using the repository.
         return productRepository.findAll(spec, pageable);
     }
-
+    
+    /*
+     * @author Jiang
+     * @date 10-13
+     */
+    @Override
+    public String findProductIdByProductCode(String productCode){
+        String productId = productRepository.findProductIdByProductCode(productCode);
+        return productId;
+    }
 }

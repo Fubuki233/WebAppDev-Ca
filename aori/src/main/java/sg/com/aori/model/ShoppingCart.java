@@ -1,6 +1,7 @@
 
  /**
- *  Modified variant related code, Add constraints to entities 
+ *  Modified variant related code, Add constraints to entities
+ * v1.4: Added sku
  * @author Jiang, Sun Rui
  * @date 2025-10-09
  * @version 1.3
@@ -12,16 +13,8 @@ package sg.com.aori.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "shopping_cart")
@@ -46,6 +39,10 @@ public class ShoppingCart {
     @Column(name = "added_at", updatable = false)
     private LocalDateTime addedAt;
 
+    @NotBlank(message = "sku is required")
+    @Column(name = "sku", length = 50, nullable = false)
+    private String sku;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", insertable = false, updatable = false)
     private Customer customer;
@@ -62,10 +59,11 @@ public class ShoppingCart {
     public ShoppingCart() {
     }
 
-    public ShoppingCart(String customerId, String productId, Integer quantity) {
+    public ShoppingCart(String customerId, String productId, Integer quantity, String sku) {
         this.customerId = customerId;
         this.productId = productId;
         this.quantity = quantity;
+        this.sku = sku;
     }
 
     public String getCartId() {
@@ -122,6 +120,14 @@ public class ShoppingCart {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public String getSku(){
+        return sku;
+    }
+
+    public void setSku(String sku){
+        this.sku = sku;
     }
 
     @Override

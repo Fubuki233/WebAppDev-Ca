@@ -5,32 +5,27 @@
  * v1.4: Test completed
  * v1.5(Sun): Add validation for addToCart
  * v1.6: Change annotation into English
+ * v1.7: Added sku
  * @author Jiang, Sun Rui
- * @date 2025-10-10
- * @version 1.4
+ * @date 2025-10-13
+ * @version 1.7
  */
 
 package sg.com.aori.controller;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 import sg.com.aori.interfaces.ICart;
 import sg.com.aori.model.ShoppingCart;
+import sg.com.aori.service.CRUDProductService;
 import sg.com.aori.utils.getSession;
+import sg.com.aori.utils.SkuTool;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -228,13 +223,18 @@ public class CartController {
 
             
             // The productId must exist and not null
-            Object pidObj = request.get("productId");
-            if (!(pidObj instanceof String pid) || pid.isBlank()) {
+
+            Object skuObj = request.get("sku");
+            // Object pidObj = request.get("productId");
+            if (!(skuObj instanceof String sku) || sku.isBlank()) {
                 response.put("success", false);
                 response.put("message", "productId is required");
                 return ResponseEntity.badRequest().body(response);
-          }
-             String productId = (String) pidObj; // Or use the pid
+            }
+            sku = (String) skuObj; // Or use the pid
+            CRUDProductService productService = new CRUDProductService();
+            String productId = SkuTool.getProductIdBySku(sku, productService);
+            System.out.println("----------productId: "+productId);
 
             // The quantity must exist, can be Integer/Long/Double/String
             Object qObj = request.get("quantity");
@@ -244,21 +244,21 @@ public class CartController {
             } else if (qObj instanceof Long l) {
                try {
                     quantity = Math.toIntExact(l); // Prevent overflow
-               } catch (ArithmeticException ex) {
-                  response.put("success", false);
-                  response.put("message", "quantity is too large");
-                  return ResponseEntity.badRequest().body(response);
-              }
-           } else if (qObj instanceof Double d) {
-              quantity = (int) Math.floor(d); // If it is a decimal in JSON, round down
-           } else if (qObj instanceof String s) {
-               try {
-                      quantity = Integer.valueOf(s.trim());
-               } catch (NumberFormatException ex) {
-                   response.put("success", false);
-                   response.put("message", "quantity must be an integer");
-                   return ResponseEntity.badRequest().body(response);
-               }
+                } catch (ArithmeticException ex) {
+                    response.put("success", false);
+                    response.put("message", "quantity is too large");
+                    return ResponseEntity.badRequest().body(response);
+                }
+            } else if (qObj instanceof Double d) {
+                quantity = (int) Math.floor(d); // If it is a decimal in JSON, round down
+            } else if (qObj instanceof String s) {
+                try {
+                    quantity = Integer.valueOf(s.trim());
+                } catch (NumberFormatException ex) {
+                    response.put("success", false);
+                    response.put("message", "quantity must be an integer");
+                    return ResponseEntity.badRequest().body(response);
+                }
             } 
 
             if (quantity == null) {
@@ -267,18 +267,17 @@ public class CartController {
                 return ResponseEntity.badRequest().body(response);
             }
             if (quantity < 1) {
-              response.put("success", false);
-              response.put("message", "quantity must be >= 1");
-              return ResponseEntity.badRequest().body(response);
+                response.put("success", false);
+                response.put("message", "quantity must be >= 1");
+                return ResponseEntity.badRequest().body(response);
             }
             if (quantity > MAX_QTY_PER_ITEM) {
-              response.put("success", false);
-              response.put("message", "quantity must be <= " + MAX_QTY_PER_ITEM);
-              return ResponseEntity.badRequest().body(response);
+                response.put("success", false);
+                response.put("message", "quantity must be <= " + MAX_QTY_PER_ITEM);
+                return ResponseEntity.badRequest().body(response);
             }  
-
-
-            cartService.addToCart(customerId, productId, quantity);
+            // ***** sku added
+            cartService.addToCart(customerId, productId, quantity, sku);
 
             response.put("success", true);
             response.put("message", "Product added to cart");
