@@ -34,13 +34,11 @@ public class Customer {
     private String customerId;
 
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain alphabets only")
     @Length(max = 50)
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z]+$", message = "Last name must contain alphabets only")
     @Length(max = 50)
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
@@ -56,7 +54,6 @@ public class Customer {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Phone must follow E.164")
     @Length(max = 15)
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
@@ -150,6 +147,10 @@ public class Customer {
     }
 
     public void setGender(Gender gender) {
+        if (gender != Gender.Female && gender != Gender.Male && gender != Gender.Non_binary
+                && gender != Gender.Undisclosed) {
+            this.gender = null;
+        }
         this.gender = gender;
     }
 

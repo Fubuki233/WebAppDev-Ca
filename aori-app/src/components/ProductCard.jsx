@@ -108,7 +108,7 @@ const ProductCard = ({ product }) => {
             size: selectedSize,
             quantity: 1,
             image: product.image,
-            sku: `${product.id}-${selectedColor}-${selectedSize}`
+            sku: `${product.id}&${selectedColor}&${selectedSize}`
         };
 
         const result = await addToCart(cartItem);
