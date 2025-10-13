@@ -4,6 +4,10 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.1
+ * 
+ *  @author Sun Rui
+ * @date 2025-10-13
+ * @version 1.2 -update the checkout page UI and logic
  */
 import React, { useState, useEffect } from 'react';
 import { getCart, getCartTotal } from '../api/cartApi';
@@ -34,32 +38,14 @@ const CheckoutPage = () => {
 
     useEffect(() => {
         const loadCart = async () => {
-            try {
-                const cartItems = await getCart();
-                if (Array.isArray(cartItems)) {
-                    setCart(cartItems);
-                    // Calculate subtotal
-                    const calculatedSubtotal = cartItems.reduce((sum, item) =>
-                        sum + (item.price * item.quantity), 0
-                    );
-                    setSubtotal(calculatedSubtotal);
-
-                    if (cartItems.length === 0) {
-                        // Redirect to cart if empty
-                        alert('Your cart is empty');
-                        window.location.hash = '#cart';
-                    }
-                } else {
-                    setCart([]);
-                    setSubtotal(0);
-                }
-            } catch (error) {
-                console.error('Error loading cart:', error);
-                setCart([]);
-            }
+            const cartItems = await getCart();
+            setCart(Array.isArray(cartItems) ? cartItems : []);
+            const total = await getCartTotal();
+            setSubtotal(total);
         };
         loadCart();
     }, []);
+
 
 
     const handleInputChange = (e) => {
@@ -91,31 +77,22 @@ const CheckoutPage = () => {
     };
 
     const handleSubmitOrder = async () => {
-        if (isSubmitting) return;
-
-        setIsSubmitting(true);
         try {
-            console.log('Submitting order with data:', { formData, cart });
-
-            // Create order from cart
-            const result = await createOrderFromCart();
-
-            if (result.success && result.orderId) {
-                console.log('Order created successfully:', result.orderId);
-                alert(`Order placed successfully! Order ID: ${result.orderId}`);
-
-                // Redirect to order confirmation or orders page
-                window.location.hash = `#profile/orders`;
+            setSubmitting(true);
+            const result = await checkout();
+            if (result.success) {
+                setOrderId(result.orderId);
+                // 可以弹窗、跳到订单详情、清空本地 cart 等
             } else {
-                throw new Error(result.message || 'Failed to create order');
+                setError(result.message || 'Checkout failed');
             }
-        } catch (error) {
-            console.error('Error submitting order:', error);
-            alert(`Failed to place order: ${error.message}`);
+        } catch (err) {
+            setError(err.message);
         } finally {
-            setIsSubmitting(false);
+            setSubmitting(false);
         }
     };
+
 
     const shipping = formData.shippingMethod === 'express' ? 15.00 : 0.00;
     const total = subtotal + shipping;
