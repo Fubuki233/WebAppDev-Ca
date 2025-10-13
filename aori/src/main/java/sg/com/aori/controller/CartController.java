@@ -37,6 +37,9 @@ public class CartController {
     @Autowired
     private ICart cartService;
 
+    @Autowired
+    private CRUDProductService productService;
+
     // @Autowired
     // private CustomerService customerService;
 
@@ -232,7 +235,7 @@ public class CartController {
                 return ResponseEntity.badRequest().body(response);
             }
             sku = (String) skuObj; // Or use the pid
-            CRUDProductService productService = new CRUDProductService();
+            System.out.println("----------sku: "+sku);
             String productId = SkuTool.getProductIdBySku(sku, productService);
             System.out.println("----------productId: "+productId);
 
