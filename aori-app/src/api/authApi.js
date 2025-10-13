@@ -69,7 +69,7 @@ export const register = async (userData) => {
                 lastName: userData.lastName,
                 email: userData.email,
                 password: userData.password,
-                phone: userData.phone || null,
+                phone_number: userData.phone || null,
                 address: null,
                 city: null,
                 state: null,

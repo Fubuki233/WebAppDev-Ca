@@ -28,9 +28,15 @@ const CheckoutPage = () => {
     });
 
     useEffect(() => {
-        const cartItems = getCart();
-        setCart(cartItems);
+        const loadCart = async () => {
+            const cartItems = await getCart();
+            setCart(Array.isArray(cartItems) ? cartItems : []);
+            const total = await getCartTotal();
+            setSubtotal(total);
+        };
+        loadCart();
     }, []);
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -60,10 +66,23 @@ const CheckoutPage = () => {
         }
     };
 
-    const handleSubmitOrder = () => {
-        console.log('Order submitted:', { formData, cart });
-        alert('Order placed successfully! (This is a demo)');
+    const handleSubmitOrder = async () => {
+        try {
+            setSubmitting(true);
+            const result = await checkout();
+            if (result.success) {
+                setOrderId(result.orderId);
+                // 可以弹窗、跳到订单详情、清空本地 cart 等
+            } else {
+                setError(result.message || 'Checkout failed');
+            }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setSubmitting(false);
+        }
     };
+
 
     const subtotal = getCartTotal();
     const shipping = 0; // "CALCULATED AT NEXT STEP"
