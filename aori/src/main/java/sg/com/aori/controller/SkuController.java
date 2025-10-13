@@ -43,7 +43,7 @@ public class SkuController {
             return -1;
         }
         String sku = SkuTool.createSku(id, colour, size, productService);
-
+        System.out.println("Getting quantity for SKU: " + sku);
         return skuService.getQuantity(sku);
     }
 
