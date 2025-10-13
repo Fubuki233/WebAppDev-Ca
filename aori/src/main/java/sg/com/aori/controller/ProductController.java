@@ -25,11 +25,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
+// import org.springframework.web.bind.annotation.DeleteMapping; - used in old method
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+// import org.springframework.web.bind.annotation.PutMapping; - used in old method
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -162,88 +162,6 @@ public class ProductController {
 
         return product.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Update an existing product.
-     * For updating the product, u dont need to provide productId in the request
-     * body(but u can for convenience), and category is optional(nothing will
-     * happend weather u provide it or not,
-     * it always returns a null value, ingore it).
-     * So for frontend developing, I suggest you to fetch the product by id first,
-     * then display and edit it.
-     * finally send the whole product object back to backend for updating.
-     * 
-     * Here is an example of request body:
-     * {
-     * "productCode": "PROD-000002",
-     * "productName": "test-update",
-     * "description": "WOW-update",
-     * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
-     * "collection": "Summer Breeze",
-     * "material": "Linen",
-     * "season": "Summer",
-     * "careInstructions": "Machine wash cold, hang dry.",
-     * "createdAt": "2025-10-07T16:10:11.693456"
-     * }
-     *
-     * @param product The product to create.
-     * @return The created product.
-     */
-
-    /*
-     * Previous method by Yunhe
-     * 
-     * @PutMapping("/admin")
-     * 
-     * public ResponseEntity<Product>
-     * updateProduct(@RequestParam("id") @NotBlank(message =
-     * "Product Id cannot be empty") String id, @Valid @RequestBody Product product)
-     * {
-     * 
-     * Product updatedProduct = crudProductService.updateProduct(id, product);
-     * System.out.println("[ProductController] Updated product: " + updatedProduct);
-     * return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
-     * }
-     * 
-     * @DeleteMapping("/admin")
-     * public ResponseEntity<Product>
-     * deleteProduct(@RequestParam("id") @NotBlank(message =
-     * "Product Id annot be empty") String productId) {
-     * System.out.println("[ProductController] Deleting product with ID: " +
-     * productId);
-     * Product deletedProduct = crudProductService.deleteProduct(productId);
-     * return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
-     * }
-     */
-
-    /**
-     * REFACTORED: Now uses @PathVariable for a more standard RESTful URL.
-     */
-    @PutMapping("/admin/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
-        // This method is kept simple as per your request.
-        Product updatedProduct = crudProductService.updateProduct(id, product);
-        return ResponseEntity.ok(updatedProduct);
-    }
-
-    /**
-     * REFACTORED: Now uses @PathVariable and handles all errors from the service
-     * by returning specific HTTP status codes.
-     */
-    @DeleteMapping("/admin/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable String id) {
-        try {
-            Product deletedProduct = crudProductService.deleteProduct(id);
-            // Success: Return 200 OK with the data of the deleted product.
-            return ResponseEntity.ok(deletedProduct);
-        } catch (IllegalStateException e) {
-            // Failure 1: Product has existing orders. Return 409 Conflict.
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (RuntimeException e) {
-            // Failure 2: Product not found. Return 404 Not Found.
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
     }
 
     /**
@@ -449,5 +367,95 @@ public class ProductController {
 
         return ResponseEntity.ok(recommendations);
     }
+
+/**  
+ * Old methods posted to the bottom: Create / Update / Delete product
+ * 
+ * 
+    /**
+     * Update an existing product.
+     * For updating the product, u dont need to provide productId in the request
+     * body(but u can for convenience), and category is optional(nothing will
+     * happend weather u provide it or not,
+     * it always returns a null value, ingore it).
+     * So for frontend developing, I suggest you to fetch the product by id first,
+     * then display and edit it.
+     * finally send the whole product object back to backend for updating.
+     * 
+     * Here is an example of request body:
+     * {
+     * "productCode": "PROD-000002",
+     * "productName": "test-update",
+     * "description": "WOW-update",
+     * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
+     * "collection": "Summer Breeze",
+     * "material": "Linen",
+     * "season": "Summer",
+     * "careInstructions": "Machine wash cold, hang dry.",
+     * "createdAt": "2025-10-07T16:10:11.693456"
+     * }
+     *
+     * @param product The product to create.
+     * @return The created product.
+     */
+
+    /*
+     * Previous method by Yunhe
+     * 
+     * @PutMapping("/admin")
+     * 
+     * public ResponseEntity<Product>
+     * updateProduct(@RequestParam("id") @NotBlank(message =
+     * "Product Id cannot be empty") String id, @Valid @RequestBody Product product)
+     * {
+     * 
+     * Product updatedProduct = crudProductService.updateProduct(id, product);
+     * System.out.println("[ProductController] Updated product: " + updatedProduct);
+     * return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
+     * }
+     * 
+     * @DeleteMapping("/admin")
+     * public ResponseEntity<Product>
+     * deleteProduct(@RequestParam("id") @NotBlank(message =
+     * "Product Id annot be empty") String productId) {
+     * System.out.println("[ProductController] Deleting product with ID: " +
+     * productId);
+     * Product deletedProduct = crudProductService.deleteProduct(productId);
+     * return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
+     * }
+     */
+
+    /**
+     * REFACTORED: Now uses @PathVariable for a more standard RESTful URL.
+    
+    @PutMapping("/admin/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
+        // This method is kept simple as per your request.
+        Product updatedProduct = crudProductService.updateProduct(id, product);
+        return ResponseEntity.ok(updatedProduct);
+    }
+     */
+
+    /**
+     * REFACTORED: Now uses @PathVariable and handles all errors from the service
+     * by returning specific HTTP status codes.
+    
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable String id) {
+        try {
+            Product deletedProduct = crudProductService.deleteProduct(id);
+            // Success: Return 200 OK with the data of the deleted product.
+            return ResponseEntity.ok(deletedProduct);
+        } catch (IllegalStateException e) {
+            // Failure 1: Product has existing orders. Return 409 Conflict.
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (RuntimeException e) {
+            // Failure 2: Product not found. Return 404 Not Found.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+ * 
+*/
 
 }

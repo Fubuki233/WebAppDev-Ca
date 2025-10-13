@@ -32,30 +32,28 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
     List<OrderItem> findOrderItemsWithProductDetails(@Param("orderIds") List<String> orderIds);
 
     /**
-     * METHOD: Counts how many order items are associated with a specific product
-     * ID.
+     * METHOD: Counts how many order items are associated with a specific product ID.
      * This is used in the CRUDProductService to prevent deletion of products that
      * have orders.
+     * @author Ying Chun
+     * @date 2025-10-10
      *
      * @param productId The ID of the product to check.
      * @return The number of order items linked to the product.
      */
     long countByProductId(String productId);
 
-    /*
+    /**
+     * METHOD: For Product Review
      * @author Derek
-     * 
      * @date 2025-10-08
-     * 
      * @version 1.0
      */
-
-    // for product review
     Optional<OrderItem> findByOrderItemIdAndOrderId(String orderItemId, String orderId);
 
     /**
      * @author Jiang
-     * @date 10-10
+     * @date 2025-10-10
      */
 
     List<OrderItem> findByOrderId(String orderId);
