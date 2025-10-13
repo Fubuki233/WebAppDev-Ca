@@ -68,8 +68,6 @@ public class EmployeeController {
         return "admin/employee/employee-form"; // Use the same form template for create and update
     }
 
-    // ----------------------------------------------------------------------------------
-
     // --- PROCESS NEW EMPLOYEE (Create - POST) ---
     // POST /admin/employees/
     @PostMapping(value = "/")

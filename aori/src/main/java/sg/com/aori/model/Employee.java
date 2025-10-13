@@ -76,9 +76,10 @@ public class Employee {
     private String email;
 
     // password_hash VARCHAR(255) NOT NULL,
-    // @NotBlank(message = "Password is required")
     @Length(min = 8, max = 255)
     @Column(name = "password")
+    @NotBlank(message = "Password is required for new employees.")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,}$", message = "Password must meet complexity requirements.")
     private String password;
 
     // phone_number VARCHAR(15),

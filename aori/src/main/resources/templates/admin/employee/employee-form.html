@@ -58,11 +58,11 @@
                     </div>
                 </div>
 
-                <div class="mb-3" th:if="${employee.employeeId == null}">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" th:field="*{password}" required>
-                    <div class="form-text">Must be 8+ chars, include upper, lower, digit, and symbol.</div>
-                    <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
+                <div class="mb-3"> 
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" th:field="*{password}" required>
+                        <div class="form-text">Must be 8+ chars, include upper, lower, digit, and symbol.</div>
+                        <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
                 </div>
                 
              <div class="mb-3">
