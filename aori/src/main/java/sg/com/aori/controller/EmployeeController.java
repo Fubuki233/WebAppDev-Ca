@@ -60,21 +60,59 @@ public class EmployeeController {
     @GetMapping(value = "/new")
     public String showCreateForm(Model model) {
         System.out.println("DEBUG: showCreateForm() called. Initializing new Employee object.");
+
+        // Set up the form backing object and roles for initial display
         model.addAttribute("employee", new Employee());
-        /** load all roles for creator to choose for the new employee */
         model.addAttribute("allRoles", roleService.getAllRoles());
+
         return "admin/employee/employee-form"; // Use the same form template for create and update
     }
+
+    // ----------------------------------------------------------------------------------
 
     // --- PROCESS NEW EMPLOYEE (Create - POST) ---
     // POST /admin/employees/
     @PostMapping(value = "/")
-    public String createEmployee(@Valid @ModelAttribute("employee") Employee employee) {
-        employeeService.createEmployee(employee);
-        // DEBUGGING: Show the data submitted from the form (before validation check)
+    public String createEmployee(@Valid @ModelAttribute("employee") Employee employee,
+            BindingResult bindingResult, // Added BindingResult to catch Bean Validation errors
+            Model model, // Added Model to pass data back if validation fails
+            RedirectAttributes redirectAttributes) {
+
+        // DEBUGGING: Show the data submitted from the form
         System.out.println("DEBUG: createEmployee() called. Submitted data: " + employee.toString());
-        // Redirect to the list view after successful creation
-        return "redirect:/admin/employees";
+
+        // 1. Handle Bean Validation Errors (Prevents Whitelabel Error Page)
+        if (bindingResult.hasErrors()) {
+            System.out.println("DEBUG: Create Validation Failed. Total Errors: " + bindingResult.getErrorCount());
+
+            // To prevent the Whitelabel Error Page, re-add necessary data.
+            model.addAttribute("allRoles", roleService.getAllRoles());
+
+            // Return to the form view (errors automatically displayed)
+            return "admin/employee/employee-form";
+        }
+
+        // 2. Handle Service/Business Logic Errors (e.g., unique email check)
+        try {
+            employeeService.createEmployee(employee);
+
+            // Success path
+            System.out.println("DEBUG: Employee created successfully. Redirecting to list.");
+            redirectAttributes.addFlashAttribute("success", "New employee created successfully!");
+            return "redirect:/admin/employees";
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("ERROR: Business Validation Failed (e.g., duplicate email): " + e.getMessage());
+
+            // Re-add model attributes needed for the form
+            model.addAttribute("allRoles", roleService.getAllRoles());
+
+            // Add the custom service error to the relevant field
+            bindingResult.rejectValue("email", "error.employee", e.getMessage());
+
+            // Return to the form view
+            return "admin/employee/employee-form";
+        }
     }
 
     // --- RENDER FORM TO EDIT EMPLOYEE (Update - GET) ---
