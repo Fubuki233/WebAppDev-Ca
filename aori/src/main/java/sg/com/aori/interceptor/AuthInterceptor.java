@@ -72,14 +72,14 @@ public class AuthInterceptor implements HandlerInterceptor {
             System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
             return true;
         }
-        // 1. Employee/Admin Check (For security, we need put this first)
-        if (path.startsWith(EMPLOYEE_PATH_PREFIX) || path.contains("/admin")) {
+
+        // This handles server-rendered admin pages (/admin/*) and specific employee API
+        // endpoints.
+        if (path.startsWith("/admin") || path.startsWith(EMPLOYEE_PATH_PREFIX)) {
             return AuthHandler.handleEmployeeAccess(request, response, handler, employeeService);
         }
 
-        // 2. Customer Access Check
-        System.out.println("[LoggingInterceptor] Not a bypass request - Validating customer session for path: " + path
-                + ", method: " + method);
+        // If it's not an admin/employee path, it must be a customer path.
         return AuthHandler.handleCustomerAccess(request, response, loginService);
     }
 }
