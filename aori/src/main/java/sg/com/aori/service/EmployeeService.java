@@ -116,22 +116,11 @@ public class EmployeeService implements IEmployee {
         existingEmployee.setEmail(employeeDetails.getEmail());
         existingEmployee.setPhoneNumber(employeeDetails.getPhoneNumber());
         existingEmployee.setStatus(employeeDetails.getStatus());
-
-        if (employeeDetails.getRole() != null) {
-            existingEmployee.setRole(employeeDetails.getRole());
-        }
-        if (employeeDetails.getPassword() != null && !employeeDetails.getPassword().isBlank()) {
-            // 若允许在此端点改密码，则做强度校验/加密；否则删除这个分支
-            if (!isPasswordStrong(employeeDetails.getPassword())) {
-                throw new IllegalArgumentException("Password must include upper, lower, digit, and symbol");
-            }
-            // existingEmployee.setPassword(passwordEncoder.encode(employeeDetails.getPassword()));
-            existingEmployee.setPassword(employeeDetails.getPassword());
-        }
-
+        existingEmployee.setPassword(existingEmployee.getPassword());
+        System.out.println("Password: " + existingEmployee.getPassword());
         validateOnUpdate(existingEmployee);
 
-        return employeeRepository.save(existingEmployee);
+        return existingEmployee;
     }
 
     @Override

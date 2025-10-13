@@ -1,3 +1,12 @@
+/**
+ * v1.0(Yunhe)
+ * v1.1(Jiang): Added method getProductIdBySku
+ * 
+ * @author Yunhe
+ * @date 10-13
+ * @version 1.1
+ */
+
 package sg.com.aori.utils;
 
 import java.util.Optional;
@@ -11,12 +20,12 @@ public class SkuTool {
     public static String createSku(String uuid, String colour, String size,
             CRUDProductService productService) {
         Optional<Product> product = productService.getProductById(uuid);
-        String sku = product.get().getProductName() + "-" + colour + "-" + size;
+        String sku = product.get().getProductName() + "&" + colour + "&" + size;
         return sku;
     }
 
     public static Product getProductBySku(String sku, CRUDProductService productService) {
-        String[] parts = sku.split("-");
+        String[] parts = sku.split("&");
         if (parts.length < 3) {
             return null;
         }
@@ -25,16 +34,25 @@ public class SkuTool {
         return product.orElse(null);
     }
 
-    public static String SkuDecode(String sku) {
-        String[] parts = sku.split("-");
+    public static String SkuDecode(String sku, CRUDProductService productService) {
+        String[] parts = sku.split("&");
         if (parts.length < 3) {
             return null;
         }
+        String productId = productService.findProductIdByProductCode(parts[0]);
         JSONObject json = new JSONObject();
-        json.put("productId", parts[0]);
+        json.put("productId", productId);
         json.put("colour", parts[1]);
         json.put("size", parts[2]);
         return json.toString();
     }
 
+    public static String getProductIdBySku(String sku, CRUDProductService productService) {
+        String[] parts = sku.split("&");
+        if (parts.length < 3) {
+            return null;
+        }
+        String productId = productService.findProductIdByProductCode(parts[0]);
+        return productId;
+    }
 }

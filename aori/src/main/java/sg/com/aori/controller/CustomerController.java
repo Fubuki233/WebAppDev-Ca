@@ -1,10 +1,10 @@
 
 /**
- * Detailed description of the class.
+ * use uuid to get instead of email
  *
  * @author Sun Rui
  * @date 2025-10-08
- * @version 1.2
+ * @version 1.3
  */
 
 package sg.com.aori.controller;

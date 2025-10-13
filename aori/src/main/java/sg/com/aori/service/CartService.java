@@ -2,19 +2,17 @@
  * v1.1: Small adjustments, including a simple validation before creating order
  * v1.2: Repaired the problem that orderItem cannot be added correctly.
  * v1.3: Added the function of auto generating order_number
+ * v1.4: Added sku
  * @author Jiang
- * @date 2025-10-10
- * @version 1.3
+ * @date 2025-10-13
+ * @version 1.4
  */
 
 package sg.com.aori.service;
 
 import sg.com.aori.interfaces.ICart;
 import sg.com.aori.model.*;
-import sg.com.aori.repository.CartRepository;
-import sg.com.aori.repository.InventoryRepository;
-import sg.com.aori.repository.OrderItemRepository;
-import sg.com.aori.repository.OrderRepository;
+import sg.com.aori.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -153,7 +150,7 @@ public class CartService implements ICart {
     }
 
     // Add item to cart
-    public void addToCart(String customerId, String productId, Integer quantity) {
+    public void addToCart(String customerId, String productId, Integer quantity, String sku) {
         Optional<Product> productOpt = inventoryRepository.findById(productId);
         if (productOpt.isEmpty()) {
             throw new RuntimeException("Product not found");
@@ -186,7 +183,7 @@ public class CartService implements ICart {
             // Set customerid and productId directly
             cartItem.setCustomerId(customerId);
             cartItem.setProductId(productId);
-
+            cartItem.setSku(sku);
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
             cartItem.setAddedAt(LocalDateTime.now());
