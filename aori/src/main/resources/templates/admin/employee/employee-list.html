@@ -1,0 +1,90 @@
+
+<!-- 
+ * Aori Admin Portal employee list page
+ * 
+ * @author Xiaobo
+ * @date 2025-10-12
+ * @version 1.0 
+ */
+ -->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Employee Management</title>
+    </head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Employee List</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a th:href="@{/admin/employees/new}" class="btn btn-sm btn-primary">
+                <span data-feather="plus" class="align-text-bottom"></span>
+                Add New Employee
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="table-responsive">
+        <div th:if="${employees.isEmpty()}" class="alert alert-info">
+            No employees found. Click "Add New Employee" to get started.
+        </div>
+
+        <table th:unless="${employees.isEmpty()}" class="table table-striped table-sm">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="employee : ${employees}">
+                <td th:text="${employee.employeeId}">UUID-12345</td>
+                <td th:text="${employee.firstName} + ' ' + ${employee.lastName}">Alex Chen</td>
+                <td th:text="${employee.email}">alex.chen@aori.com</td>
+                <td th:text="${employee.phoneNumber}">+6598765432</td>
+                
+                <td th:text="${employee.role != null ? employee.role.roleName : 'N/A'}">Manager</td>
+                
+                <td>
+                    <span th:classappend="${employee.status.name() == 'Active'} ? 'bg-success' : 
+                                            (${employee.status.name() == 'Inactive'} ? 'bg-secondary' : 'bg-warning')"
+                          class="badge text-white"
+                          th:text="${employee.status.name()}">Active</span>
+                </td>
+                
+                <td th:text="${#temporals.format(employee.createdAt, 'yyyy-MM-dd')}">2025-10-10</td>
+                
+                <td>
+                    <a th:href="@{/admin/employees/{id}/edit(id=${employee.employeeId})}"
+                       class="btn btn-sm btn-outline-info">Edit</a>
+                       
+                    <a th:href="@{/admin/employees/{id}/delete(id=${employee.employeeId})}"
+                       class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    </div>
+</body>
+</html>
