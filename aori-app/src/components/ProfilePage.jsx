@@ -9,10 +9,12 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import { getProfile, updateProfile } from '../api/profileApi';
 import { getUserOrders, getOrderDetails, cancelOrder } from '../api/orderApi';
+import { getViewHistory } from '../api/viewHistoryApi';
+import { fetchProductById } from '../api/productApi';
 import '../styles/ProfilePage.css';
 
 const ProfilePage = () => {
-    // Active tab state: 'orders' or 'profile'
+    // Active tab state: 'orders', 'profile', or 'history'
     const [activeTab, setActiveTab] = useState('orders');
 
     // Profile states
@@ -33,6 +35,11 @@ const ProfilePage = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [orderDetails, setOrderDetails] = useState(null);
 
+    // View history states
+    const [viewHistory, setViewHistory] = useState([]);
+    const [historyProducts, setHistoryProducts] = useState({});
+    const [loadingHistory, setLoadingHistory] = useState(false);
+
     // Common states
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -44,6 +51,22 @@ const ProfilePage = () => {
         loadOrders();
     }, []);
 
+    // Load view history when tab changes
+    useEffect(() => {
+        console.log('History tab effect triggered:', {
+            activeTab,
+            hasProfile: !!profile,
+            profileCustomerId: profile?.customerId
+        });
+
+        if (activeTab === 'history' && profile?.customerId) {
+            console.log('Conditions met, loading history...');
+            loadViewHistory();
+        } else if (activeTab === 'history') {
+            console.log('Active tab is history but profile.customerId is missing');
+        }
+    }, [activeTab, profile]);
+
     const loadProfile = async () => {
         setError('');
         try {
@@ -51,6 +74,9 @@ const ProfilePage = () => {
             console.log('Profile response:', response);
 
             if (response.success && response.profile) {
+                console.log('Profile data:', response.profile);
+                console.log('Profile UUID:', response.profile.uuid);
+                console.log('Profile customerId:', response.profile.customerId);
                 setProfile(response.profile);
                 setFormData({
                     firstName: response.profile.firstName || '',
@@ -89,6 +115,53 @@ const ProfilePage = () => {
             setOrders([]);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadViewHistory = async () => {
+        if (!profile?.customerId) {
+            console.log('Profile customerId not available, skipping history load');
+            return;
+        }
+
+        console.log('Loading view history for user:', profile.customerId);
+        setLoadingHistory(true);
+        setError('');
+        try {
+            const history = await getViewHistory(profile.customerId);
+            console.log('View history response:', history);
+            console.log('History is array:', Array.isArray(history));
+            console.log('History length:', history?.length);
+
+            if (Array.isArray(history)) {
+                setViewHistory(history);
+
+                // Load product details for each history item
+                const productPromises = history.map(item =>
+                    fetchProductById(item.productId).catch(err => {
+                        console.error(`Failed to load product ${item.productId}:`, err);
+                        return null;
+                    })
+                );
+
+                const products = await Promise.all(productPromises);
+                const productMap = {};
+                products.forEach((product, index) => {
+                    if (product) {
+                        productMap[history[index].productId] = product;
+                    }
+                });
+
+                setHistoryProducts(productMap);
+            } else {
+                setViewHistory([]);
+            }
+        } catch (err) {
+            console.error('Load view history error:', err);
+            setError('Failed to load view history.');
+            setViewHistory([]);
+        } finally {
+            setLoadingHistory(false);
         }
     };
 
@@ -224,7 +297,9 @@ const ProfilePage = () => {
                 <div className="breadcrumb">
                     <a href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>Home</a>
                     <span className="separator">/</span>
-                    <span className="current">{activeTab === 'orders' ? 'My Orders' : 'My Profile'}</span>
+                    <span className="current">
+                        {activeTab === 'orders' ? 'My Orders' : activeTab === 'profile' ? 'My Profile' : 'View History'}
+                    </span>
                 </div>
 
                 {/* Page Title */}
@@ -263,6 +338,20 @@ const ProfilePage = () => {
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                                 <span>Personal Info</span>
+                            </button>
+                            <button
+                                className={`sidebar-item ${activeTab === 'history' ? 'active' : ''}`}
+                                onClick={() => {
+                                    setActiveTab('history');
+                                    setError('');
+                                    setSuccess('');
+                                }}
+                            >
+                                <svg className="sidebar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span>View History</span>
                             </button>
                         </nav>
                     </aside>
@@ -609,6 +698,82 @@ const ProfilePage = () => {
                                                 </span>
                                             </div>
                                         </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* View History Tab */}
+                        {activeTab === 'history' && (
+                            <div className="history-section">
+                                <h2 className="section-title">Browsing History</h2>
+
+                                {loadingHistory ? (
+                                    <div className="loading-state">
+                                        <div className="spinner"></div>
+                                        <p>Loading your browsing history...</p>
+                                    </div>
+                                ) : viewHistory.length === 0 ? (
+                                    <div className="empty-state">
+                                        <svg className="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <h3>No Browsing History</h3>
+                                        <p>Start exploring products to see your browsing history here</p>
+                                        <button
+                                            className="btn-primary"
+                                            onClick={() => window.location.hash = '#products'}
+                                        >
+                                            Browse Products
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="history-grid">
+                                        {viewHistory.map((item) => {
+                                            const product = historyProducts[item.productId];
+                                            return (
+                                                <div key={item.id} className="history-card">
+                                                    {product ? (
+                                                        <>
+                                                            <div className="history-image-container">
+                                                                <img
+                                                                    src={product.images && product.images.length > 0 ? product.images[0] : '/placeholder.png'}
+                                                                    alt={product.name}
+                                                                    className="history-image"
+                                                                    onError={(e) => {
+                                                                        e.target.src = '/placeholder.png';
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                            <div className="history-content">
+                                                                <h3 className="history-product-name">{product.name}</h3>
+                                                                <p className="history-product-category">{product.category}</p>
+                                                                <div className="history-product-price">
+                                                                    ${product.price?.toFixed(2)}
+                                                                </div>
+                                                                <div className="history-meta">
+                                                                    <span className="history-timestamp">
+                                                                        Viewed: {new Date(item.timestamp).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                                <button
+                                                                    className="btn-view-product"
+                                                                    onClick={() => window.location.hash = `#product/${item.productId}`}
+                                                                >
+                                                                    View Product
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="history-loading">
+                                                            <div className="spinner-small"></div>
+                                                            <p>Loading product...</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>

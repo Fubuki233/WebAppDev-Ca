@@ -6,6 +6,7 @@
  * @version 1.0 - previously known as CustomerProfileController; renamed to cover different sub-services
  * @version 2.0 - Renamed to CustomerAccountController. Introduce Http Session to authenticate users before they can perform actions.
  * @version 2.1 - Added validation
+ * @version 2.2 - Added Javadoc comments
  */
 
 package sg.com.aori.controller;
@@ -52,8 +53,25 @@ public class CustomerAccountController {
 		return (String) session.getAttribute("id");
 	}
 
-	// View profile details
-	// Retrieves profile details for a logged in customer
+	/**  View profile details. Retrieves profile details for a logged in customer.
+	{
+    "success": true,
+    "profile": {
+        "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+        "firstName": "John",
+        "lastName": "Tang",
+        "email": "john@example.com",
+        "password": "SecurePass123!",
+        "phoneNumber": "+6588112233",
+        "gender": "Undisclosed",
+        "dateOfBirth": "1991-02-24",
+        "createdAt": "2025-05-21T17:22:33",
+        "updatedAt": "2025-10-11T07:56:05"
+    }
+	* @param customerId Customer ID tagged to email used during login
+	* @param session	HTTP session for storing user information
+	* @return ResponseEntity with profile details or error message
+	*/
 
 	@GetMapping("/profile")
 	public ResponseEntity<Map<String, Object>> getProfile(HttpSession session) {
@@ -82,8 +100,38 @@ public class CustomerAccountController {
 		}
 	}
 
-	// Update profile details
-	// Allow logged-in customer to edit profile details
+	/** Update profile details. Allow logged-in customer to edit profile details.
+	 * 
+	 * [Postman] Data required to be passed in JSON format in the request body:
+	 * {
+		"customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+		"firstName": "John",
+		"lastName": "Tang",
+		"email": "john@example.com",
+		"password": "SecurePass123!",
+		"phoneNumber": "+6586671234",
+		"gender": "Male",
+		"dateOfBirth": "1993-01-24"
+		}
+	 * [Postman] Message received if successful:
+	 * {
+		"success": true,
+		"profile": {
+			"customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+			"firstName": "John",
+			"lastName": "Tang",
+			"email": "john@example.com",
+			"password": "SecurePass123!",
+			"phoneNumber": "+6586671234",
+			"gender": "Male",
+			"dateOfBirth": "1993-01-24",
+			"createdAt": "2025-05-21T17:22:33", 
+			"updatedAt": "2025-10-12T22:11:49.180996"
+		}
+	 * @param profileData
+	 * @param session
+	 * @return ResponseEntity with updated profile details or error message
+	*/
 
 	@PutMapping("/profile/edit")
 	public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody Customer profileData, HttpSession session) {
@@ -107,8 +155,46 @@ public class CustomerAccountController {
 		}
 	}
 
-	// View Customer Address
-	// Retrieves address details for a logged in customer
+	/** View Customer Address. Retrieves address details for a logged in customer
+	 * Example of successful response:
+	 * {
+		"addresses": [
+			{
+				"addressId": "b7f782c1-ca4c-5909-ad02-9155dad466e3",
+				"customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+				"recipientName": "John Doe",
+				"phoneNumber": "+65 84318855",
+				"addressLine1": "931 Orchard Rd",
+				"addressLine2": "Unit #35-847",
+				"city": "Singapore",
+				"postalCode": "249145",
+				"country": "Singapore",
+				"isBilling": true,
+				"isDefault": true,
+				"createdAt": "2025-10-10T05:16:59",
+				"customer": {
+					"customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+					"firstName": "John",
+					"lastName": "Tang",
+					"email": "john@example.com",
+					"password": "SecurePass123!",
+					"phoneNumber": "+6586671234",
+					"gender": "Male",
+					"dateOfBirth": "1993-01-24",
+					"createdAt": "2025-05-21T17:22:33",
+					"updatedAt": "2025-10-12T22:11:49",
+					"hibernateLazyInitializer": {}
+				}
+			}
+		],
+		"success": true
+	}
+	
+	 * @param customerId Customer ID tagged to email used during login
+	 * @param session HTTP session for storing user information
+	 * @return ResponseEntity with address details or error message
+	*/
+
 	@GetMapping("/addresses")
 	public ResponseEntity<Map<String, Object>> getAddresses(HttpSession session) {
 		Map<String, Object> response = new HashMap<>();
@@ -131,8 +217,58 @@ public class CustomerAccountController {
 
 	}
 
-	// Update addresses
-	// Allow logged-in customer to edit address details
+	/** Update addresses. Allow logged-in customer to edit address details.
+	 * Example of response to post to a specific addressId:
+		{
+				"customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+				"recipientName": "Johnny Depp",
+				"phoneNumber": "+65 84318855",
+				"addressLine1": "931 Swensen Rd",
+				"addressLine2": "Unit #35-847",
+				"city": "Singapore",
+				"postalCode": "249145",
+				"country": "Singapore",
+				"isBilling": true,
+				"isDefault": true
+	}
+	Response if successfully updated:
+		{
+		"addresses": [
+			{
+				"addressId": "b7f782c1-ca4c-5909-ad02-9155dad466e3",
+				"customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+				"recipientName": "John Doe",
+				"phoneNumber": "+65 84318855",
+				"addressLine1": "931 Orchard Rd",
+				"addressLine2": "Unit #35-847",
+				"city": "Singapore",
+				"postalCode": "249145",
+				"country": "Singapore",
+				"isBilling": true,
+				"isDefault": true,
+				"createdAt": "2025-10-10T05:16:59",
+				"customer": {
+					"customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+					"firstName": "John",
+					"lastName": "Tang",
+					"email": "john@example.com",
+					"password": "SecurePass123!",
+					"phoneNumber": "+6586671234",
+					"gender": "Male",
+					"dateOfBirth": "1993-01-24",
+					"createdAt": "2025-05-21T17:22:33",
+					"updatedAt": "2025-10-12T22:11:49",
+					"hibernateLazyInitializer": {}
+				}
+			}
+		],
+		"success": true
+		}
+	 * @param addressId
+	 * @param addressData
+	 * @param session
+	 * @return ResponseEntity with updated address details or error message
+	*/
 
 	@PutMapping("/addresses/{addressId}")
 	public ResponseEntity<Map<String, Object>> updateAddress(

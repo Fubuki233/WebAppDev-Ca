@@ -7,11 +7,14 @@
  */
 import React, { useState, useEffect } from 'react';
 import { getCart, getCartTotal } from '../api/cartApi';
+import { createOrderFromCart } from '../api/orderApi';
 import '../styles/CheckoutPage.css';
 
 const CheckoutPage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [cart, setCart] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [subtotal, setSubtotal] = useState(0);
     const [formData, setFormData] = useState({
         // Contact Info
         email: '',
@@ -25,14 +28,42 @@ const CheckoutPage = () => {
         city: '',
         postalCode: '',
         // Payment (would be added in step 3)
+        shippingMethod: 'standard',
+        paymentMethod: 'card'
     });
 
     useEffect(() => {
         const loadCart = async () => {
+<<<<<<< HEAD
             const cartItems = await getCart();
             setCart(Array.isArray(cartItems) ? cartItems : []);
             const total = await getCartTotal();
             setSubtotal(total);
+=======
+            try {
+                const cartItems = await getCart();
+                if (Array.isArray(cartItems)) {
+                    setCart(cartItems);
+                    // Calculate subtotal
+                    const calculatedSubtotal = cartItems.reduce((sum, item) =>
+                        sum + (item.price * item.quantity), 0
+                    );
+                    setSubtotal(calculatedSubtotal);
+
+                    if (cartItems.length === 0) {
+                        // Redirect to cart if empty
+                        alert('Your cart is empty');
+                        window.location.hash = '#cart';
+                    }
+                } else {
+                    setCart([]);
+                    setSubtotal(0);
+                }
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                setCart([]);
+            }
+>>>>>>> 37641306e133c1c544ac437ffd2360df18242722
         };
         loadCart();
     }, []);
@@ -67,6 +98,7 @@ const CheckoutPage = () => {
     };
 
     const handleSubmitOrder = async () => {
+<<<<<<< HEAD
         try {
             setSubmitting(true);
             const result = await checkout();
@@ -86,6 +118,35 @@ const CheckoutPage = () => {
 
     const subtotal = getCartTotal();
     const shipping = 0; // "CALCULATED AT NEXT STEP"
+=======
+        if (isSubmitting) return;
+
+        setIsSubmitting(true);
+        try {
+            console.log('Submitting order with data:', { formData, cart });
+
+            // Create order from cart
+            const result = await createOrderFromCart();
+
+            if (result.success && result.orderId) {
+                console.log('Order created successfully:', result.orderId);
+                alert(`Order placed successfully! Order ID: ${result.orderId}`);
+
+                // Redirect to order confirmation or orders page
+                window.location.hash = `#profile/orders`;
+            } else {
+                throw new Error(result.message || 'Failed to create order');
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            alert(`Failed to place order: ${error.message}`);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const shipping = formData.shippingMethod === 'express' ? 15.00 : 0.00;
+>>>>>>> 37641306e133c1c544ac437ffd2360df18242722
     const total = subtotal + shipping;
 
     const steps = [
@@ -252,7 +313,13 @@ const CheckoutPage = () => {
                                     <h3 className="form-section-title">SHIPPING METHOD</h3>
                                     <div className="shipping-options">
                                         <label className="shipping-option">
-                                            <input type="radio" name="shipping" value="standard" defaultChecked />
+                                            <input
+                                                type="radio"
+                                                name="shippingMethod"
+                                                value="standard"
+                                                checked={formData.shippingMethod === 'standard'}
+                                                onChange={handleInputChange}
+                                            />
                                             <div className="shipping-info">
                                                 <span className="shipping-name">Standard Shipping</span>
                                                 <span className="shipping-time">5-7 business days</span>
@@ -260,7 +327,13 @@ const CheckoutPage = () => {
                                             <span className="shipping-price">Free</span>
                                         </label>
                                         <label className="shipping-option">
-                                            <input type="radio" name="shipping" value="express" />
+                                            <input
+                                                type="radio"
+                                                name="shippingMethod"
+                                                value="express"
+                                                checked={formData.shippingMethod === 'express'}
+                                                onChange={handleInputChange}
+                                            />
                                             <div className="shipping-info">
                                                 <span className="shipping-name">Express Shipping</span>
                                                 <span className="shipping-time">2-3 business days</span>
@@ -285,18 +358,34 @@ const CheckoutPage = () => {
                                     <h3 className="form-section-title">PAYMENT METHOD</h3>
                                     <div className="payment-options">
                                         <label className="payment-option">
-                                            <input type="radio" name="payment" value="card" defaultChecked />
+                                            <input
+                                                type="radio"
+                                                name="paymentMethod"
+                                                value="card"
+                                                checked={formData.paymentMethod === 'card'}
+                                                onChange={handleInputChange}
+                                            />
                                             <span>Credit / Debit Card</span>
                                         </label>
                                         <label className="payment-option">
-                                            <input type="radio" name="payment" value="paypal" />
+                                            <input
+                                                type="radio"
+                                                name="paymentMethod"
+                                                value="paypal"
+                                                checked={formData.paymentMethod === 'paypal'}
+                                                onChange={handleInputChange}
+                                            />
                                             <span>PayPal</span>
                                         </label>
                                     </div>
                                 </div>
 
-                                <button className="next-button submit-button" onClick={handleNextStep}>
-                                    Place Order
+                                <button
+                                    className="next-button submit-button"
+                                    onClick={handleNextStep}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Processing...' : 'Place Order'}
                                 </button>
                             </div>
                         )}
@@ -332,7 +421,11 @@ const CheckoutPage = () => {
                             </div>
                             <div className="total-row">
                                 <span>Shipping</span>
-                                <span className="shipping-note">CALCULATED AT NEXT STEP</span>
+                                {currentStep >= 2 ? (
+                                    <span className="amount">${shipping.toFixed(2)}</span>
+                                ) : (
+                                    <span className="shipping-note">CALCULATED AT NEXT STEP</span>
+                                )}
                             </div>
                             <div className="total-row final-total">
                                 <span>Total</span>

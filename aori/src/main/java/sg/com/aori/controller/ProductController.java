@@ -11,6 +11,9 @@
  * @date 2025-10-10 (v2.0)
  * @version 2.0 - Refactored to adjust HTTP responses and tie in with changes made to CRUDProductService
  * 
+ * @author Yunhe
+ * @date 2025-10-13
+ * @version 3.0 added recommendation APIs
  */
 package sg.com.aori.controller;
 
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 // import org.springframework.web.bind.annotation.RequestParam; - used in old method
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,6 +48,22 @@ import sg.com.aori.service.CRUDProductService;
 public class ProductController {
     @Autowired
     private CRUDProductService crudProductService;
+
+    @Autowired
+    private sg.com.aori.service.ProductRecommendationService recommendationService;
+
+    String collectionDisplay = "Shizen"; // default collection display
+
+    @PostMapping("/admin/collectionDisplay")
+    public String setCollect(@RequestParam("collectionDisplay") String collectionDisplay) {
+        this.collectionDisplay = collectionDisplay;
+        return this.collectionDisplay;
+    }
+
+    @GetMapping("/collectionDisplay")
+    public String getCollect() {
+        return this.collectionDisplay;
+    }
 
     /**
      * Create a new product.
@@ -224,6 +244,210 @@ public class ProductController {
             // Failure 2: Product not found. Return 404 Not Found.
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    /**
+     * Get personalized product recommendations based on user purchase history
+     * 
+     * Algorithm:
+     * 1. Analyzes user's past orders to identify preferred categories
+     * 2. Recommends products from frequently purchased categories
+     * 3. Filters out products already purchased by the user
+     * 4. Sorts by product rating (highest first)
+     * 5. Only includes products that are in stock (stockQuantity > 0)
+     * 
+     * If no purchase history exists, returns popular products (highest rated)
+     *
+     * @param customerId The customer UUID from session or query parameter
+     * @param limit      Maximum number of recommendations (default: 10, max: 50)
+     * @param session    HTTP session to get customer ID if not provided
+     * @return List of recommended products
+     */
+    @GetMapping("/recommendations")
+    public ResponseEntity<List<Product>> getRecommendations(
+            @RequestParam(required = false) String customerId,
+            @RequestParam(defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpSession session) {
+
+        if (limit < 1)
+            limit = 10;
+        if (limit > 50)
+            limit = 50;
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            customerId = (String) session.getAttribute("id");
+        }
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            System.out.println("[ProductController] No customer ID provided, returning popular products");
+            List<Product> recommendations = recommendationService.getRecommendations("", limit);
+            return ResponseEntity.ok(recommendations);
+        }
+
+        System.out.println(
+                "[ProductController] Getting recommendations for customer: " + customerId + ", limit: " + limit);
+        List<Product> recommendations = recommendationService.getRecommendations(customerId, limit);
+        System.out.println("[ProductController] Found " + recommendations.size() + " recommendations");
+
+        return ResponseEntity.ok(recommendations);
+    }
+
+    /**
+     * Get product recommendations based on cart contents
+     * 
+     * @param customerId Optional customer ID (will use session if not provided)
+     * @param limit      Maximum number of recommendations (default: 10, max: 50)
+     * @param session    HTTP session
+     * @return List of recommended products based on cart
+     */
+    @GetMapping("/recommendations/cart")
+    public ResponseEntity<List<Product>> getCartRecommendations(
+            @RequestParam(required = false) String customerId,
+            @RequestParam(defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpSession session) {
+
+        if (limit < 1)
+            limit = 10;
+        if (limit > 50)
+            limit = 50;
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            customerId = (String) session.getAttribute("id");
+        }
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            System.out
+                    .println("[ProductController] No customer ID for cart recommendations, returning popular products");
+            List<Product> recommendations = recommendationService.getPopularProducts(limit);
+            return ResponseEntity.ok(recommendations);
+        }
+
+        System.out.println(
+                "[ProductController] Getting cart-based recommendations for customer: " + customerId + ", limit: "
+                        + limit);
+        List<Product> recommendations = recommendationService.getRecommendationsFromCart(customerId, limit);
+        System.out.println("[ProductController] Found " + recommendations.size() + " cart-based recommendations");
+
+        return ResponseEntity.ok(recommendations);
+    }
+
+    /**
+     * Get product recommendations within a specific category
+     * 
+     * 
+     * @param categoryIdOrSlug Category ID or slug
+     * @param customerId       Customer UUID
+     * @param limit            Maximum number of recommendations
+     * @param session          HTTP session
+     * @return List of recommended products from the category
+     */
+    @GetMapping("/recommendations/category/{categoryIdOrSlug}")
+    public ResponseEntity<List<Product>> getRecommendationsByCategory(
+            @PathVariable String categoryIdOrSlug,
+            @RequestParam(required = false) String customerId,
+            @RequestParam(defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpSession session) {
+
+        if (limit < 1)
+            limit = 10;
+        if (limit > 50)
+            limit = 50;
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            customerId = (String) session.getAttribute("id");
+            if (customerId == null)
+                customerId = "";
+        }
+
+        System.out.println("[ProductController] Getting category recommendations: " + categoryIdOrSlug);
+        List<Product> recommendations = recommendationService.getRecommendationsByCategory(
+                customerId, categoryIdOrSlug, limit);
+
+        return ResponseEntity.ok(recommendations);
+    }
+
+    /**
+     * Get similar products based on a specific product
+     * Useful for "You may also like" sections on product detail pages
+     * 
+     * 
+     * @param productId  The product ID to find similar products for
+     * @param customerId Customer UUID (optional, used to exclude already purchased)
+     * @param limit      Maximum number of similar products
+     * @param session    HTTP session
+     * @return List of similar products
+     */
+    @GetMapping("/{productId}/similar")
+    public ResponseEntity<List<Product>> getSimilarProducts(
+            @PathVariable String productId,
+            @RequestParam(required = false) String customerId,
+            @RequestParam(defaultValue = "8") int limit,
+            jakarta.servlet.http.HttpSession session) {
+
+        if (limit < 1)
+            limit = 8;
+        if (limit > 20)
+            limit = 20;
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            customerId = (String) session.getAttribute("id");
+            if (customerId == null)
+                customerId = "";
+        }
+
+        System.out.println("[ProductController] Getting similar products for: " + productId);
+        List<Product> similarProducts = recommendationService.getSimilarProducts(
+                productId, customerId, limit);
+
+        return ResponseEntity.ok(similarProducts);
+    }
+
+    /**
+     * Get product recommendations based on user's browsing/view history
+     * 
+     * Algorithm:
+     * 1. Analyzes products the user has recently viewed
+     * 2. Identifies categories from viewed products
+     * 3. Recommends products from frequently viewed categories
+     * 4. Prioritizes by view frequency and recency
+     * 5. Excludes products already viewed or purchased
+     * 6. Sorts by product rating (highest first)
+     * 7. Only includes in-stock products
+     * 
+     * @param customerId Optional customer ID (will use session if not provided)
+     * @param limit      Maximum number of recommendations (default: 10, max: 50)
+     * @param session    HTTP session
+     * @return List of recommended products based on browsing history
+     */
+    @GetMapping("/recommendations/history")
+    public ResponseEntity<List<Product>> getViewHistoryRecommendations(
+            @RequestParam(required = false) String customerId,
+            @RequestParam(defaultValue = "10") int limit,
+            jakarta.servlet.http.HttpSession session) {
+
+        if (limit < 1)
+            limit = 10;
+        if (limit > 50)
+            limit = 50;
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            customerId = (String) session.getAttribute("id");
+        }
+
+        if (customerId == null || customerId.trim().isEmpty()) {
+            System.out.println(
+                    "[ProductController] No customer ID for history recommendations, returning popular products");
+            List<Product> recommendations = recommendationService.getPopularProducts(limit);
+            return ResponseEntity.ok(recommendations);
+        }
+
+        System.out.println(
+                "[ProductController] Getting view history recommendations for customer: " + customerId + ", limit: "
+                        + limit);
+        List<Product> recommendations = recommendationService.getRecommendationsFromViewHistory(customerId, limit);
+        System.out.println("[ProductController] Found " + recommendations.size() + " history-based recommendations");
+
+        return ResponseEntity.ok(recommendations);
     }
 
 }

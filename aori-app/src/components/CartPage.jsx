@@ -9,6 +9,7 @@
 import React, { useState, useEffect } from 'react';
 import { getCart, updateCartItem, removeFromCart, getCartTotal } from '../api/cartApi';
 import Navbar from './Navbar';
+import RecommendationsSection from './RecommendationsSection';
 import '../styles/CartPage.css';
 
 const CartPage = () => {
@@ -204,6 +205,13 @@ const CartPage = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Recommendations Section - Based on Cart Contents */}
+                <RecommendationsSection
+                    limit={cart.length > 0 ? 6 : 12}
+                    title={cart.length > 0 ? "Pair with Your Cart" : "Recommended for You"}
+                    useCartRecommendations={true}
+                />
             </div>
         </div>
     );

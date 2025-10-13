@@ -1,5 +1,13 @@
 package sg.com.aori.controller;
 
+/**
+ * Controller for Employee entity.
+ *
+ * @author xiaobo, SunRui
+ * @date 2025-10-10
+ * @version 1.1
+ */
+
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -15,25 +23,21 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.model.Employee;
 import sg.com.aori.service.EmployeeService;
+import sg.com.aori.service.RoleService;
 
-
-/**
- * Controller for Employee entity.
- *
- * @author xiaobo, SunRui
- * @date 2025-10-10
- * @version 1.1
- */
-
-@Controller // This enables Spring to resolve view names (e.g., "employee-list")
+@Controller
 @RequestMapping("/admin/employees")
 @Validated
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    /** Inject roles for new employee */
+    private final RoleService roleService;
 
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, RoleService roleService) {
         this.employeeService = employeeService;
+        this.roleService = roleService;
+
     }
 
     // --- SHOW ALL EMPLOYEES (Read) ---
@@ -54,6 +58,8 @@ public class EmployeeController {
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("employee", new Employee());
+        /** load all roles for creator to choose for the new employee */
+        model.addAttribute("allRoles", roleService.getAllRoles());
         return "employee-form"; // Use the same form template for create and update
     }
 
@@ -74,6 +80,8 @@ public class EmployeeController {
 
         // Pass the existing Employee data to pre-populate the form
         model.addAttribute("employee", employee);
+
+        model.addAttribute("allRoles", roleService.getAllRoles());
         return "employee-form";
     }
 

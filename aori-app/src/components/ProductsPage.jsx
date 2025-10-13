@@ -5,10 +5,6 @@
  * @date 2025-10-08
  * @version 1.1
  * 
- * Receive new props, store filters, and ensure they take effect on load.
- * @author Sun Rui
- * @date 2025-10-11
- * @version 1.3
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -244,10 +240,6 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
                             </div>
                         ) : (
                             <>
-                                <div className="products-count">
-                                    Showing {products.length} of {totalProducts} products
-                                </div>
-
                                 <div className="products-grid">
                                     {products.map((product) => (
                                         <ProductCard key={product.id} product={product} />

@@ -124,3 +124,32 @@ export const getOrderStatus = async (orderId) => {
         throw error;
     }
 };
+
+/**
+ * Create order from cart (checkout)
+ * This will:
+ * 1. Check inventory availability
+ * 2. Create order from cart items
+ * 3. Clear cart
+ * 
+ * @returns {Promise<Object>} Response with orderId
+ */
+export const createOrderFromCart = async () => {
+    try {
+        const response = await authenticatedFetch(`${API_CONFIG.BASE_URL}/api/cart/checkout`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Order created:', data);
+        return data;
+    } catch (error) {
+        console.error('Error creating order:', error);
+        throw error;
+    }
+};

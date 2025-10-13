@@ -4,8 +4,22 @@
  * 
  * @author Ying Chun
  * @date 2025-10-10 
- * @version 1.0 
+ * @version 1.0
+ * @version 1.1 - minor tweaks to button colors
  */
+
+/* Make the navbar a light gray and add a subtle shadow */
+.navbar {
+    background-color: #f8f9fa !important; /* Overrides bg-white */
+    box-shadow: 0 2px 4px rgba(0,0,0,.04);
+}
+
+/* Brand Font and Colour for Aori*/ 
+.navbar-brand {
+    font-family: 'Aboreto', cursive;
+    color: #212529 !important;      /* Overrides for branding*/
+    font-size: 1.5rem;              
+}
 
 /* Custom Button Colors */
 .btn-primary {
@@ -16,6 +30,12 @@
 .btn-primary:hover {
     background-color: #343a40;
     border-color: #343a40;
+}
+
+.btn-primary:disabled {
+    background-color: #e9ecef; /* A light grey background */
+    border-color: #ced4da;     /* A slightly darker grey border */
+    color: #6c757d;            /* Grey text color */
 }
 
 .btn-secondary {

@@ -1,3 +1,12 @@
+/**
+ * Interface for product-related operations.
+ *
+ * @author Yunhe & Ying chun
+ * @date 2025-10-07 (v1.0), 2025-10-13 (v2.0)
+ * @version 1.0
+ * @version 1.1 - Added pagination method
+ */
+
 package sg.com.aori.interfaces;
 
 import sg.com.aori.model.Product;
@@ -5,13 +14,9 @@ import sg.com.aori.model.Product;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Interface for product-related operations.
- *
- * @author Yunhe
- * @date 2025-10-07
- * @version 1.0
- */
+import org.springframework.data.domain.Page;
+
+
 public interface IProduct {
     Product createProduct(Product product);
 
@@ -36,4 +41,9 @@ public interface IProduct {
     Product updateProduct(String productId, Product product);
 
     Product deleteProduct(String productId);
+
+    Page<Product> findPaginated(int page, int size, String keyword, String category, String season,
+            String collection);
+
+    void saveProduct(Product product);
 }

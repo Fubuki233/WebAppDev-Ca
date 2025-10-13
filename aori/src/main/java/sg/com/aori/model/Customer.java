@@ -13,7 +13,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -66,8 +65,7 @@ public class Customer {
     @Column(name = "gender")
     private Gender gender;
 
-    @NotNull
-    @Column(name = "date_of_birth", nullable = false)
+    @Column(name = "date_of_birth", nullable = true)
     private LocalDate dateOfBirth;
 
     @Column(name = "created_at", updatable = false)

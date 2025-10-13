@@ -1,100 +1,96 @@
 /**
  * Product Carousel Styles
-    *
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.0
+ * 
+ * @version 1.1 - Updated layout to match design with better spacing
+ * @date 2025-10-11
  */
 .carousel-container {
-    flex: 1;
+    width: 100%;
     background-color: #e8e8e8;
-    padding: 40px;
-    overflow: hidden;
+    padding: 60px 80px;
+    overflow-x: hidden;
+    overflow-y: visible;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .carousel-content {
     display: flex;
-    align-items: center;
-    gap: 120px;
+    align-items: flex-start;
+    gap: 60px;
     position: relative;
-    height: 100%;
-    justify-content: space-between;
+    min-height: 550px;
 }
 
 .carousel-text {
     flex-shrink: 0;
-    max-width: 300px;
+    width: 320px;
     position: relative;
-    z-index: 10;
+    z-index: 15;
+    padding-top: 20px;
 }
 
 .carousel-title {
-    font-size: 72px;
+    font-size: 56px;
     font-weight: 300;
-    letter-spacing: 8px;
+    letter-spacing: 6px;
     color: #2d2d2d;
-    line-height: 1;
-    margin: 0;
-}
-
-.carousel-season {
-    font-size: 20px;
-    letter-spacing: 3px;
-    color: #666;
-    margin-top: 20px;
-    margin-bottom: 5px;
-}
-
-.carousel-year {
-    font-size: 20px;
-    letter-spacing: 3px;
-    color: #666;
-    margin-bottom: 40px;
+    line-height: 1.1;
+    margin: 0 0 8px 0;
 }
 
 .shop-button {
-    background: transparent;
+    background: #d5d5d5;
     border: none;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 15px;
-    font-size: 16px;
+    gap: 12px;
+    font-size: 13px;
     letter-spacing: 2px;
     color: #2d2d2d;
     cursor: pointer;
-    padding: 15px 0;
+    padding: 12px 24px;
     transition: all 0.3s;
     text-decoration: none;
+    border-radius: 0;
+    margin-top: 40px;
 }
 
 .shop-button:hover {
-    transform: translateX(5px);
+    background: #c5c5c5;
+}
+
+.shop-button svg {
+    width: 20px;
+    height: 20px;
 }
 
 .carousel-images {
     flex: 1;
     overflow: hidden;
     position: relative;
-    height: 500px;
-    margin-left: 50px;
-    /* 图片往右移动,避免在文字下面 */
+    height: 550px;
 }
 
 .carousel-track {
     display: flex;
-    gap: 20px;
+    gap: 30px;
     transition: transform 0.5s ease-in-out;
     height: 100%;
 }
 
 .carousel-slide {
     flex-shrink: 0;
-    width: 350px;
+    width: 320px;
     height: 100%;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     background-color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: relative;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -144,25 +140,25 @@
     border: 2px solid white;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
 }
 
 .carousel-controls {
     position: absolute;
-    bottom: 40px;
-    right: 40px;
+    bottom: 60px;
+    left: 80px;
     display: flex;
-    gap: 10px;
+    gap: 15px;
     z-index: 20;
-    /* 确保控制按钮在所有内容上方 */
 }
 
 .carousel-button {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border: 2px solid #2d2d2d;
-    background: white;
-    border-radius: 4px;
+    background: transparent;
+    border-radius: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -172,9 +168,120 @@
 
 .carousel-button:hover {
     background-color: #2d2d2d;
-    color: white;
+}
+
+.carousel-button:hover svg {
+    stroke: white;
 }
 
 .carousel-button svg {
-    stroke: currentColor;
+    stroke: #2d2d2d;
+    transition: stroke 0.3s;
+}
+
+/* New This Week Section */
+.new-this-week-section {
+    margin-top: 80px;
+    padding: 0;
+    background-color: #e8e8e8;
+    width: 100%;
+}
+
+.new-this-week-title {
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: #2d2d2d;
+    line-height: 1.2;
+    margin: 0 0 50px 0;
+    text-align: left;
+}
+
+.new-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+    max-width: 100%;
+}
+
+.new-product-card {
+    background: white;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.new-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.new-product-image {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+}
+
+.new-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.new-product-card:hover .new-product-image img {
+    transform: scale(1.1);
+}
+
+.new-product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 15px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.new-product-card:hover .new-product-overlay {
+    opacity: 1;
+}
+
+.new-badge {
+    background: #2d2d2d;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding: 6px 12px;
+    border-radius: 2px;
+}
+
+.new-product-info {
+    padding: 20px 15px;
+}
+
+.new-product-name {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    color: #2d2d2d;
+    margin: 0 0 8px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.new-product-price {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2d2d2d;
+    margin: 0;
 }

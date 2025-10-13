@@ -5,173 +5,9 @@
  * @date 2025-10-08
  * @version 1.0
  * 
- * Add conditions in applyClientSideFilters and append parameters to the query string.
- * @author Sun Rui
- * @date 2025-10-11
- * @version 1.1
- * 
- * Added the broadCategoryId field to mock products to enable category filtering to work on offline data. 
- * Also added filtering logic such as category/size/search to ensure that all filter options, including broad, also work on local data.
- * @author Sun Rui
- * @date 2025-10-12
- * @version 1.2
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
-const mockProducts = [
-    {
-        id: 1,
-        name: 'Abstract Print Shirt',
-        type: 'Cotton T Shirt',
-        category: 't-shirts',
-        colors: ['#F5F5DC', '#808080', '#000000', '#87CEEB', '#FFFFFF', '#9B9BFF'],
-        availableColors: 6,
-        image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=600&fit=crop',
-        images: [
-            'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&h=800&fit=crop',
-            'https://images.unsplash.com/photo-1622445275576-721325755b1d?w=600&h=800&fit=crop',
-            'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=600&h=800&fit=crop',
-            'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&h=800&fit=crop',
-            'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=800&fit=crop'
-        ],
-        price: 99,
-        inStock: true,
-        size: ['XS', 'S', 'M', 'L', 'XL', '2X'],
-        tags: ['new', 'best-seller'],
-        rating: 4.5,
-        description: 'Relaxed-fit shirt. Camp collar and short sleeves. Button-up front.',
-        details: [
-            '100% cotton',
-            'Relaxed fit',
-            'Machine washable',
-            'Imported',
-            'Model is 6\'1" and wearing size M'
-        ],
-        broadCategoryId: 'men',
-    },
-    {
-        id: 2,
-        name: 'Basic Heavy Weight T-Shirt',
-        type: 'Crewneck T-Shirt',
-        category: 't-shirts',
-        colors: ['#000000'],
-        availableColors: 6,
-        image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=600&fit=crop',
-        price: 199,
-        inStock: true,
-        size: ['S', 'M', 'L', 'XL', '2X'],
-        tags: ['new'],
-        rating: 4.8,
-        broadCategoryId: 'men',
-    },
-    {
-        id: 3,
-        name: 'Full Sleeve Zipper',
-        type: 'Cotton T Shirt',
-        category: 'shirts',
-        colors: ['#2F4F4F', '#228B22'],
-        availableColors: 2,
-        image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&h=600&fit=crop',
-        price: 199,
-        inStock: true,
-        size: ['M', 'L', 'XL'],
-        tags: ['new'],
-        rating: 4.3,
-        broadCategoryId: 'men',
-    },
-    {
-        id: 4,
-        name: 'Oversized Graphic Tee',
-        type: 'Cotton T Shirt',
-        category: 't-shirts',
-        colors: ['#8B4513', '#000000'],
-        availableColors: 2,
-        image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=400&h=600&fit=crop',
-        price: 199,
-        inStock: false,
-        size: ['S', 'M', 'L'],
-        tags: [],
-        rating: 4.6,
-        broadCategoryId: 'women',
-    },
-    {
-        id: 5,
-        name: 'Classic Polo Shirt',
-        type: 'Polo Shirt',
-        category: 'polo-shirts',
-        colors: ['#000000', '#FFFFFF', '#000080'],
-        availableColors: 3,
-        image: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=400&h=600&fit=crop',
-        price: 249,
-        inStock: true,
-        size: ['XS', 'S', 'M', 'L', 'XL'],
-        tags: ['best-seller'],
-        rating: 4.7,
-        broadCategoryId: 'women',
-    },
-    {
-        id: 6,
-        name: 'Slim Fit Denim Shirt',
-        type: 'Denim Shirt',
-        category: 'shirts',
-        colors: ['#4682B4', '#000000'],
-        availableColors: 2,
-        image: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?w=400&h=600&fit=crop',
-        price: 299,
-        inStock: true,
-        size: ['S', 'M', 'L', 'XL'],
-        tags: ['new'],
-        rating: 4.4,
-        broadCategoryId: 'women',
-    },
-    {
-        id: 7,
-        name: 'Vintage Washed Tee',
-        type: 'Cotton T Shirt',
-        category: 't-shirts',
-        colors: ['#D3D3D3', '#696969'],
-        availableColors: 2,
-        image: 'https://images.unsplash.com/photo-1622445275576-721325755b1d?w=400&h=600&fit=crop',
-        price: 179,
-        inStock: true,
-        size: ['M', 'L', 'XL', '2X'],
-        tags: [],
-        rating: 4.2,
-        broadCategoryId: 'unisex',
-    },
-    {
-        id: 8,
-        name: 'Casual Linen Shirt',
-        type: 'Linen Shirt',
-        category: 'shirts',
-        colors: ['#F5F5DC', '#FFFFFF'],
-        availableColors: 2,
-        image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=600&fit=crop',
-        price: 349,
-        inStock: true,
-        size: ['S', 'M', 'L'],
-        tags: ['new', 'best-seller'],
-        rating: 4.9,
-        broadCategoryId: 'unisex',
-    },
-    {
-        id: 9,
-        name: 'Striped Cotton Tee',
-        type: 'Cotton T Shirt',
-        category: 't-shirts',
-        colors: ['#000080', '#FF0000'],
-        availableColors: 2,
-        image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=400&h=600&fit=crop',
-        price: 189,
-        inStock: false,
-        size: ['XS', 'S', 'M', 'L'],
-        tags: [],
-        rating: 4.1,
-        broadCategoryId: 'girls',
-    }
-];
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Apply client-side filters to products.
@@ -670,7 +506,6 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
         return categories.map(cat => ({
             id: cat,
             name: cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' '),
-            count: mockProducts.filter(p => p.category === cat).length,
         }));
     }
 
@@ -711,7 +546,6 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
                     id: cat.categoryId,
                     name: cat.categoryName,
                     category: slug,
-                    count: 0,
                 };
             });
         }
@@ -728,7 +562,6 @@ export const fetchCategories = async (useMock = API_CONFIG.USE_MOCK) => {
             categoryName: cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' '),
             slug: cat,
             category: cat,
-            count: mockProducts.filter(p => p.category === cat).length,
         }));
     }
 };
@@ -773,5 +606,35 @@ export const fetchFilters = async (useMock = API_CONFIG.USE_MOCK) => {
             colors: [...new Set(mockProducts.flatMap(p => p.colors))],
             tags: ['new', 'best-seller'],
         };
+    }
+};
+
+/**
+ * Fetch the current collection display name from backend.
+ * Backend endpoint: GET /api/products/collectionDisplay
+ * Returns: String (collection name like "Shizen", "Fall 2025", etc.)
+ */
+export const fetchCollectionDisplay = async () => {
+    try {
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.COLLECTION_DISPLAY}`;
+        console.log('Fetching collection display from:', url);
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const collectionName = await response.text(); // Backend returns plain String
+        console.log('Fetched collection display from API:', collectionName);
+        return collectionName;
+    } catch (error) {
+        console.error('Error fetching collection display from API:', error);
+        return 'Shizen'; // Default fallback
     }
 };

@@ -128,7 +128,7 @@ public class CartController {
             String customerId = getSession.getCustomerId(session);
             if (customerId == null) {
                 // ***** Temporary use an existing id, use the annotated 3 lines in real app
-                customerId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+                customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 // response.put("success", false);
                 // response.put("message", "User not logged in");
                 // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -170,7 +170,7 @@ public class CartController {
         try {
             String customerId = getSession.getCustomerId(session);
             if (customerId == null) {
-                customerId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+                customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 // response.put("success", false);
                 // response.put("message", "User not logged in");
                 // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -217,7 +217,7 @@ public class CartController {
         try {
             String customerId = getSession.getCustomerId(session);
             if (customerId == null) {
-                customerId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+                customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 // response.put("success", false);
                 // response.put("message", "User not logged in");
                 // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -306,7 +306,7 @@ public class CartController {
             // ***** To reference session and get customerId
             String customerId = (String) session.getAttribute("customerId");
             if (customerId == null) {
-                customerId = "5f2f7b1d-c3d1-4a3e-abca-6447215ea70a";
+                customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 // response.put("success", false);
                 // response.put("message", "User not logged in");
                 // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

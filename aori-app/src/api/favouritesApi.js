@@ -12,6 +12,10 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.2 - Updated to use getUserUuid() from apiUtils
+ * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 1.3 - Debug, now guest won't redirect to login when fetching favourites, but will redirect when adding/removing
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 import { getUserUuid } from './apiUtils';
@@ -34,7 +38,6 @@ const transformWishlistItem = (backendItem) => {
             createdAt: backendItem.createdAt,
             updatedAt: backendItem.updatedAt,
 
-            // Frontend fields from product
             id: product.productId || backendItem.productId,
             name: product.productName,
             productName: product.productName,
@@ -49,11 +52,9 @@ const transformWishlistItem = (backendItem) => {
             inStock: product.inStock === 'true' || product.inStock === true,
             tags: typeof product.tags === 'string' ? product.tags.split(',') : product.tags,
 
-            // Category info
             categoryId: product.categoryId,
             category: product.category,
 
-            // Full product object
             product: product,
         };
     } catch (error) {
@@ -62,7 +63,7 @@ const transformWishlistItem = (backendItem) => {
     }
 };
 
-export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) => {
+export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK, stayAsGuest = true) => {
     if (useMock) {
         try {
             const favourites = localStorage.getItem(FAVOURITES_KEY);
@@ -74,14 +75,12 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
     }
 
     try {
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(stayAsGuest);
         if (!custId) {
-            console.warn('No customer UUID available, using localStorage');
-            const favourites = localStorage.getItem(FAVOURITES_KEY);
-            return favourites ? JSON.parse(favourites) : [];
+            console.warn('No customer UUID available, returning empty response');
+            return [];
         }
 
-        // Backend gets customerId from session, but for now we pass it as query param
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}`;
         console.log('Fetching wishlist from:', url);
 
@@ -93,19 +92,18 @@ export const getFavourites = async (customerId, useMock = API_CONFIG.USE_MOCK) =
             },
         });
 
+        if (response.status === 401) {
+            console.warn('Unauthorized, user is a guest');
+            return { stayAsGuest: true };
+        }
+
         if (!response.ok) {
-            if (response.status === 401) {
-                console.warn('Unauthorized, falling back to localStorage');
-                const favourites = localStorage.getItem(FAVOURITES_KEY);
-                return favourites ? JSON.parse(favourites) : [];
-            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
         console.log('Wishlist data from API:', data);
 
-        // Backend returns List<Wishlist> directly (an array)
         if (Array.isArray(data)) {
             const transformed = data.map(transformWishlistItem).filter(item => item !== null);
             console.log('Transformed favourites:', transformed);
@@ -136,7 +134,7 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
 
             const newItem = {
                 ...item,
-                customerId: customerId || await getUserUuid(),
+                customerId: customerId || await getUserUuid(true),
                 addedAt: new Date().toISOString()
             };
 
@@ -151,13 +149,16 @@ export const addToFavourites = async (item, customerId, useMock = API_CONFIG.USE
     }
 
     try {
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
-            console.warn('No customer UUID available, falling back to localStorage');
-            return addToFavourites(item, customerId, true);
+            console.warn('No customer UUID available, user needs to login');
+            return {
+                success: false,
+                requiresLogin: true,
+                message: 'Please login to add items to favourites'
+            };
         }
 
-        // Backend expects: { customerId, productId }
         const wishlistItem = {
             customerId: custId,
             productId: item.productId || item.id,
@@ -206,11 +207,14 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
     }
 
     try {
-        // Backend uses POST toggle to add/remove (not DELETE)
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
-            console.warn('No customer UUID available, falling back to localStorage');
-            return removeFromFavourites(productId, customerId, true);
+            console.warn('No customer UUID available, user needs to login');
+            return {
+                success: false,
+                requiresLogin: true,
+                message: 'Please login to manage favourites'
+            };
         }
 
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}?customerId=${custId}&productId=${productId}`;
@@ -230,7 +234,6 @@ export const removeFromFavourites = async (productId, customerId, useMock = API_
 
         const data = await response.json();
         console.log('Toggled wishlist:', data);
-        // data = { added: false } means removed
         return { success: true, message: 'Removed from favourites', data };
     } catch (error) {
         console.error('Failed to remove from favourites via API:', error);
@@ -263,7 +266,7 @@ export const removeFromFavouritesByProduct = async (productId, size = null, colo
 
 
     try {
-        const custId = await getUserUuid();
+        const custId = await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, falling back to localStorage');
             return removeFromFavouritesByProduct(productId, size, color, true);
@@ -308,12 +311,14 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
     }
 
     try {
-        // Call backend /exists endpoint
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, checking localStorage');
             const favourites = await getFavourites(null, false);
-            return favourites.some(item => item.productId === productId);
+            if (favourites && favourites.stayAsGuest) {
+                return false;
+            }
+            return Array.isArray(favourites) && favourites.some(item => item.productId === productId);
         }
 
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.FAVOURITES}/exists?customerId=${custId}&productId=${productId}`;
@@ -337,10 +342,12 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
     } catch (error) {
         console.error('Failed to check favourites via API:', error);
         console.error('Falling back to localStorage');
-        // Fallback to localStorage
         try {
             const favourites = await getFavourites(null, true);
-            return favourites.some(item => item.productId === productId);
+            if (favourites && favourites.stayAsGuest) {
+                return false;
+            }
+            return Array.isArray(favourites) && favourites.some(item => item.productId === productId);
         } catch (e) {
             return false;
         }
@@ -348,10 +355,13 @@ export const isInFavourites = async (productId, customerId, useMock = false) => 
 };
 
 
-export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK) => {
+export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK, stayAsGuest = true) => {
     try {
         const favourites = await getFavourites(useMock);
-        return favourites.length;
+        if (favourites && favourites.stayAsGuest) {
+            return 0;
+        }
+        return Array.isArray(favourites) ? favourites.length : 0;
     } catch (error) {
         console.error('Failed to get favourites count:', error);
         return 0;
@@ -359,7 +369,7 @@ export const getFavouritesCount = async (useMock = API_CONFIG.USE_MOCK) => {
 };
 
 
-export const clearFavourites = async (useMock = API_CONFIG.USE_MOCK) => {
+export const clearFavourites = async (useMock = API_CONFIG.USE_MOCK, stayAsGuest = true) => {
     if (useMock) {
         try {
             localStorage.setItem(FAVOURITES_KEY, JSON.stringify([]));
@@ -404,11 +414,14 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
     }
 
     try {
-        // Use backend toggle endpoint
-        const custId = customerId || await getUserUuid();
+        const custId = customerId || await getUserUuid(true);
         if (!custId) {
-            console.warn('No customer UUID available, falling back to localStorage');
-            return toggleFavourite(item, customerId, true);
+            console.warn('No customer UUID available, user needs to login');
+            return {
+                success: false,
+                requiresLogin: true,
+                message: 'Please login to add items to favourites'
+            };
         }
 
         const productId = item.productId || item.id;
@@ -420,7 +433,7 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include', // Important for session authentication
+            credentials: 'include',
         });
 
         if (!response.ok) {
@@ -430,7 +443,7 @@ export const toggleFavourite = async (item, customerId, useMock = API_CONFIG.USE
         const data = await response.json();
         console.log('Toggle result:', data);
 
-        // data.added: true = added, false = removed
+
         return {
             success: true,
             added: data.added

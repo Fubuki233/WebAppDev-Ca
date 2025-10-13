@@ -4,6 +4,10 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.1
+ * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 1.2 - Added collection display endpoint
  */
 const DEV_CONFIG = {
     BASE_URL: 'http://localhost:8080/api',
@@ -19,6 +23,7 @@ export const API_ENDPOINTS = {
     PRODUCT_BY_ID: (id) => `/products/${id}`,
     PRODUCTS_BY_CATEGORY: (category) => `/products/category/${category}`,
     PRODUCT_SEARCH: '/products/search',
+    COLLECTION_DISPLAY: '/products/collectionDisplay',
 
     CATEGORIES: '/categories',
 
@@ -45,6 +50,9 @@ export const API_ENDPOINTS = {
 
     ORDERS: '/order',
     ORDER_CREATE: '/order/create',
+
+    VIEW_HISTORY: '/view-history',
+
 
 };
 

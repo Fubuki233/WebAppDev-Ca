@@ -4,12 +4,21 @@
  * @author Yunhe
  * @date 2025-10-08
  * @version 1.1
+ * 
+ * @author Yunhe
+ * @date 2025-10-11
+ * @version 1.2 - Added dynamic collection display from API
+ * @version 1.3 - Added "New This Week" section below collection
  */
 import React, { useState, useEffect } from 'react';
 import '../styles/ProductCarousel.css';
 
-const ProductCarousel = ({ products }) => {
+const ProductCarousel = ({ products, newProducts = [], collection = 'NEW COLLECTION' }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    console.log('[ProductCarousel] Received collection products:', products?.length || 0);
+    console.log('[ProductCarousel] Received newProducts:', newProducts?.length || 0);
+    console.log('[ProductCarousel] New products data:', newProducts);
 
     const nextSlide = () => {
         setCurrentIndex((prevIndex) =>
@@ -25,12 +34,11 @@ const ProductCarousel = ({ products }) => {
 
     return (
         <div className="carousel-container">
+            {/* Collection Section */}
             <div className="carousel-content">
                 <div className="carousel-text">
-                    <h2 className="carousel-title">NEW</h2>
+                    <h2 className="carousel-title">{collection}</h2>
                     <h2 className="carousel-title">COLLECTION</h2>
-                    <p className="carousel-season">FALL</p>
-                    <p className="carousel-year">2025</p>
 
                     <a href="#products" className="shop-button">
                         Go To Shop
@@ -42,7 +50,7 @@ const ProductCarousel = ({ products }) => {
                 </div>
 
                 <div className="carousel-images">
-                    <div className="carousel-track" style={{ transform: `translateX(-${currentIndex * 370}px)` }}>
+                    <div className="carousel-track" style={{ transform: `translateX(-${currentIndex * 350}px)` }}>
                         {products.map((product, index) => (
                             <div
                                 key={index}
@@ -73,6 +81,35 @@ const ProductCarousel = ({ products }) => {
                     </button>
                 </div>
             </div>
+
+            {/* New This Week Section */}
+            {newProducts.length > 0 && (
+                <div className="new-this-week-section">
+                    <h2 className="new-this-week-title">
+                        NEW<br />THIS WEEK
+                    </h2>
+                    <div className="new-products-grid">
+                        {newProducts.map((product, index) => (
+                            <div
+                                key={index}
+                                className="new-product-card"
+                                onClick={() => window.location.hash = `#product/${product.id}`}
+                            >
+                                <div className="new-product-image">
+                                    <img src={product.image} alt={product.name} />
+                                    <div className="new-product-overlay">
+                                        <span className="new-badge">NEW</span>
+                                    </div>
+                                </div>
+                                <div className="new-product-info">
+                                    <h3 className="new-product-name">{product.name}</h3>
+                                    <p className="new-product-price">${product.price}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

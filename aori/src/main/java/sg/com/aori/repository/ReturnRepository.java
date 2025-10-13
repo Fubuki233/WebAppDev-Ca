@@ -16,11 +16,5 @@ import sg.com.aori.model.Returns;
 @Repository
 public interface ReturnRepository extends JpaRepository<Returns, String> {
 
-    /**
-     * 根据订单项 ID 列表查询退货记录
-     * 
-     * @param orderItemIds 订单项 ID 列表
-     * @return 退货记录列表
-     */
     List<Returns> findByOrderItemIdIn(List<String> orderItemIds);
 }

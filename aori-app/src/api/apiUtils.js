@@ -4,15 +4,27 @@
  * @author Yunhe
  * @date 2025-10-09
  * @version 1.0
+ * 
+ * @date 2025-10-10
+ * @version 1.1 - Added getUserUuid function to fetch user UUID from backend session
+ * 
+ * @date 2025-10-11
+ * @version 1.2 - Improved authentication error handling with stayAsGuest option
  */
 
 /**
  * Handle authentication error responses
- * @param {Response} response - Fetch response object
- * @returns {boolean} true if authentication error was handled, false otherwise
+ * @param {Response} response 
+ * @param {boolean} stayAsGuest
+ * @returns {boolean} 
  */
-export const handleAuthError = async (response) => {
+export const handleAuthError = async (response, stayAsGuest = false) => {
     if (response.status === 401) {
+        if (stayAsGuest) {
+            console.log('Authentication required but staying as guest');
+            return false;
+        }
+
         try {
             const errorData = await response.json();
             if (errorData.redirectTo) {
@@ -23,7 +35,6 @@ export const handleAuthError = async (response) => {
                 window.location.href = '/#login';
             }
         } catch (e) {
-            // If response is not JSON, just redirect to login
             console.log('Authentication required, redirecting to login');
             window.location.href = '/#login';
         }
@@ -50,9 +61,7 @@ export const authenticatedFetch = async (url, options = {}) => {
 
     const response = await fetch(url, defaultOptions);
 
-    // Handle authentication errors
     if (await handleAuthError(response)) {
-        // Return a rejected promise to stop further processing
         throw new Error('Authentication required');
     }
 
@@ -89,9 +98,10 @@ import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
 /**
  * Get current user's UUID from backend session
+ * @param {boolean} stayAsGuest - If true, don't redirect on 401, just return null
  * @returns {Promise<string|null>} User UUID or null if not authenticated
  */
-export const getUserUuid = async () => {
+export const getUserUuid = async (stayAsGuest = false) => {
     try {
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.USER_UUID}`, {
             method: 'GET',
@@ -101,8 +111,7 @@ export const getUserUuid = async () => {
             },
         });
 
-        // Handle authentication errors - will redirect to login
-        if (await handleAuthError(response)) {
+        if (await handleAuthError(response, stayAsGuest)) {
             return null;
         }
 

@@ -1,3 +1,14 @@
+/**
+ * Controller for Employee Login into Aori Admin Portal.
+ *
+ * @author Xiaobo, Ying Chun
+ * @date 2025-10-10
+ * @version 1.0 (Xiaobo), 1.1 (Ying Chun)
+ * v1 - Initial implementation by Xiaobo
+ * v1.1 - Updated HTML template paths 
+ * 
+ */
+
 package sg.com.aori.controller;
 
 import jakarta.servlet.http.HttpSession;
@@ -27,12 +38,12 @@ public class EmployeeLoginController {
     public String showLoginForm(Model model, HttpSession session) {
         // Redirect if the employee is already authenticated
         if (session.getAttribute("employeeId") != null) {
-            return "redirect:/admin/account/profile";
+            return "redirect:/admin/dashboard";
         }
 
         // Use the Employee entity as the form backing object
         model.addAttribute("employee", new Employee());
-        return "login-form"; // Refers to src/main/resources/templates/login-form.html
+        return "admin/login-form"; // Refers to src/main/resources/templates/login-form.html
     }
 
     // --- 2. PROCESS LOGIN SUBMISSION (POST /admin/login) ---
@@ -65,12 +76,12 @@ public class EmployeeLoginController {
 
         // 3. Determine redirect path
         return session.getAttribute("employeeId") != null
-                ? "redirect:/admin/account/profile" // Success path
+                ? "redirect:/admin/dashboard" // Success path
                 : "redirect:/admin/login"; // Failure path
     }
 
     // --- 3. LOGOUT (GET /admin/logout) ---
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
         session.invalidate(); // Clear the session
         redirectAttributes.addFlashAttribute("success", "You have been logged out successfully.");

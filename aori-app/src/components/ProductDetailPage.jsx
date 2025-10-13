@@ -10,6 +10,8 @@ import Navbar from './Navbar';
 import { fetchProductById } from '../api/productApi';
 import { addToCart } from '../api/cartApi';
 import { toggleFavourite, isInFavourites } from '../api/favouritesApi';
+import { addViewHistory } from '../api/viewHistoryApi';
+import { getUserUuid } from '../api/apiUtils';
 import '../styles/ProductDetailPage.css';
 
 const ProductDetailPage = ({ productId }) => {
@@ -31,6 +33,18 @@ const ProductDetailPage = ({ productId }) => {
                     setSelectedColor(data.colors[0]);
                 }
                 setLoading(false);
+
+                // Add to view history
+                try {
+                    const userId = await getUserUuid(true); // stayAsGuest=true, don't redirect if not logged in
+                    if (userId) {
+                        await addViewHistory(userId, productId);
+                        console.log('[ProductDetailPage] Added to view history');
+                    }
+                } catch (historyError) {
+                    console.error('Error adding to view history:', historyError);
+                    // Don't block page load if history fails
+                }
             } catch (error) {
                 console.error('Error loading product:', error);
                 setLoading(false);
@@ -90,7 +104,11 @@ const ProductDetailPage = ({ productId }) => {
 
         const result = await toggleFavourite(favouriteItem);
 
-        if (result.success) {
+        if (result.requiresLogin) {
+            // User is not logged in, redirect to login page
+            console.log('Login required, redirecting to login page');
+            window.location.hash = '#login';
+        } else if (result.success) {
             // Use the 'added' field from backend to set the correct state
             setIsFavorite(result.added);
             // No alert - silent toggle
