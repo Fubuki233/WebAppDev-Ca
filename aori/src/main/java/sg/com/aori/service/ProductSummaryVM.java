@@ -1,5 +1,4 @@
 package sg.com.aori.service;
-
 import java.math.BigDecimal;
 
 // View Model for Product Summary in search results

@@ -60,5 +60,4 @@ public class ViewHistory {
     public void setProduct(String product) {
         this.productId = product;
     }
-
 }
