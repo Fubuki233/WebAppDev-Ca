@@ -20,12 +20,12 @@ public class SkuTool {
     public static String createSku(String uuid, String colour, String size,
             CRUDProductService productService) {
         Optional<Product> product = productService.getProductById(uuid);
-        String sku = product.get().getProductName() + "-" + colour + "-" + size;
+        String sku = product.get().getProductName() + "&" + colour + "&" + size;
         return sku;
     }
 
     public static Product getProductBySku(String sku, CRUDProductService productService) {
-        String[] parts = sku.split("-");
+        String[] parts = sku.split("&");
         if (parts.length < 3) {
             return null;
         }
@@ -35,7 +35,7 @@ public class SkuTool {
     }
 
     public static String SkuDecode(String sku, CRUDProductService productService) {
-        String[] parts = sku.split("-");
+        String[] parts = sku.split("&");
         if (parts.length < 3) {
             return null;
         }
@@ -47,8 +47,8 @@ public class SkuTool {
         return json.toString();
     }
 
-    public static String getProductIdBySku(String sku, CRUDProductService productService){
-        String[] parts = sku.split("-");
+    public static String getProductIdBySku(String sku, CRUDProductService productService) {
+        String[] parts = sku.split("&");
         if (parts.length < 3) {
             return null;
         }

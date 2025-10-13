@@ -76,9 +76,9 @@ public class Employee {
     private String email;
 
     // password_hash VARCHAR(255) NOT NULL,
-    @NotBlank(message = "Password is required")
+    // @NotBlank(message = "Password is required")
     @Length(min = 8, max = 255)
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
 
     // phone_number VARCHAR(15),

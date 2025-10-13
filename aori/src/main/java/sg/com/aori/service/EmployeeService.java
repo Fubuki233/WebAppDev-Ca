@@ -117,10 +117,10 @@ public class EmployeeService implements IEmployee {
         existingEmployee.setPhoneNumber(employeeDetails.getPhoneNumber());
         existingEmployee.setStatus(employeeDetails.getStatus());
         existingEmployee.setPassword(existingEmployee.getPassword());
-
+        System.out.println("Password: " + existingEmployee.getPassword());
         validateOnUpdate(existingEmployee);
 
-        return employeeRepository.save(existingEmployee);
+        return existingEmployee;
     }
 
     @Override
