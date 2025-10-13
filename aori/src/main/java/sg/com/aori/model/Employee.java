@@ -82,9 +82,10 @@ public class Employee {
     private String password;
 
     // phone_number VARCHAR(15),
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Phone must follow E.164")
     @Length(max = 15)
     @Column(name = "phone_number", length = 15)
+    // NEW REGEX: Enforces +65 followed by exactly 8 digits.
+    @Pattern(regexp = "^\\+65\\d{8}$", message = "Invalid phone number. Must be in the format +65xxxxxxxx (10 digits total).")
     private String phoneNumber;
 
     // role_id VARCHAR(36) NOT NULL,
