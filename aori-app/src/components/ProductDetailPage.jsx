@@ -119,7 +119,7 @@ const ProductDetailPage = ({ productId }) => {
             size: selectedSize,
             quantity: quantity,
             image: product.images ? product.images[0] : product.image,
-            sku: `${product.id}-${selectedColor}-${selectedSize}`
+            sku: `${product.id}&${selectedColor}&${selectedSize}`
         };
 
         const result = await addToCart(cartItem);

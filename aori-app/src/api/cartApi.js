@@ -198,8 +198,9 @@ export const addToCart = async (item, useMock = false) => {
             return addToCart(item, true);
         }
 
+        // Backend expects 'sku' field, not 'productId'
         const cartItem = {
-            productId: item.productId,
+            sku: item.sku || `${item.productId}&${item.color || 'default'}&${item.size || 'M'}`,
             quantity: item.quantity || 1,
         };
 
