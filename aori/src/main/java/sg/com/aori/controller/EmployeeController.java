@@ -73,7 +73,8 @@ public class EmployeeController {
     // --- PROCESS NEW EMPLOYEE (Create - POST) ---
     // POST /admin/employees/
     @PostMapping(value = "/")
-    public String createEmployee(@Validated(ValidationGroups.Create.class) @ModelAttribute("employee") Employee employee,
+    public String createEmployee(
+            @Validated(ValidationGroups.Create.class) @ModelAttribute("employee") Employee employee,
             BindingResult bindingResult, // Added BindingResult to catch Bean Validation errors
             Model model, // Added Model to pass data back if validation fails
             RedirectAttributes redirectAttributes) {
@@ -144,7 +145,8 @@ public class EmployeeController {
     // POST /employees/{id} (Often used instead of PUT in pure form submissions for
     // simplicity)
     @PostMapping("/{id}")
-    public String updateEmployee(@PathVariable String id, @Validated(ValidationGroups.Update.class) @ModelAttribute("employee") Employee employeeDetails,
+    public String updateEmployee(@PathVariable String id,
+            @Validated(ValidationGroups.Update.class) @ModelAttribute("employee") Employee employeeDetails,
             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         // DEBUGGING: Check the path ID and the bound object data
         System.out.println("DEBUG: updateEmployee() called. Path ID: " + id);
@@ -165,9 +167,14 @@ public class EmployeeController {
             employeeService.updateEmployee(id, employeeDetails);
         } catch (IllegalArgumentException e) {
             // Catch business validation errors from the service
+            String errorMessage = e.getMessage();
             model.addAttribute("allRoles", roleService.getAllRoles());
-            // Add the error to the 'email' field to display it next to the input
-            bindingResult.rejectValue("email", "error.employee", e.getMessage());
+            // Check the error message to determine which field to reject
+            if (errorMessage.toLowerCase().contains("password")) {
+                bindingResult.rejectValue("password", "error.employee", errorMessage);
+            } else {
+                bindingResult.rejectValue("email", "error.employee", errorMessage);
+            }
             return "admin/employee/employee-form";
         }
 
