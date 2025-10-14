@@ -162,35 +162,6 @@ const transformCartItem = (backendItem) => {
 };
 
 export const addToCart = async (item, useMock = false) => {
-    if (useMock) {
-        try {
-            const cart = await getCart(true);
-
-            const existingIndex = cart.findIndex(
-                cartItem =>
-                    cartItem.productId === item.productId &&
-                    cartItem.color === item.color &&
-                    cartItem.size === item.size
-            );
-
-            if (existingIndex > -1) {
-                cart[existingIndex].quantity += item.quantity || 1;
-            } else {
-                cart.push({
-                    ...item,
-                    quantity: item.quantity || 1,
-                    addedAt: new Date().toISOString(),
-                });
-            }
-
-            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-            return { success: true, cart };
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            return { success: false, error: error.message };
-        }
-    }
-
     try {
         const custId = await getUserUuid();
         if (!custId) {
@@ -198,9 +169,8 @@ export const addToCart = async (item, useMock = false) => {
             return addToCart(item, true);
         }
 
-        // Backend expects 'sku' field, not 'productId'
         const cartItem = {
-            sku: item.sku || `${item.productId}&${item.color || 'default'}&${item.size || 'M'}`,
+            sku: item.sku || `${item.productCode}&${item.color}&${item.size}`,
             quantity: item.quantity || 1,
         };
 

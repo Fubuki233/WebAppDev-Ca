@@ -220,12 +220,6 @@ public class CartController {
         Map<String, Object> response = new HashMap<>();
         try {
             String customerId = getSession.getCustomerId(session);
-            if (customerId == null) {
-                customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
-                // response.put("success", false);
-                // response.put("message", "User not logged in");
-                // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
 
             // String productId = (String) request.get("productId"); **********
             // Integer quantity = (Integer) request.get("quantity"); *********

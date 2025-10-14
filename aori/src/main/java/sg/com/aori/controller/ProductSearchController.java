@@ -27,7 +27,6 @@ import sg.com.aori.service.ProductSummaryVM;
 public class ProductSearchController {
 
     private final ProductSearchService productSearchService;
-    private final ProductDetailService productDetailService;
 
     @GetMapping("/search")
     public Page<ProductSummaryVM> search(
@@ -36,13 +35,8 @@ public class ProductSearchController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Boolean inStock,
-            @PageableDefault(size = 12, sort = "createdAt") Pageable pageable
-    ) {
+            @PageableDefault(size = 12, sort = "createdAt") Pageable pageable) {
         return productSearchService.search(q, category, minPrice, maxPrice, inStock, pageable);
     }
 
-    @GetMapping("/{productId}")
-    public ProductDetailVM getDetail(@PathVariable String productId) {
-        return productDetailService.getDetail(productId);
-    }
 }

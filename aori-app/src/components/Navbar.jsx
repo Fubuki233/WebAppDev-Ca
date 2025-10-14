@@ -16,7 +16,7 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const categories = ['UNISEX', 'MEN', 'WOMEN', 'BOYS', 'GIRLS'];
+    const categories = ['UNISEX', 'MEN', 'WOMEN'];
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -41,7 +41,6 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
-                {/* Left Section: Hamburger + Menu Links */}
                 <div className="navbar-left">
                     <button
                         className={`hamburger-button ${isMobileMenuOpen ? 'active' : ''}`}
@@ -55,20 +54,16 @@ const Navbar = () => {
 
                     <div className="navbar-menu">
                         <a href="#home" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} className="nav-link">Home</a>
-                        <a href="#collections" className="nav-link">Collections</a>
-                        <a href="#new" className="nav-link">New</a>
                         <a href="#products" className="nav-link">Products</a>
                     </div>
                 </div>
 
-                {/* Center Section: Logo */}
                 <div className="navbar-logo">
                     <a href="#home" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                         <img src={aoriLogo} alt="AORI" className="logo-image" />
                     </a>
                 </div>
 
-                {/* Right Section: Icons */}
                 <div className="navbar-icons">
                     <button className="icon-button" onClick={() => window.location.hash = '#favourites'} title="Favourites">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -131,7 +126,6 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Overlay */}
             {isMobileMenuOpen && (
                 <div className="mobile-menu-overlay" onClick={toggleMobileMenu}></div>
             )}

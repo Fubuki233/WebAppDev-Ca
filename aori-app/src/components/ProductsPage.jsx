@@ -44,9 +44,11 @@ const ProductsPage = ({ initialBroadCategory, initialSearch, initialPage = 1, in
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [pageSize, setPageSize] = useState(initialLimit);
     const [totalPages, setTotalPages] = useState(1);
+    const [filterOptionsLoaded, setFilterOptionsLoaded] = useState(false);
 
     useEffect(() => {
         loadCategories();
+        loadInitialFilterOptions();
     }, []);
 
     useEffect(() => {
@@ -138,6 +140,23 @@ const ProductsPage = ({ initialBroadCategory, initialSearch, initialPage = 1, in
         }
     }, [initialBroadCategory]);
 
+    const loadInitialFilterOptions = async () => {
+        try {
+            // Load all products without filters to get complete filter options
+            const result = await fetchProducts({ page: 1, limit: 10000 });
+            const allProducts = result?.products || [];
+
+            // Extract filter options from all products
+            extractFilterOptions(allProducts);
+            setFilterOptionsLoaded(true);
+
+            console.log('Initial filter options loaded from', allProducts.length, 'products');
+        } catch (error) {
+            console.error('Error loading initial filter options:', error);
+            setFilterOptionsLoaded(true); // Set to true anyway to prevent blocking
+        }
+    };
+
     const loadProducts = async () => {
         setLoading(true);
         try {
@@ -157,8 +176,7 @@ const ProductsPage = ({ initialBroadCategory, initialSearch, initialPage = 1, in
             setTotalProducts(safeTotal);
             setTotalPages(safeTotalPages);
 
-            // Extract available colors, collections, and tags from the full dataset when available
-            extractFilterOptions(productsData);
+            // Don't update filter options after initial load - they are locked
         } catch (error) {
             console.error('Error loading products:', error);
             setProducts([]);
@@ -385,7 +403,7 @@ const ProductsPage = ({ initialBroadCategory, initialSearch, initialPage = 1, in
                                         </div>
 
                                         <label className="page-size-selector">
-                                            Display per page
+                                            Items per page:
                                             <select value={pageSize} onChange={handlePageSizeChange}>
                                                 {PAGE_SIZE_OPTIONS.map(option => (
                                                     <option key={option} value={option}>

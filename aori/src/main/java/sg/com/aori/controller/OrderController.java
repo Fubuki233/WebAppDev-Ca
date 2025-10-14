@@ -38,10 +38,6 @@ public class OrderController {
     public ResponseEntity<List<Orders>> getUserOrders(jakarta.servlet.http.HttpSession session) {
         try {
             String customerId = (String) session.getAttribute("id");
-            if (customerId == null) {
-                customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
-                // return ResponseEntity.status(401).build();
-            }
 
             List<Orders> orders = orderService.findOrdersByCustomerId(customerId);
             return ResponseEntity.ok(orders);
@@ -212,144 +208,144 @@ public class OrderController {
 }
 
 /*
-[
-    {
-        "orderId": "7e5bd44e-c12a-4ee7-a150-c87aba96c483",
-        "orderNumber": "ORD-202510111807-7e5b",
-        "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-        "orderStatus": "Pending",
-        "totalAmount": 33.09,
-        "paymentStatus": "Pending",
-        "createdAt": "2025-10-11T18:07:16",
-        "updatedAt": "2025-10-11T18:07:16",
-        "customer": {
-            "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-            "firstName": "John",
-            "lastName": "Tang",
-            "email": "john@example.com",
-            "password": "SecurePass123!",
-            "phoneNumber": "+6588112233",
-            "gender": "Undisclosed",
-            "dateOfBirth": "1991-02-24",
-            "createdAt": "2025-05-21T17:22:33",
-            "updatedAt": "2025-10-11T07:56:05",
-            "hibernateLazyInitializer": {}
-        }
-    },
-    {
-        "orderId": "1d5eb9a2-b9e4-512f-bdbc-a55889be8ed2",
-        "orderNumber": "ORD-2025-000009",
-        "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-        "orderStatus": "Returned",
-        "totalAmount": 108.14,
-        "paymentStatus": "Paid",
-        "createdAt": "2025-10-08T21:21:14",
-        "updatedAt": "2025-10-11T07:00:16",
-        "customer": {
-            "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-            "firstName": "John",
-            "lastName": "Tang",
-            "email": "john@example.com",
-            "password": "SecurePass123!",
-            "phoneNumber": "+6588112233",
-            "gender": "Undisclosed",
-            "dateOfBirth": "1991-02-24",
-            "createdAt": "2025-05-21T17:22:33",
-            "updatedAt": "2025-10-11T07:56:05",
-            "hibernateLazyInitializer": {}
-        }
-    },
-    {
-        "orderId": "3df61d5b-f7bc-5177-af59-4db40a17dc1e",
-        "orderNumber": "ORD-2025-000010",
-        "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-        "orderStatus": "Delivered",
-        "totalAmount": 260.41,
-        "paymentStatus": "Paid",
-        "createdAt": "2025-10-02T00:21:20",
-        "updatedAt": "2025-10-11T07:00:16",
-        "customer": {
-            "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-            "firstName": "John",
-            "lastName": "Tang",
-            "email": "john@example.com",
-            "password": "SecurePass123!",
-            "phoneNumber": "+6588112233",
-            "gender": "Undisclosed",
-            "dateOfBirth": "1991-02-24",
-            "createdAt": "2025-05-21T17:22:33",
-            "updatedAt": "2025-10-11T07:56:05",
-            "hibernateLazyInitializer": {}
-        }
-    },
-    {
-        "orderId": "0fce792f-23da-5b92-82c0-1bd62736a109",
-        "orderNumber": "ORD-2025-000005",
-        "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-        "orderStatus": "Delivered",
-        "totalAmount": 138.49,
-        "paymentStatus": "Paid",
-        "createdAt": "2025-09-25T21:50:33",
-        "updatedAt": "2025-10-11T07:00:16",
-        "customer": {
-            "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-            "firstName": "John",
-            "lastName": "Tang",
-            "email": "john@example.com",
-            "password": "SecurePass123!",
-            "phoneNumber": "+6588112233",
-            "gender": "Undisclosed",
-            "dateOfBirth": "1991-02-24",
-            "createdAt": "2025-05-21T17:22:33",
-            "updatedAt": "2025-10-11T07:56:05",
-            "hibernateLazyInitializer": {}
-        }
-    },
-    {
-        "orderId": "2b632d36-d3b7-5af1-8b84-68640fb424e4",
-        "orderNumber": "ORD-2025-000004",
-        "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-        "orderStatus": "Returned",
-        "totalAmount": 924.21,
-        "paymentStatus": "Paid",
-        "createdAt": "2025-09-25T14:02:36",
-        "updatedAt": "2025-10-11T07:00:16",
-        "customer": {
-            "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-            "firstName": "John",
-            "lastName": "Tang",
-            "email": "john@example.com",
-            "password": "SecurePass123!",
-            "phoneNumber": "+6588112233",
-            "gender": "Undisclosed",
-            "dateOfBirth": "1991-02-24",
-            "createdAt": "2025-05-21T17:22:33",
-            "updatedAt": "2025-10-11T07:56:05",
-            "hibernateLazyInitializer": {}
-        }
-    },
-    {
-        "orderId": "3b4b9dac-e9c3-575c-b27a-bb87b39f2550",
-        "orderNumber": "ORD-2025-000007",
-        "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-        "orderStatus": "Returned",
-        "totalAmount": 161.25,
-        "paymentStatus": "Paid",
-        "createdAt": "2025-09-15T07:34:26",
-        "updatedAt": "2025-10-11T07:00:16",
-        "customer": {
-            "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
-            "firstName": "John",
-            "lastName": "Tang",
-            "email": "john@example.com",
-            "password": "SecurePass123!",
-            "phoneNumber": "+6588112233",
-            "gender": "Undisclosed",
-            "dateOfBirth": "1991-02-24",
-            "createdAt": "2025-05-21T17:22:33",
-            "updatedAt": "2025-10-11T07:56:05",
-            "hibernateLazyInitializer": {}
-        }
-    }
-]
+ * [
+ * {
+ * "orderId": "7e5bd44e-c12a-4ee7-a150-c87aba96c483",
+ * "orderNumber": "ORD-202510111807-7e5b",
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "orderStatus": "Pending",
+ * "totalAmount": 33.09,
+ * "paymentStatus": "Pending",
+ * "createdAt": "2025-10-11T18:07:16",
+ * "updatedAt": "2025-10-11T18:07:16",
+ * "customer": {
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "firstName": "John",
+ * "lastName": "Tang",
+ * "email": "john@example.com",
+ * "password": "SecurePass123!",
+ * "phoneNumber": "+6588112233",
+ * "gender": "Undisclosed",
+ * "dateOfBirth": "1991-02-24",
+ * "createdAt": "2025-05-21T17:22:33",
+ * "updatedAt": "2025-10-11T07:56:05",
+ * "hibernateLazyInitializer": {}
+ * }
+ * },
+ * {
+ * "orderId": "1d5eb9a2-b9e4-512f-bdbc-a55889be8ed2",
+ * "orderNumber": "ORD-2025-000009",
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "orderStatus": "Returned",
+ * "totalAmount": 108.14,
+ * "paymentStatus": "Paid",
+ * "createdAt": "2025-10-08T21:21:14",
+ * "updatedAt": "2025-10-11T07:00:16",
+ * "customer": {
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "firstName": "John",
+ * "lastName": "Tang",
+ * "email": "john@example.com",
+ * "password": "SecurePass123!",
+ * "phoneNumber": "+6588112233",
+ * "gender": "Undisclosed",
+ * "dateOfBirth": "1991-02-24",
+ * "createdAt": "2025-05-21T17:22:33",
+ * "updatedAt": "2025-10-11T07:56:05",
+ * "hibernateLazyInitializer": {}
+ * }
+ * },
+ * {
+ * "orderId": "3df61d5b-f7bc-5177-af59-4db40a17dc1e",
+ * "orderNumber": "ORD-2025-000010",
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "orderStatus": "Delivered",
+ * "totalAmount": 260.41,
+ * "paymentStatus": "Paid",
+ * "createdAt": "2025-10-02T00:21:20",
+ * "updatedAt": "2025-10-11T07:00:16",
+ * "customer": {
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "firstName": "John",
+ * "lastName": "Tang",
+ * "email": "john@example.com",
+ * "password": "SecurePass123!",
+ * "phoneNumber": "+6588112233",
+ * "gender": "Undisclosed",
+ * "dateOfBirth": "1991-02-24",
+ * "createdAt": "2025-05-21T17:22:33",
+ * "updatedAt": "2025-10-11T07:56:05",
+ * "hibernateLazyInitializer": {}
+ * }
+ * },
+ * {
+ * "orderId": "0fce792f-23da-5b92-82c0-1bd62736a109",
+ * "orderNumber": "ORD-2025-000005",
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "orderStatus": "Delivered",
+ * "totalAmount": 138.49,
+ * "paymentStatus": "Paid",
+ * "createdAt": "2025-09-25T21:50:33",
+ * "updatedAt": "2025-10-11T07:00:16",
+ * "customer": {
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "firstName": "John",
+ * "lastName": "Tang",
+ * "email": "john@example.com",
+ * "password": "SecurePass123!",
+ * "phoneNumber": "+6588112233",
+ * "gender": "Undisclosed",
+ * "dateOfBirth": "1991-02-24",
+ * "createdAt": "2025-05-21T17:22:33",
+ * "updatedAt": "2025-10-11T07:56:05",
+ * "hibernateLazyInitializer": {}
+ * }
+ * },
+ * {
+ * "orderId": "2b632d36-d3b7-5af1-8b84-68640fb424e4",
+ * "orderNumber": "ORD-2025-000004",
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "orderStatus": "Returned",
+ * "totalAmount": 924.21,
+ * "paymentStatus": "Paid",
+ * "createdAt": "2025-09-25T14:02:36",
+ * "updatedAt": "2025-10-11T07:00:16",
+ * "customer": {
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "firstName": "John",
+ * "lastName": "Tang",
+ * "email": "john@example.com",
+ * "password": "SecurePass123!",
+ * "phoneNumber": "+6588112233",
+ * "gender": "Undisclosed",
+ * "dateOfBirth": "1991-02-24",
+ * "createdAt": "2025-05-21T17:22:33",
+ * "updatedAt": "2025-10-11T07:56:05",
+ * "hibernateLazyInitializer": {}
+ * }
+ * },
+ * {
+ * "orderId": "3b4b9dac-e9c3-575c-b27a-bb87b39f2550",
+ * "orderNumber": "ORD-2025-000007",
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "orderStatus": "Returned",
+ * "totalAmount": 161.25,
+ * "paymentStatus": "Paid",
+ * "createdAt": "2025-09-15T07:34:26",
+ * "updatedAt": "2025-10-11T07:00:16",
+ * "customer": {
+ * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+ * "firstName": "John",
+ * "lastName": "Tang",
+ * "email": "john@example.com",
+ * "password": "SecurePass123!",
+ * "phoneNumber": "+6588112233",
+ * "gender": "Undisclosed",
+ * "dateOfBirth": "1991-02-24",
+ * "createdAt": "2025-05-21T17:22:33",
+ * "updatedAt": "2025-10-11T07:56:05",
+ * "hibernateLazyInitializer": {}
+ * }
+ * }
+ * ]
  */
