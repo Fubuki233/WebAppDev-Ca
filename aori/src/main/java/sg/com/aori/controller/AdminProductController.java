@@ -1,12 +1,14 @@
 /**
- * Controller for Product Management (CRUD operations) with Thymeleaf
+ * Controller for Product Management (CRUD operations) with Thymeleaf.
  * This controller is used by Aori employees to manage the products in the system.
  * 
  * @author Ying Chun
  * @date 2025-10-10 (v2.0)
+ * @date 2025-10-14 (v2.3)
  * @version 1.0
  * @version 2.0 - Refactored to use Service Layer and add UX improvements
  * @version 2.1 - Amended @PathVariable to @RequestParam for delete operation to enhance security
+ * @version 2.3 - Added SKU quantity fetching for product view page.
  * 
  * @author Yunhe
  * @date 2025-10-11
@@ -15,8 +17,12 @@
 
 package sg.com.aori.controller;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +40,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import sg.com.aori.model.Category;
 import sg.com.aori.model.Product;
 import sg.com.aori.repository.CategoryRepository;
+import sg.com.aori.service.SkuService;
 import sg.com.aori.service.CRUDProductService;
+import sg.com.aori.utils.SkuTool;
 
 @Controller
 @RequestMapping("/admin/products")
 public class AdminProductController {
+
+	// --- DEPENDENCY INJECTION ---
+	@Autowired
+	private SkuService skuService;
 
 	// --- DEPENDENCY INJECTION ---
 	@Autowired
@@ -90,6 +102,9 @@ public class AdminProductController {
 		// Pass the list of all categories to the form for dropdown menu
 		model.addAttribute("categories", categoryRepository.findAll());
 
+		// Pass the list of all possible sizes for checkboxes
+		model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
+
 		// return the view name
 		return "admin/products/product-form";
 	}
@@ -123,7 +138,12 @@ public class AdminProductController {
 			// If product is found, add it and the categories to the model
 			model.addAttribute("product", oneOptProduct.get());
 			List<Category> categories = categoryRepository.findAll();
+			// FIX: Pass the raw JSON strings for sizes and colors to the form
+			// to prevent Thymeleaf from mis-parsing the list.
+			model.addAttribute("sizeJson", oneOptProduct.get().getSize());
+			model.addAttribute("colorJson", oneOptProduct.get().getColors());
 			model.addAttribute("categories", categories);
+			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 			return "admin/products/product-form";
 		} else {
 			redirectAttributes.addFlashAttribute("error", "Product not found with ID: " + id);
@@ -176,7 +196,28 @@ public class AdminProductController {
 	public String viewProduct(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
 		Optional<Product> productOpt = productService.getProductById(id);
 		if (productOpt.isPresent()) {
-			model.addAttribute("product", productOpt.get());
+			Product product = productOpt.get();
+			model.addAttribute("product", product);
+
+			// --- START: Fetch SKU Quantities ---
+			// We use a TreeMap to keep the colors sorted for a consistent display.
+			Map<String, Map<String, Integer>> skuQuantities = new TreeMap<>();
+
+			List<String> colors = product.getColorsAsList();
+			List<String> sizes = product.getSizesAsList();
+
+			for (String color : colors) {
+				Map<String, Integer> sizeQuantityMap = new HashMap<>();
+				for (String size : sizes) {
+					String sku = SkuTool.createSku(product.getProductId(), color.replace("#", ""), size, productService);
+					int quantity = skuService.getQuantity(sku);
+					sizeQuantityMap.put(size, quantity);
+				}
+				skuQuantities.put(color, sizeQuantityMap);
+			}
+			model.addAttribute("skuQuantities", skuQuantities);
+			// --- END: Fetch SKU Quantities ---
+
 			return "admin/products/product-view";
 		} else {
 			redirectAttributes.addFlashAttribute("error", "Product not found with ID: " + id);

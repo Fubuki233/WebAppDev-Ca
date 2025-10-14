@@ -52,7 +52,7 @@
                 <div class="card-body" id="size-variants-container">
                     <p class="text-muted">Select available sizes and specify stock for each.</p>
                     <div class="row">
-                        <div class="col-md-4" th:each="size : ${{'XS', 'S', 'M', 'L', 'XL', 'XXL'}}">
+                        <div class="col-md-4" th:each="size : ${allSizes}">
                             <div class="input-group mb-2">
                                 <div class="input-group-text">
                                     <input class="form-check-input mt-0" type="checkbox" th:value="${size}"
@@ -65,7 +65,7 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" id="sizeJson" name="sizeJson" />
+                    <input type="hidden" id="sizeJson" name="sizeJson" th:value="${sizeJson}" />
                 </div>
             </div>
 
@@ -76,7 +76,7 @@
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="add-color-btn">Add
                         Color</button>
-                    <input type="hidden" id="colorJson" name="colorJson" />
+                    <input type="hidden" id="colorJson" name="colorJson" th:value="${colorJson}" />
                 </div>
             </div>
 
@@ -87,6 +87,55 @@
 
     <th:block layout:fragment="scripts">
         <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // --- START: Pre-populate form for editing ---
+                const sizeJsonInput = document.getElementById('sizeJson');
+                if (sizeJsonInput.value) {
+                    try {
+                        const selectedSizes = JSON.parse(sizeJsonInput.value);
+                        selectedSizes.forEach(size => {
+                            const checkbox = document.getElementById('size-' + size);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    } catch (e) {
+                        console.error('Could not parse size JSON:', sizeJsonInput.value);
+                    }
+                }
+
+                const colorJsonInput = document.getElementById('colorJson');
+                if (colorJsonInput.value) {
+                    try {
+                        const colors = JSON.parse(colorJsonInput.value);
+                        colors.forEach(hexValue => {
+                            createColorRow('', hexValue);
+                        });
+                    } catch (e) {
+                        console.error('Could not parse color JSON:', colorJsonInput.value);
+                    }
+                }
+                // --- END: Pre-populate form for editing ---
+            });
+
+            // --- START: Refactored color row creation ---
+            const colorContainer = document.getElementById('color-container');
+            const addColorBtn = document.getElementById('add-color-btn');
+
+            function createColorRow(name = '', value = '#000000') {
+                const colorRow = document.createElement('div');
+                colorRow.className = 'input-group mb-2';
+                colorRow.innerHTML = `
+                    <input type="text" class="form-control color-name" placeholder="Color Name (e.g., Black)" value="${name}">
+                    <input type="color" class="form-control form-control-color color-value" value="${value}" title="Choose your color">
+                    <button class="btn btn-outline-danger remove-color-btn" type="button">Remove</button>
+                `;
+                colorContainer.appendChild(colorRow);
+            }
+
+            addColorBtn.addEventListener('click', () => createColorRow());
+            // --- END: Refactored color row creation ---
+
             // Bootstrap Form Validation
             (() => {
                 'use strict'
@@ -105,21 +154,6 @@
                 })
             })()
 
-            // Dynamic Color Fields
-            const colorContainer = document.getElementById('color-container');
-            const addColorBtn = document.getElementById('add-color-btn');
-
-            addColorBtn.addEventListener('click', () => {
-                const colorRow = document.createElement('div');
-                colorRow.className = 'input-group mb-2';
-                colorRow.innerHTML = `
-                <input type="text" class="form-control color-name" placeholder="Color Name (e.g., Black)">
-                <input type="color" class="form-control form-control-color color-value" value="#000000" title="Choose your color">
-                <button class="btn btn-outline-danger remove-color-btn" type="button">Remove</button>
-            `;
-                colorContainer.appendChild(colorRow);
-            });
-
             colorContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-color-btn')) {
                     e.target.closest('.input-group').remove();
@@ -132,20 +166,16 @@
                 const sizes = [];
                 document.querySelectorAll('#size-variants-container input[type="checkbox"]:checked').forEach(checkbox => {
                     const size = checkbox.value;
-                    const quantityInput = document.getElementById('quantity-' + size);
-                    const quantity = quantityInput.value ? parseInt(quantityInput.value, 10) : 0;
-                    sizes.push({ size: size, quantity: quantity });
+                    sizes.push(size); // Push only the size string
                 });
                 document.getElementById('sizeJson').value = JSON.stringify(sizes);
 
                 // Serialize Colors
                 const colors = [];
                 document.querySelectorAll('#color-container .input-group').forEach(row => {
-                    const name = row.querySelector('.color-name').value;
+                    // The name is for display only, the value is what matters.
                     const value = row.querySelector('.color-value').value;
-                    if (name) {
-                        colors.push({ name: name, value: value });
-                    }
+                    colors.push(value); // Push only the hex value string
                 });
                 document.getElementById('colorJson').value = JSON.stringify(colors);
             }

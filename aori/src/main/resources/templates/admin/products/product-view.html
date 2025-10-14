@@ -68,30 +68,66 @@
                  </div>
              </div>
 
+            <!-- START: New Inventory by SKU Table -->
             <div class="card mb-4">
-                <div class="card-header">Available Colors</div>
+                <div class="card-header">
+                    <h5 class="mb-0">Inventory by SKU (Size and Color)</h5>
+                </div>
                 <div class="card-body">
-                    <div th:if="${product.colorsAsList != null}" th:each="colorHex : ${product.colorsAsList}" class="d-flex align-items-center mb-1">
-                        <div style="width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ddd;" th:style="'background-color:' + ${colorHex}"></div>
-                        <span class="ms-2" th:text="${colorHex}"></span>
+                    <p class="text-muted small">This table shows the current stock for each product variant.</p>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover text-center">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 120px;">Color</th>
+                                    <!-- Dynamically create a header column for each available size -->
+                                    <th th:each="size : ${product.getSizesAsList()}" th:text="${size}"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- If no SKU data is available, show a message -->
+                                <tr th:if="${#maps.isEmpty(skuQuantities)}">
+                                    <td th:colspan="${#lists.size(product.getSizesAsList()) + 1}">
+                                        No inventory information available for this product.
+                                    </td>
+                                </tr>
+                                <!-- Iterate over each color to create a row -->
+                                <tr th:each="colorEntry : ${skuQuantities}">
+                                    <td class="align-middle">
+                                        <!-- Display the color swatch and its hex code -->
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <span class="color-swatch" th:style="'background-color:' + ${colorEntry.key}"></span>
+                                            <span class="ms-2" th:text="${colorEntry.key}"></span>
+                                        </div>
+                                    </td>
+                                    <!-- For each size, find the corresponding quantity in the map -->
+                                    <td th:each="size : ${product.getSizesAsList()}" class="align-middle">
+                                        <span th:text="${skuQuantities[colorEntry.key][size]}">0</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            
-
-            <div class="card mb-4">
-                <div class="card-header">Available Sizes</div> <div class="card-body">
-                    <ul class="list-group list-group-flush" th:if="${product.sizesAsList != null and !product.sizesAsList.isEmpty()}">
-                         <li th:each="sizeName : ${product.sizesAsList}" class="list-group-item">
-                            <span th:text="${sizeName}"></span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
+            <!-- END: New Inventory by SKU Table -->
         </div>
     </div>
 </section>
+
+<th:block layout:fragment="scripts">
+    <!-- Optional: Add some basic CSS for the color swatch -->
+    <style>
+        .color-swatch {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+            vertical-align: middle;
+        }
+    </style>
+</th:block>
 
 </body>
 </html>
