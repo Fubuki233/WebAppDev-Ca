@@ -5,9 +5,13 @@
  * @date 2025-10-08
  * @version 1.1
  * 
- * * @author Sun Rui
+ * @author Sun Rui
  * @date 2025-10-13
  * @version 1.2 - remove the category buttons below the search bar
+ * 
+ * @author Sun Rui
+ * @date 2025-10-14
+ * @version 1.3 - Add paging status, synchronize URLs, render data returned by the interface, and display paging control.
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -16,7 +20,10 @@ import ProductCard from './ProductCard';
 import { fetchProducts, fetchCategories } from '../api/productApi';
 import '../styles/ProductsPage.css';
 
-const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
+const PAGE_SIZE_OPTIONS = [12, 24, 48];
+const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
+
+const ProductsPage = ({ initialBroadCategory, initialSearch, initialPage = 1, initialLimit = DEFAULT_PAGE_SIZE }) => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -34,6 +41,9 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
     const [availableColors, setAvailableColors] = useState([]);
     const [availableCollections, setAvailableCollections] = useState([]);
     const [availableTags, setAvailableTags] = useState([]);
+    const [currentPage, setCurrentPage] = useState(initialPage);
+    const [pageSize, setPageSize] = useState(initialLimit);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         loadCategories();
@@ -41,7 +51,61 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
 
     useEffect(() => {
         loadProducts();
-    }, [filters]);
+    }, [filters, currentPage, pageSize]);
+
+    useEffect(() => {
+        setCurrentPage(initialPage);
+    }, [initialPage]);
+
+    useEffect(() => {
+        setPageSize(initialLimit);
+    }, [initialLimit]);
+
+    useEffect(() => {
+        const currentHash = window.location.hash;
+        if (!currentHash.startsWith('#products')) return;
+
+        const queryIndex = currentHash.indexOf('?');
+        const params = queryIndex !== -1
+            ? new URLSearchParams(currentHash.slice(queryIndex + 1))
+            : new URLSearchParams();
+
+        let hashChanged = false;
+
+        if (currentPage <= 1) {
+            if (params.has('page')) {
+                params.delete('page');
+                hashChanged = true;
+            }
+        } else {
+            const pageString = String(currentPage);
+            if (params.get('page') !== pageString) {
+                params.set('page', pageString);
+                hashChanged = true;
+            }
+        }
+
+        if (pageSize === DEFAULT_PAGE_SIZE) {
+            if (params.has('limit')) {
+                params.delete('limit');
+                hashChanged = true;
+            }
+        } else {
+            const limitString = String(pageSize);
+            if (params.get('limit') !== limitString) {
+                params.set('limit', limitString);
+                hashChanged = true;
+            }
+        }
+
+        if (!hashChanged) return;
+
+        const query = params.toString();
+        const newHash = query ? `#products?${query}` : '#products';
+        if (newHash !== currentHash) {
+            window.location.hash = newHash;
+        }
+    }, [currentPage, pageSize]);
 
     useEffect(() => {
         const normalized = initialSearch ? initialSearch.trim() : '';
@@ -77,20 +141,29 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
     const loadProducts = async () => {
         setLoading(true);
         try {
-            const result = await fetchProducts(filters);
+            const result = await fetchProducts({ ...filters, page: currentPage, limit: pageSize });
             console.log('Loaded products result:', result);
             console.log('Current filters:', filters);
             const productsData = result?.products || [];
             console.log('Products data sample:', productsData[0]);
-            setProducts(productsData);
-            setTotalProducts(result?.total || 0);
+            const total = Number(result?.total);
+            const safeTotal = Number.isFinite(total) ? total : productsData.length;
+            const reportedTotalPages = Number(result?.totalPages);
+            const safeTotalPages = Number.isFinite(reportedTotalPages)
+                ? Math.max(1, reportedTotalPages)
+                : Math.max(1, Math.ceil(safeTotal / pageSize));
 
-            // Extract available colors, collections, and tags from products
+            setProducts(productsData);
+            setTotalProducts(safeTotal);
+            setTotalPages(safeTotalPages);
+
+            // Extract available colors, collections, and tags from the full dataset when available
             extractFilterOptions(productsData);
         } catch (error) {
             console.error('Error loading products:', error);
             setProducts([]);
             setTotalProducts(0);
+            setTotalPages(1);
         } finally {
             setLoading(false);
         }
@@ -148,6 +221,7 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
 
     const handleFilterChange = (newFilters) => {
         setFilters(prev => ({ ...prev, ...newFilters }));
+        setCurrentPage(1);
 
         // Sync activeCategory with filter category
         if ('category' in newFilters) {
@@ -167,6 +241,7 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
                 return rest;
             });
         }
+        setCurrentPage(1);
     };
 
     const handleCategoryClick = (categoryId) => {
@@ -178,7 +253,23 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
         } else {
             setFilters(prev => ({ ...prev, category: categoryId }));
         }
+        setCurrentPage(1);
     };
+
+    const handlePageChange = (page) => {
+        if (page < 1 || page > totalPages || page === currentPage) return;
+        setCurrentPage(page);
+    };
+
+    const handlePageSizeChange = (event) => {
+        const value = parseInt(event.target.value, 10);
+        if (!Number.isFinite(value) || value <= 0) return;
+        setPageSize(value);
+        setCurrentPage(1);
+    };
+
+    const startItem = totalProducts === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    const endItem = totalProducts === 0 ? 0 : Math.min((currentPage - 1) * pageSize + products.length, totalProducts);
 
     return (
         <div className="products-page">
@@ -252,6 +343,57 @@ const ProductsPage = ({ initialBroadCategory, initialSearch }) => {
                                 {products.length === 0 && (
                                     <div className="no-products">
                                         <p>No products found matching your criteria.</p>
+                                    </div>
+                                )}
+
+                                {totalProducts > 0 && (
+                                    <div className="pagination-section">
+                                        <div className="pagination-summary">
+                                            Showing {startItem}-{endItem} of {totalProducts}
+                                        </div>
+
+                                        <div className="pagination">
+                                            <button
+                                                type="button"
+                                                className="pagination-button"
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                                disabled={currentPage === 1}
+                                            >
+                                                Prev
+                                            </button>
+                                            {Array.from({ length: totalPages }).map((_, index) => {
+                                                const pageNumber = index + 1;
+                                                return (
+                                                    <button
+                                                        key={pageNumber}
+                                                        type="button"
+                                                        className={`pagination-button ${pageNumber === currentPage ? 'active' : ''}`}
+                                                        onClick={() => handlePageChange(pageNumber)}
+                                                    >
+                                                        {pageNumber}
+                                                    </button>
+                                                );
+                                            })}
+                                            <button
+                                                type="button"
+                                                className="pagination-button"
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                                disabled={currentPage === totalPages}
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+
+                                        <label className="page-size-selector">
+                                            每页显示
+                                            <select value={pageSize} onChange={handlePageSizeChange}>
+                                                {PAGE_SIZE_OPTIONS.map(option => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </label>
                                     </div>
                                 )}
                             </>

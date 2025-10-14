@@ -10,6 +10,11 @@
  * @author Sun Rui
  * @date 2025-10-11
  * @version 1.1
+ * 
+ * Parse the paging parameters in the hash and pass the initial page number/page quantity to ProductsPage.
+ * @author Sun Rui
+ * @date 2025-10-14
+ * @version 1.2
  */
 import { useState, useEffect } from 'react';
 import HomePage from "./components/HomePage";
@@ -34,11 +39,20 @@ function App() {
 
       const broadParam = params.get('broad');
       const searchParam = params.get('search');
+      const pageParam = params.get('page');
+      const limitParam = params.get('limit');
+
+      const parsedPage = pageParam ? parseInt(pageParam, 10) : 1;
+      const parsedLimit = limitParam ? parseInt(limitParam, 10) : 12;
+      const safePage = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+      const safeLimit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 12;
 
       return {
         page: 'products',
         broadCategory: broadParam ? broadParam.toLowerCase() : null,
         searchTerm: searchParam ? searchParam.trim() : '',
+        pageNumber: safePage,
+        pageSize: safeLimit,
       };
     };
 
@@ -81,6 +95,8 @@ function App() {
         <ProductsPage
           initialBroadCategory={currentRoute.broadCategory}
           initialSearch={currentRoute.searchTerm}
+          initialPage={currentRoute.pageNumber}
+          initialLimit={currentRoute.pageSize}
         />
       )}
       {currentRoute.page === 'product-detail' && <ProductDetailPage productId={currentRoute.productId} />}

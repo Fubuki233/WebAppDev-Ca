@@ -13,6 +13,10 @@
  * 
  * @author Yunhe
  * @version 2.0 - enhanced style and added a humbuger menu
+ * 
+ * @author Sun Rui
+ * @date 2025-10-14
+ * @version 2.1 -Clear the page parameter when updating the filter to ensure that you return to the first page.
  */
 import React, { useEffect, useState } from 'react';
 import '../styles/Sidebar.css';
@@ -51,6 +55,8 @@ const Sidebar = () => {
                 params.set(key, value);
             }
         });
+
+        params.delete('page');
 
         const query = params.toString();
         window.location.hash = query ? `#products?${query}` : '#products';

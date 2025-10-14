@@ -5,6 +5,9 @@
  * @date 2025-10-08
  * @version 1.0
  * 
+ * @author Sun Rui
+ * @date 2025-10-14
+ * @version 1.1- The results of the front-end self-paging are uniformly intercepted by page/limit and returned as total and totalPages.
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
@@ -350,12 +353,15 @@ export const fetchProducts = async (filters = {}, useMock = false) => {
 
             const page = filters.page || 1;
             const limit = filters.limit || 12;
+            const total = transformedProducts.length;
+            const start = (page - 1) * limit;
+            const end = start + limit;
 
             return {
-                products: transformedProducts,
-                total: transformedProducts.length,
-                page: page,
-                totalPages: Math.ceil(transformedProducts.length / limit),
+                products: transformedProducts.slice(start, end),
+                total,
+                page,
+                totalPages: Math.max(1, Math.ceil(total / limit)),
             };
         } else if (data.products) {
             // If backend returns object with products array
