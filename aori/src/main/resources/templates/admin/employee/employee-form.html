@@ -58,14 +58,24 @@
                     </div>
                 </div>
 
-                <div class="mb-3"> 
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" th:field="*{password}" required>
-                        <div class="form-text">Must be 8+ chars, include upper, lower, digit, and symbol.</div>
-                        <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
+                <!-- Create Mode -->
+                <div class="mb-3" th:if="${employee.employeeId == null}">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" th:field="*{password}" required>
+                    <div class="form-text">Must be 8+ chars, include upper, lower, digit, and symbol.</div>
+                    <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
                 </div>
-                
-             <div class="mb-3">
+
+                <!-- Edit Mode -->
+                <div class="mb-3" th:if="${employee.employeeId != null}">
+                    <label for="password" class="form-label">New Password (Optional)</label>
+                    <input type="password" class="form-control" id="password" th:field="*{password}"
+                           placeholder="Leave blank to keep current password">
+                    <div class="form-text">Must be 8+ chars, include upper, lower, digit, and symbol.</div>
+                    <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
+                </div>
+
+                <div class="mb-3">
                     <label for="phoneNumber" class="form-label">Phone Number</label>
                     <input type="tel" class="form-control" id="phoneNumber" th:field="*{phoneNumber}">
                     <div class="form-text">e.g., +6598765432</div>
@@ -74,7 +84,7 @@
                 
                 <div class="mb-3">
                     <label for="role" class="form-label">Role</label>
-                    <select class="form-select" id="role" th:field="*{role}" required>
+                    <select class="form-select" id="role" th:field="*{role.roleId}" required>
                         <option value="">-- Select a Role --</option>
                         <option th:each="role : ${allRoles}" 
                                 th:value="${role.roleId}" 

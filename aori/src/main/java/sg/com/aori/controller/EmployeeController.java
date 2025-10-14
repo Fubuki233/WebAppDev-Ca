@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,10 +22,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.validation.Valid;
+// import jakarta.validation.Valid; - old method, commented out
 import jakarta.validation.constraints.NotBlank;
 import sg.com.aori.model.Employee;
 import sg.com.aori.service.EmployeeService;
+import sg.com.aori.utils.ValidationGroups;
 import sg.com.aori.service.RoleService;
 
 @Controller
@@ -71,7 +73,7 @@ public class EmployeeController {
     // --- PROCESS NEW EMPLOYEE (Create - POST) ---
     // POST /admin/employees/
     @PostMapping(value = "/")
-    public String createEmployee(@Valid @ModelAttribute("employee") Employee employee,
+    public String createEmployee(@Validated(ValidationGroups.Create.class) @ModelAttribute("employee") Employee employee,
             BindingResult bindingResult, // Added BindingResult to catch Bean Validation errors
             Model model, // Added Model to pass data back if validation fails
             RedirectAttributes redirectAttributes) {
@@ -142,7 +144,7 @@ public class EmployeeController {
     // POST /employees/{id} (Often used instead of PUT in pure form submissions for
     // simplicity)
     @PostMapping("/{id}")
-    public String updateEmployee(@PathVariable String id, @Valid @ModelAttribute("employee") Employee employeeDetails,
+    public String updateEmployee(@PathVariable String id, @Validated(ValidationGroups.Update.class) @ModelAttribute("employee") Employee employeeDetails,
             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         // DEBUGGING: Check the path ID and the bound object data
         System.out.println("DEBUG: updateEmployee() called. Path ID: " + id);

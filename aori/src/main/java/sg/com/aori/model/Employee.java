@@ -25,6 +25,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Length;
+import sg.com.aori.utils.ValidationGroups;
 
 /**
  * Entity representing an employee in the system.
@@ -56,14 +57,14 @@ public class Employee {
 
     // first_name VARCHAR(50) NOT NULL,
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain alphabets only")
+    @Pattern(regexp = "^[A-Za-z\\s-']+$", message = "First name must contain alphabets only")
     @Length(max = 50)
     @Column(name = "first_name", length = 50, nullable = false)
     private String firstName;
 
     // last_name VARCHAR(50) NOT NULL,
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z]+$", message = "Last name must contain alphabets only")
+    @Pattern(regexp = "^[A-Za-z\\s-']+$", message = "Last name must contain alphabets only")
     @Length(max = 50)
     @Column(name = "last_name", length = 50, nullable = false)
     private String lastName;
@@ -78,8 +79,8 @@ public class Employee {
     // password_hash VARCHAR(255) NOT NULL,
     @Length(min = 8, max = 255)
     @Column(name = "password")
-    @NotBlank(message = "Password is required for new employees.")
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,}$", message = "Password must meet complexity requirements.")
+    @NotBlank(groups = ValidationGroups.Create.class, message = "Password is required for new employees.")
+    @Pattern(groups = ValidationGroups.Create.class, regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,}$", message = "Password must meet complexity requirements.")
     private String password;
 
     // phone_number VARCHAR(15),
