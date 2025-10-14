@@ -36,7 +36,6 @@ public class ProductSearchService {
 
     private final CategoryRepository categoryRepository;
 
-    // 简单白名单；可替换为读表/配置
     private static final Set<String> COLOR_SET = Set.of(
             "red","blue","green","black","white","yellow","pink","purple","grey","gray","brown","beige","navy","orange"
     );
@@ -53,19 +52,15 @@ public class ProductSearchService {
                                 BigDecimal priceMin,
                                 BigDecimal priceMax) {
 
-        // 1) 预处理输入
         String query = (q == null) ? "" : q.trim();
         String qLower = query.toLowerCase(Locale.ROOT);
 
-        // 2) 从 DB 拉一遍所有分类名，做个快速匹配表
-        //    （如果量大，换成按需查，或在内存做缓存）
         Set<String> categoryNames = categoryRepository.findAll().stream()
                 .map(c -> Optional.ofNullable(c.getCategoryName()).orElse(""))
                 .filter(StringUtils::hasText)
                 .map(s -> s.toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet());
 
-        // 3) 识别 token
         String detectedCategory = null;
         String detectedColor = null;
         String detectedSize = null;
@@ -87,18 +82,15 @@ public class ProductSearchService {
             }
         }
 
-        // 显式参数优先覆盖自动识别
         if (StringUtils.hasText(categoryParam)) detectedCategory = categoryParam.toLowerCase(Locale.ROOT);
         if (StringUtils.hasText(colorParam)) detectedColor = colorParam.toLowerCase(Locale.ROOT);
         if (StringUtils.hasText(sizeParam)) detectedSize = sizeParam.toLowerCase(Locale.ROOT);
 
-        // 4) 动态 JPQL
         StringBuilder jpql = new StringBuilder(
                 "select p from Product p left join fetch p.category c where 1=1 ");
 
         Map<String, Object> params = new HashMap<>();
 
-        // 名称/分类名 包含查询：把所有剩余 token 逐个 AND
         for (int i = 0; i < likeTokens.size(); i++) {
             String name = "t" + i;
             jpql.append(" and ( lower(p.productName) like concat('%', :").append(name).append(", '%') ")
@@ -111,12 +103,10 @@ public class ProductSearchService {
             params.put("category", detectedCategory);
         }
         if (detectedColor != null) {
-            // 假设 Product 里有 color 字段（String）；如果是颜色表或代码，请按实际改字段
             jpql.append(" and lower(p.color) = :color ");
             params.put("color", detectedColor);
         }
         if (detectedSize != null) {
-            // 假设 Product 里有 size 字段（String）；如果是多尺码库存明细，需要 join 明细表，这里再改
             jpql.append(" and lower(p.size) = :size ");
             params.put("size", detectedSize);
         }
