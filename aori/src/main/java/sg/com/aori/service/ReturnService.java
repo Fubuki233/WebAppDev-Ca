@@ -6,6 +6,13 @@
  * @version 1.0
  */
 
+/*
+ * * @author Simon Lei
+ * * @date 2025-10-11
+ * * @version 2.0
+ * Update on the Returns entity to add some validations.
+ */
+
 package sg.com.aori.service;
 
 import sg.com.aori.model.Orders;
@@ -18,8 +25,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class ReturnService implements IReturn {
 
     private final OrderRepository orderRepository;
