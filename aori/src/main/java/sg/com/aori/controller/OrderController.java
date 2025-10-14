@@ -38,6 +38,14 @@ public class OrderController {
     public ResponseEntity<List<Orders>> getUserOrders(jakarta.servlet.http.HttpSession session) {
         try {
             String customerId = (String) session.getAttribute("id");
+            if (customerId == null) {
+                // ***** Check this part
+                // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
+                // response.put("success", false);
+                // response.put("message", "User not logged in");
+                // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+                System.out.println("customerId = "+customerId);
+            }
 
             List<Orders> orders = orderService.findOrdersByCustomerId(customerId);
             return ResponseEntity.ok(orders);

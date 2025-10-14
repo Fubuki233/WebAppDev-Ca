@@ -84,8 +84,10 @@ public class Employee {
     private String password;
 
     // phone_number VARCHAR(15),
-    @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^\\+65\\d{8}$", message = "Invalid phone number. Must be in the format +65xxxxxxxx (10 digits total).")
+    @NotBlank(groups = { ValidationGroups.Create.class,
+            ValidationGroups.Update.class }, message = "Phone number is required")
+    @Pattern(groups = { ValidationGroups.Create.class,
+            ValidationGroups.Update.class }, regexp = "^\\+65\\d{8}$", message = "Invalid phone number. Must be in the format +65xxxxxxxx (10 digits total).")
     @Length(max = 15)
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;

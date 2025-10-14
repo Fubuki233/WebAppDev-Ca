@@ -1,7 +1,8 @@
 /**
- * Jiang: Modfied variant into product
- * Sun Rui: add validation constraint
- * @date: 10-09
+ * v1.1(Jiang): Modfied variant into product
+ * v1.2(Sun Rui): add validation constraint
+ * v1.3(Jiang): Added sku
+ * @date: 10-14
  */
 
 package sg.com.aori.model;
@@ -41,6 +42,10 @@ public class OrderItem {
 
     @Column(name = "discount_applied", precision = 10, scale = 2)
     private BigDecimal discountApplied = BigDecimal.ZERO;
+
+    // @NotBlank(message = "sku is required")
+    @Column(name = "sku", length = 50, nullable = true)
+    private String sku;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", insertable = false, updatable = false)
@@ -122,6 +127,14 @@ public class OrderItem {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public String getSku(){
+        return sku;
+    }
+
+    public void setSku(String sku){
+        this.sku = sku;
     }
 
     /**

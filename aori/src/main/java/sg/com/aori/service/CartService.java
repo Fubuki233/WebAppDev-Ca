@@ -4,7 +4,7 @@
  * v1.3: Added the function of auto generating order_number
  * v1.4: Added sku
  * @author Jiang
- * @date 2025-10-13
+ * @date 2025-10-14
  * @version 1.4
  */
 
@@ -116,6 +116,7 @@ public class CartService implements ICart {
                 orderItem.setQuantity(cartItem.getQuantity());
                 orderItem.setPriceAtPurchase(cartItem.getProduct().getPrice());
                 orderItem.setDiscountApplied(BigDecimal.ZERO);
+                orderItem.setSku(cartItem.getSku());
                 
                 System.out.println("Saving order item: " + orderItem);
                 orderItemRepository.save(orderItem);
