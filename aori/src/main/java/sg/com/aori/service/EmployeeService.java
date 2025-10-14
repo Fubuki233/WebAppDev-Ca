@@ -46,6 +46,9 @@ public class EmployeeService implements IEmployee {
     public Employee createEmployee(Employee employee) {
         validateOnCreate(employee); // Business verification (uniqueness/password complexity/role basicity)
 
+        // Set a default status for new employees
+        employee.setStatus(Employee.EmployeeStatus.Active);
+
         return employeeRepository.save(employee);
     }
 
@@ -55,7 +58,7 @@ public class EmployeeService implements IEmployee {
      * param: id Employee primary key.
      * return: The found Employee.
      * throws: IllegalArgumentException if input is invalid.
-     */
+     */ 
     @Override
     @Transactional(readOnly = true)
     public Employee getEmployeeById(String id) {
@@ -116,8 +119,15 @@ public class EmployeeService implements IEmployee {
         existingEmployee.setEmail(employeeDetails.getEmail());
         existingEmployee.setPhoneNumber(employeeDetails.getPhoneNumber());
         existingEmployee.setStatus(employeeDetails.getStatus());
-        existingEmployee.setPassword(existingEmployee.getPassword());
-        System.out.println("Password: " + existingEmployee.getPassword());
+
+        // Only update password if a new one is provided and is not empty.
+        if (employeeDetails.getPassword() != null && !employeeDetails.getPassword().isEmpty()) {
+            if (!isPasswordStrong(employeeDetails.getPassword())) {
+                // This will be caught by the controller and shown to the user.
+                throw new IllegalArgumentException("Password must include upper, lower, digit, and symbol");
+            }
+            existingEmployee.setPassword(employeeDetails.getPassword());
+        }
         validateOnUpdate(existingEmployee);
 
         return existingEmployee;
