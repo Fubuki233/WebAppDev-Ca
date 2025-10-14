@@ -114,26 +114,61 @@ public class AdminProductController {
 	public String saveProduct(@ModelAttribute("product") Product product,
 			@RequestParam("sizeJson") String sizeJson,
 			@RequestParam("colorJson") String colorJson, 
-			@RequestParam(name = "category.categoryId", required = false) String categoryId,
-			RedirectAttributes redirectAttributes) {
+			@RequestParam(name = "category.categoryId", required = false) String categoryId, // Keep this for category binding
+			RedirectAttributes redirectAttributes, Model model) { // Add Model
 
-		product.setSize(sizeJson);
-		product.setColors(colorJson);
+		try {
+			product.setSize(sizeJson);
+			product.setColors(colorJson);
+			product.setCategoryId(categoryId);
 
-		// --- START: Fix for saving category ---
-		// Manually set the categoryId from the form submission.
-		// This is crucial because Spring's @ModelAttribute data binding doesn't always
-		// handle nested properties like `category.categoryId` correctly on its own.
-		product.setCategoryId(categoryId);
-		// --- END: Fix for saving category ---
+			// --- START: Proactive Duplicate Product Code Check ---
+			// Find if another product with the same code already exists.
+			String existingProductId = productService.findProductIdByProductCode(product.getProductCode());
 
-		// Use ServiceImpl to create or update the product
-		productService.saveProduct(product);
+			// Check for duplicates. This is a duplicate if:
+			// 1. A product with this code exists (existingProductId is not null)
+			// 2. We are creating a NEW product (product.getProductId() is empty) OR
+			//    we are editing a product but the found ID is DIFFERENT from the one we are editing.
+			if (existingProductId != null && 
+				(product.getProductId() == null || product.getProductId().isEmpty() || !existingProductId.equals(product.getProductId()))) {
+				
+				// If it's a duplicate, throw an exception to be caught by the catch block.
+				// This is cleaner than duplicating the error handling logic.
+				throw new org.springframework.dao.DataIntegrityViolationException("Duplicate product code");
+			}
+			// --- END: Proactive Duplicate Product Code Check ---
 
-		// Add success message for user
-		redirectAttributes.addFlashAttribute("message", "Product created successfully!");
+			// Use ServiceImpl to create or update the product
+			productService.saveProduct(product);
 
-		return "redirect:/admin/products";
+			// Add success message for user on redirect
+			String successMessage = (product.getProductId() != null && !product.getProductId().isEmpty())
+					? "Product updated successfully!"
+					: "Product created successfully!";
+			redirectAttributes.addFlashAttribute("message", successMessage);
+
+			return "redirect:/admin/products";
+
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+			// This block catches database constraint errors, like duplicate product codes.
+			if (e.getMessage().contains("Duplicate") || e.getMessage().contains("product_code")) {
+				model.addAttribute("error", "Failed to save product. A product with the code '" + product.getProductCode() + "' already exists.");
+			} else {
+				model.addAttribute("error", "Failed to save product due to a database error.");
+			}
+			
+			// --- START: Re-populate form data for re-rendering ---
+			// We must re-populate the model attributes that the form needs,
+			// otherwise it will fail to render.
+			model.addAttribute("categories", categoryRepository.findAll());
+			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
+			model.addAttribute("sizeJson", sizeJson);
+			model.addAttribute("colorJson", colorJson);
+			// --- END: Re-populate form data ---
+
+			return "admin/products/product-form"; // Return to the form view, not a redirect
+		}
 	}
 
 	// --- EDIT EXISTING PRODUCT (Display Form) ---

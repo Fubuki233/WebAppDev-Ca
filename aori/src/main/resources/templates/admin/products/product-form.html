@@ -12,6 +12,12 @@
         <h2 th:text="${product.productId == null} ? 'Add New Product' : 'Edit Product'">Add/Edit Product</h2>
         <hr>
 
+        <!-- START: Error Message Display -->
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <strong th:text="${error}"></strong>
+        </div>
+        <!-- END: Error Message Display -->
+
         <form th:action="@{/admin/products/save}" th:object="${product}" method="post" class="needs-validation"
             novalidate>
             <input type="hidden" th:field="*{productId}" />
