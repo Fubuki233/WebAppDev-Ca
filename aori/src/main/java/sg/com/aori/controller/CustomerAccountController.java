@@ -138,7 +138,7 @@ public class CustomerAccountController {
 	 */
 
 	@PutMapping("/profile/edit")
-	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Map<String, Object> profileData,
+	public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody Customer profileData,
 			HttpSession session) {
 		System.out.println("[CustomerAccountController] Data received from frontend: " + profileData.toString());
 		Map<String, Object> response = new HashMap<>();
@@ -149,90 +149,12 @@ public class CustomerAccountController {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 			}
 
-			// Get existing customer data
-			Optional<Customer> optCustomer = manageCustAccount.getCustomerById(customerId);
-			if (!optCustomer.isPresent()) {
-				response.put("success", false);
-				response.put("message", "Customer not found.");
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-			}
-
-			Customer existingCustomer = optCustomer.get();
-
-			// Update only the fields that are provided in the request
-			if (profileData.containsKey("firstName")) {
-				String firstName = (String) profileData.get("firstName");
-				if (firstName == null || firstName.trim().isEmpty()) {
-					response.put("success", false);
-					response.put("message", "First name is required");
-					return ResponseEntity.badRequest().body(response);
-				}
-				if (!firstName.matches("^[A-Za-z]+$")) {
-					response.put("success", false);
-					response.put("message", "First name must contain alphabets only");
-					return ResponseEntity.badRequest().body(response);
-				}
-				existingCustomer.setFirstName(firstName);
-			}
-			if (profileData.containsKey("lastName")) {
-				String lastName = (String) profileData.get("lastName");
-				if (lastName == null || lastName.trim().isEmpty()) {
-					response.put("success", false);
-					response.put("message", "Last name is required");
-					return ResponseEntity.badRequest().body(response);
-				}
-				if (!lastName.matches("^[A-Za-z]+$")) {
-					response.put("success", false);
-					response.put("message", "Last name must contain alphabets only");
-					return ResponseEntity.badRequest().body(response);
-				}
-				existingCustomer.setLastName(lastName);
-			}
-			if (profileData.containsKey("phone")) {
-				String phone = (String) profileData.get("phone");
-				if (phone != null && !phone.trim().isEmpty()) {
-					// Validate phone number format (E.164 format - must start with +)
-					// Database check constraint requires phone numbers to start with +
-					if (!phone.matches("^\\+[1-9]\\d{1,14}$")) {
-						response.put("success", false);
-						response.put("message",
-								"Phone number must start with + and follow E.164 format (e.g., +6512345678)");
-						return ResponseEntity.badRequest().body(response);
-					}
-					existingCustomer.setPhoneNumber(phone);
-				} else {
-					existingCustomer.setPhoneNumber(null);
-				}
-			}
-			if (profileData.containsKey("dateOfBirth")) {
-				String dob = (String) profileData.get("dateOfBirth");
-				if (dob != null && !dob.trim().isEmpty()) {
-					existingCustomer.setDateOfBirth(java.time.LocalDate.parse(dob));
-				} else {
-					existingCustomer.setDateOfBirth(null);
-				}
-			}
-			if (profileData.containsKey("gender")) {
-				String genderStr = (String) profileData.get("gender");
-				if (genderStr != null && !genderStr.trim().isEmpty()) {
-					try {
-						existingCustomer.setGender(Customer.Gender.valueOf(genderStr));
-					} catch (IllegalArgumentException e) {
-						// Invalid gender value, set to null
-						existingCustomer.setGender(null);
-					}
-				} else {
-					existingCustomer.setGender(null);
-				}
-			}
-
-			Customer updatedCustomer = manageCustAccount.updateCustProfile(customerId, existingCustomer);
+			Customer updatedCustomer = manageCustAccount.updateCustProfile(customerId, profileData);
 			response.put("success", true);
 			response.put("profile", updatedCustomer);
 			return ResponseEntity.ok(response);
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			response.put("success", false);
 			response.put("message", "Unable to update profile due to error: " + e.getMessage());
 			return ResponseEntity.badRequest().body(response);

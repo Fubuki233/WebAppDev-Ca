@@ -3,7 +3,7 @@
  * 
  * @author Yunhe
  * @date 2025-10-09
- * @version 2.0
+ * @version 2.1 - Added review functionality
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -44,6 +44,15 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    // Review states - inline editing
+    const [reviewingItemId, setReviewingItemId] = useState(null); // orderItemId being reviewed
+    const [reviewForm, setReviewForm] = useState({
+        rating: 0,
+        title: '',
+        comment: ''
+    });
+    const [submittingReview, setSubmittingReview] = useState(false);
 
     // Load data on mount
     useEffect(() => {
@@ -210,6 +219,66 @@ const ProfilePage = () => {
         // Clear messages when user types
         if (error) setError('');
         if (success) setSuccess('');
+    };
+
+    const handleStartReview = (orderItemId) => {
+        setReviewingItemId(orderItemId);
+        setReviewForm({
+            rating: 0,
+            title: '',
+            comment: ''
+        });
+    };
+
+    const handleCancelReview = () => {
+        setReviewingItemId(null);
+        setReviewForm({
+            rating: 0,
+            title: '',
+            comment: ''
+        });
+    };
+
+    const handleReviewFormChange = (field, value) => {
+        setReviewForm(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSubmitReview = async (orderItem, orderId) => {
+        if (reviewForm.rating === 0) {
+            alert('Please select a rating');
+            return;
+        }
+
+        setSubmittingReview(true);
+        try {
+            const { submitReview } = await import('../api/reviewApi');
+            const result = await submitReview(
+                profile.customerId,
+                orderId,
+                orderItem.orderItemId,
+                reviewForm
+            );
+
+            if (result.success) {
+                alert('Review submitted successfully!');
+                setReviewingItemId(null);
+                setReviewForm({ rating: 0, title: '', comment: '' });
+                // Reload order details to show updated review status
+                if (selectedOrder) {
+                    loadOrderDetails(selectedOrder);
+                }
+            } else {
+                alert('Failed to submit review: ' + (result.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            alert('Error submitting review: ' + error.message);
+        } finally {
+            setSubmittingReview(false);
+        }
     };
 
     const handleEdit = () => {
@@ -480,28 +549,103 @@ const ProfilePage = () => {
                                                 <div className="order-items-list">
                                                     {orderDetails.orderItems?.map((item, index) => {
                                                         const unitPrice = item.priceAtPurchase || item.unitPrice || 0;
+                                                        const isDelivered = orderDetails.order?.orderStatus === 'Delivered';
                                                         return (
-                                                            <div key={index} className="order-item-detail">
-                                                                <div className="item-image">
-                                                                    <img
-                                                                        src={item.product?.image || item.image || 'https://via.placeholder.com/80?text=No+Image'}
-                                                                        alt={item.product?.productName || item.productName || 'Product'}
-                                                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/80?text=No+Image'; }}
-                                                                    />
-                                                                </div>
-                                                                <div className="item-details">
-                                                                    <div className="item-name">
-                                                                        {item.product?.productName || item.productName || 'Unknown Product'}
+                                                            <React.Fragment key={index}>
+                                                                <div className="order-item-detail">
+                                                                    <div className="item-image">
+                                                                        <img
+                                                                            src={item.product?.image || item.image || 'https://via.placeholder.com/80?text=No+Image'}
+                                                                            alt={item.product?.productName || item.productName || 'Product'}
+                                                                            onError={(e) => { e.target.src = 'https://via.placeholder.com/80?text=No+Image'; }}
+                                                                        />
                                                                     </div>
-                                                                    <div className="item-info">
-                                                                        <span className="item-quantity">Qty: {item.quantity}</span>
-                                                                        <span className="item-price">${unitPrice.toFixed(2)} each</span>
+                                                                    <div className="item-details">
+                                                                        <div className="item-name">
+                                                                            {item.product?.productName || item.productName || 'Unknown Product'}
+                                                                        </div>
+                                                                        <div className="item-info">
+                                                                            <span className="item-quantity">Qty: {item.quantity}</span>
+                                                                            <span className="item-price">${unitPrice.toFixed(2)} each</span>
+                                                                        </div>
+                                                                        {isDelivered && reviewingItemId !== item.orderItemId && (
+                                                                            <button
+                                                                                className="review-item-button"
+                                                                                onClick={() => handleStartReview(item.orderItemId)}
+                                                                            >
+                                                                                ✍️ Write Review
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="item-subtotal">
+                                                                        ${(unitPrice * item.quantity).toFixed(2)}
                                                                     </div>
                                                                 </div>
-                                                                <div className="item-subtotal">
-                                                                    ${(unitPrice * item.quantity).toFixed(2)}
-                                                                </div>
-                                                            </div>
+
+                                                                {/* Inline Review Form */}
+                                                                {reviewingItemId === item.orderItemId && (
+                                                                    <div className="inline-review-form">
+                                                                        <h4>Write Your Review</h4>
+
+                                                                        <div className="review-form-group">
+                                                                            <label>Rating *</label>
+                                                                            <div className="star-rating-input">
+                                                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                                                    <button
+                                                                                        key={star}
+                                                                                        type="button"
+                                                                                        className={`star-btn ${reviewForm.rating >= star ? 'filled' : ''}`}
+                                                                                        onClick={() => handleReviewFormChange('rating', star)}
+                                                                                    >
+                                                                                        ★
+                                                                                    </button>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="review-form-group">
+                                                                            <label>Title (optional)</label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={reviewForm.title}
+                                                                                onChange={(e) => handleReviewFormChange('title', e.target.value)}
+                                                                                maxLength={100}
+                                                                                placeholder="Summarize your experience"
+                                                                            />
+                                                                        </div>
+
+                                                                        <div className="review-form-group">
+                                                                            <label>Comment (optional)</label>
+                                                                            <textarea
+                                                                                value={reviewForm.comment}
+                                                                                onChange={(e) => handleReviewFormChange('comment', e.target.value)}
+                                                                                maxLength={1000}
+                                                                                rows={4}
+                                                                                placeholder="Share your thoughts about this product..."
+                                                                            />
+                                                                        </div>
+
+                                                                        <div className="review-form-actions">
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn-cancel-review"
+                                                                                onClick={handleCancelReview}
+                                                                                disabled={submittingReview}
+                                                                            >
+                                                                                Cancel
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn-submit-review"
+                                                                                onClick={() => handleSubmitReview(item, orderDetails.order.orderId)}
+                                                                                disabled={submittingReview || reviewForm.rating === 0}
+                                                                            >
+                                                                                {submittingReview ? 'Submitting...' : 'Submit Review'}
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </React.Fragment>
                                                         );
                                                     })}
                                                 </div>

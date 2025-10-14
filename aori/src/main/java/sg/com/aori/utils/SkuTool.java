@@ -39,7 +39,13 @@ public class SkuTool {
         if (parts.length < 3) {
             return null;
         }
-        String productId = productService.findProductIdByProductCode(parts[0]);
+        String productId = "";
+        if (parts[0].length() == 36) {
+            productId = parts[0];
+
+        } else {
+            productId = productService.findProductIdByProductCode(parts[0]);
+        }
         JSONObject json = new JSONObject();
         json.put("productId", productId);
         json.put("colour", parts[1]);
@@ -52,16 +58,32 @@ public class SkuTool {
         if (parts.length < 3) {
             return null;
         }
-        // parts[0] could be either productCode or productId (UUID)
-        // First try as productCode
-        String productId = productService.findProductIdByProductCode(parts[0]);
-
-        // If not found and parts[0] looks like a UUID, use it directly as productId
-        if (productId == null
-                && parts[0].matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")) {
+        String productId = "";
+        if (parts[0].length() == 36) {
             productId = parts[0];
+
+        } else {
+            productId = productService.findProductIdByProductCode(parts[0]);
         }
 
         return productId;
+    }
+
+    public static String convertUUIDSkutoProductCodeSku(String sku, CRUDProductService productService) {
+        String[] parts = sku.split("&");
+        if (parts.length < 3) {
+            return null;
+        }
+        String productId;
+        if (parts[0].length() == 36) {
+
+            System.out.println("[SkuTool] Converting UUID SKU to ProductCode SKU: " + sku);
+            productId = parts[0];
+            String productCode = productService.getProductById(productId).get().getProductCode();
+            return productCode + "&" + parts[1] + "&" + parts[2];
+
+        }
+        return sku;
+
     }
 }

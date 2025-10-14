@@ -136,6 +136,13 @@ const FavouritesPage = () => {
                                         </h3>
                                         <p className="favourite-category">Cotton T-Shirt</p>
 
+                                        {item.size && (
+                                            <div className="favourite-variant">
+                                                <span className="variant-label">Size:</span>
+                                                <span className="variant-value">{item.size}</span>
+                                            </div>
+                                        )}
+
                                         {item.color && (
                                             <div className="favourite-variant">
                                                 <span className="variant-label">Color:</span>

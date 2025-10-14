@@ -17,7 +17,6 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 
-
 public interface IProduct {
     Product createProduct(Product product);
 
@@ -49,4 +48,5 @@ public interface IProduct {
     void saveProduct(Product product);
 
     String findProductIdByProductCode(@Param("productCode") String productCode);
+
 }

@@ -201,7 +201,7 @@ const ProductFilters = ({ onFilterChange, categories, activeCategory, availableC
                                 checked={showOutOfStock}
                                 onChange={() => handleAvailabilityChange('outOfStock')}
                             />
-                            <span>Out Of Stack</span>
+                            <span>Out Of Stock</span>
                         </label>
                     </div>
                 )}

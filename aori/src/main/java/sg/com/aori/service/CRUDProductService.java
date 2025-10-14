@@ -30,6 +30,10 @@ import sg.com.aori.model.Product;
  * @date 2025-10-10 (v2.0)
  * @version 2.0 - Refactored to use OrderItemRepository to prevent deletion of
  *          products that have orders.
+ * 
+ * @author Yunhe
+ * @date 2025-10-13 (v2.1)
+ * @version 2.1 - Added recalculateAverageRating method
  */
 
 @Service
@@ -39,6 +43,9 @@ public class CRUDProductService implements IProduct {
 
     @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private ProductReviewService productReviewService;
 
     @Override
     public Product createProduct(Product product) {
@@ -160,7 +167,7 @@ public class CRUDProductService implements IProduct {
     @Override
     public Page<Product> findPaginated(int page, int size, String keyword, String category, String season,
             String collection) {
-        
+
         // 1. Create a Pageable object with default sorting by product name.
         Pageable pageable = PageRequest.of(page, size, Sort.by("productName").ascending());
 
@@ -172,8 +179,10 @@ public class CRUDProductService implements IProduct {
 
             // Keyword filter (searches product name and code)
             if (StringUtils.hasText(keyword)) {
-                Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%");
-                Predicate codeLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("productCode")), "%" + keyword.toLowerCase() + "%");
+                Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")),
+                        "%" + keyword.toLowerCase() + "%");
+                Predicate codeLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("productCode")),
+                        "%" + keyword.toLowerCase() + "%");
                 predicates.add(criteriaBuilder.or(nameLike, codeLike));
             }
 
@@ -203,14 +212,16 @@ public class CRUDProductService implements IProduct {
         // 4. Execute the query using the repository.
         return productRepository.findAll(spec, pageable);
     }
-    
+
     /*
      * @author Jiang
+     * 
      * @date 10-13
      */
     @Override
-    public String findProductIdByProductCode(String productCode){
+    public String findProductIdByProductCode(String productCode) {
         String productId = productRepository.findProductIdByProductCode(productCode);
         return productId;
     }
+
 }

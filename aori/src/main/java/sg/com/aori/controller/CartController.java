@@ -134,7 +134,8 @@ public class CartController {
         try {
             // ***** Syntax for tapping onto 'utils'
             // String customerId = getSession.getCustomerId(session);
-            String customerId = (String) session.getAttribute("customerId");
+            // Changed from "customerId" to "id" to match AuthController's session attribute
+            String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
                 // ***** Temporary use an existing id, use the annotated 3 lines in real app
                 // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
@@ -178,7 +179,8 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> checkout(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = (String) session.getAttribute("customerId");
+            // Changed from "customerId" to "id" to match AuthController's session attribute
+            String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
                 // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 response.put("success", false);
@@ -225,7 +227,8 @@ public class CartController {
             HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            String customerId = (String) session.getAttribute("customerId");
+            // Changed from "customerId" to "id" to match AuthController's session attribute
+            String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
                 // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 response.put("success", false);
@@ -246,10 +249,12 @@ public class CartController {
                 return ResponseEntity.badRequest().body(response);
             }
             sku = (String) skuObj; // Or use the pid
-            System.out.println("----------sku: " + sku);
+            sku = SkuTool.convertUUIDSkutoProductCodeSku(sku, productService);
+            System.out.println("[CartController] sku: " + sku);
             String productId = SkuTool.getProductIdBySku(sku, productService);
-            System.out.println("----------productId: " + productId);
+            System.out.println("[CartController] productId: " + productId);
             int stock = skuService.getQuantity(sku);
+            System.out.println("[CartController] stock: " + stock);
             if (stock < 1) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
@@ -330,7 +335,8 @@ public class CartController {
         Map<String, Object> response = new HashMap<>();
         try {
             // ***** To reference session and get customerId
-            String customerId = (String) session.getAttribute("customerId");
+            // Changed from "customerId" to "id" to match AuthController's session attribute
+            String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
                 // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 response.put("success", false);

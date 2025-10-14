@@ -8,15 +8,10 @@
  *  @author Sun Rui
  * @date 2025-10-13
  * @version 1.2 -update the checkout page UI and logic
- * 
- * @author Yunhe
- * @date 2025-10-13
- * @version 1.3 - Added SKU checkout integration
  */
 import React, { useState, useEffect } from 'react';
 import { getCart, getCartTotal, checkout } from '../api/cartApi';
 import { createOrderFromCart } from '../api/orderApi';
-import { checkoutSku } from '../api/skuApi';
 import '../styles/CheckoutPage.css';
 
 const CheckoutPage = () => {
@@ -24,6 +19,8 @@ const CheckoutPage = () => {
     const [cart, setCart] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [subtotal, setSubtotal] = useState(0);
+    const [orderId, setOrderId] = useState(null);
+    const [error, setError] = useState(null);
     const [formData, setFormData] = useState({
         // Contact Info
         email: '',
@@ -82,66 +79,22 @@ const CheckoutPage = () => {
     };
 
     const handleSubmitOrder = async () => {
-        setIsSubmitting(true);
-
         try {
-            console.log('[CheckoutPage] Starting checkout process...');
-            console.log('[CheckoutPage] Cart items:', cart);
-
-            // Step 1: Checkout SKU for each cart item
-            const skuCheckoutPromises = cart.map(async (item) => {
-                try {
-                    // Extract SKU info from cart item
-                    const productId = item.productId;
-                    const colour = item.color || item.colours?.[0] || item.product?.colors?.[0] || 'default';
-                    const size = item.size || item.sizes?.[0] || item.product?.sizes?.[0] || 'M';
-
-                    console.log(`[CheckoutPage] Checking out SKU for product ${productId}:`, { colour, size, quantity: item.quantity });
-
-                    // Checkout each quantity
-                    for (let i = 0; i < item.quantity; i++) {
-                        const result = await checkoutSku(productId, colour, size);
-                        if (result === -1) {
-                            throw new Error(`Insufficient stock for ${item.name || item.productName} (${colour}, ${size})`);
-                        }
-                        console.log(`[CheckoutPage] SKU checkout ${i + 1}/${item.quantity} successful. Remaining: ${result}`);
-                    }
-
-                    return { success: true, item };
-                } catch (error) {
-                    console.error(`[CheckoutPage] SKU checkout failed for item:`, item, error);
-                    return { success: false, item, error: error.message };
-                }
-            });
-
-            const skuResults = await Promise.all(skuCheckoutPromises);
-            const failedItems = skuResults.filter(r => !r.success);
-
-            if (failedItems.length > 0) {
-                const errorMessage = failedItems.map(f => f.error).join('\n');
-                alert(`Checkout failed:\n${errorMessage}`);
-                setIsSubmitting(false);
-                return;
-            }
-
-            console.log('[CheckoutPage] All SKU checkouts successful');
-
-            // Step 2: Create order from cart
+            setIsSubmitting(true);
+            setError(null);
             const result = await checkout();
-
-            if (result && result.orderId) {
-                alert(`✓ Order placed successfully!\nOrder ID: ${result.orderId}`);
-                console.log('[CheckoutPage] Order created:', result);
-
-                // Redirect to home or order confirmation
-                window.location.hash = '#products';
+            if (result.success) {
+                setOrderId(result.orderId);
+                alert(`Order created successfully!\nOrder ID: ${result.orderId}`);
+                // Clear cart and redirect to orders page
+                window.location.hash = '#profile';
             } else {
-                throw new Error('Failed to create order');
+                setError(result.message || 'Checkout failed');
+                alert('Checkout failed: ' + (result.message || 'Unknown error'));
             }
-
-        } catch (error) {
-            console.error('[CheckoutPage] Checkout error:', error);
-            alert(`Checkout failed: ${error.message}`);
+        } catch (err) {
+            setError(err.message);
+            alert('Error during checkout: ' + err.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -176,6 +129,19 @@ const CheckoutPage = () => {
                 <div className="checkout-content">
                     <div className="checkout-form-section">
                         <h1 className="checkout-title">CHECKOUT</h1>
+
+                        {error && (
+                            <div className="checkout-error" style={{
+                                padding: '12px',
+                                marginBottom: '20px',
+                                backgroundColor: '#fee',
+                                border: '1px solid #fcc',
+                                borderRadius: '4px',
+                                color: '#c33'
+                            }}>
+                                {error}
+                            </div>
+                        )}
 
                         <div className="step-navigation">
                             {steps.map((step, index) => (

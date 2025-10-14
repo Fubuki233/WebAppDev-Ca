@@ -71,9 +71,7 @@ export const getCart = async (customerId, useMock = false, stayAsGuest = false) 
         return [];
     } catch (error) {
         console.error('Error fetching cart from API:', error);
-        console.error('Falling back to localStorage');
-        const cart = localStorage.getItem(CART_STORAGE_KEY);
-        return cart ? JSON.parse(cart) : [];
+        return [];
     }
 };
 
@@ -162,6 +160,37 @@ const transformCartItem = (backendItem) => {
 };
 
 export const addToCart = async (item, useMock = false) => {
+    if (useMock) {
+        try {
+            // Pass null as customerId and true as useMock parameter
+            const cart = await getCart(null, true);
+
+            const existingIndex = cart.findIndex(
+                cartItem =>
+                    cartItem.productId === item.productId &&
+                    cartItem.color === item.color &&
+                    cartItem.size === item.size &&
+                    cartItem.productCode === item.productCode
+            );
+
+            if (existingIndex > -1) {
+                cart[existingIndex].quantity += item.quantity || 1;
+            } else {
+                cart.push({
+                    ...item,
+                    quantity: item.quantity || 1,
+                    addedAt: new Date().toISOString(),
+                });
+            }
+
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+            return { success: true, cart };
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
     try {
         const custId = await getUserUuid();
         if (!custId) {
@@ -169,9 +198,15 @@ export const addToCart = async (item, useMock = false) => {
             return addToCart(item, true);
         }
 
+        // Auto-generate productCode if not provided
+        const productCode = item.productCode || item.productId || 'UNKNOWN';
+        const color = item.color ? item.color.replace('#', '') : '';
+        const size = item.size || '';
+
         const cartItem = {
-            sku: item.sku || `${item.productCode}&${item.color}&${item.size}`,
+            productId: item.productId,
             quantity: item.quantity || 1,
+            sku: `${productCode}&${color}&${size}`,
         };
 
         console.log('Adding to cart:', cartItem);
@@ -204,7 +239,7 @@ export const addToCart = async (item, useMock = false) => {
 export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_MOCK) => {
     if (useMock) {
         try {
-            const cart = await getCart(true);
+            const cart = await getCart(null, true);
             if (cart[index]) {
                 cart[index].quantity = quantity;
                 localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
@@ -218,7 +253,7 @@ export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_M
     }
 
     try {
-        const cart = await getCart(false);
+        const cart = await getCart(null, false);
         const item = cart[index];
         if (!item) {
             return { success: false, error: 'Item not found' };
@@ -250,7 +285,7 @@ export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_M
 export const removeFromCart = async (index, useMock = API_CONFIG.USE_MOCK) => {
     if (useMock) {
         try {
-            const cart = await getCart(true);
+            const cart = await getCart(null, true);
             cart.splice(index, 1);
             localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
             return { success: true, cart };
@@ -261,7 +296,7 @@ export const removeFromCart = async (index, useMock = API_CONFIG.USE_MOCK) => {
     }
 
     try {
-        const cart = await getCart(false);
+        const cart = await getCart(null, false);
         const item = cart[index];
         if (!item) {
             return { success: false, error: 'Item not found' };
@@ -323,12 +358,12 @@ export const clearCart = async (useMock = API_CONFIG.USE_MOCK) => {
 };
 
 export const getCartCount = async (useMock = API_CONFIG.USE_MOCK) => {
-    const cart = await getCart(useMock);
+    const cart = await getCart(null, useMock);
     return cart.reduce((total, item) => total + item.quantity, 0);
 };
 
 export const getCartTotal = async (useMock = API_CONFIG.USE_MOCK) => {
-    const cart = await getCart(useMock);
+    const cart = await getCart(null, useMock);
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
 };
 
@@ -338,7 +373,7 @@ export const syncCartWithServer = async (useMock = API_CONFIG.USE_MOCK) => {
     }
 
     try {
-        const cart = await getCart(true);
+        const cart = await getCart(null, true);
         const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}`, {
             method: 'POST',
             credentials: 'include',

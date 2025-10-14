@@ -12,16 +12,21 @@ package sg.com.aori.controller;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import sg.com.aori.interfaces.IProductReview;
+import sg.com.aori.model.Product;
 import sg.com.aori.model.ProductReview;
 import sg.com.aori.model.ProductReview.ReviewStatus;
 import sg.com.aori.repository.ProductReviewRepository;
+import sg.com.aori.service.CRUDProductService;
+import sg.com.aori.service.ProductReviewService;
 
 @RestController
 @RequestMapping("/api")
@@ -29,9 +34,13 @@ public class ProductReviewController {
 
     private final IProductReview productReviewService;
     private final ProductReviewRepository productReviewRepository;
+    @Autowired
+    private CRUDProductService productservice;
+    @Autowired
+    private ProductReviewService productReviewService_;
 
     public ProductReviewController(IProductReview productReviewService,
-                                   ProductReviewRepository productReviewRepository) {
+            ProductReviewRepository productReviewRepository) {
         this.productReviewService = productReviewService;
         this.productReviewRepository = productReviewRepository;
     }
@@ -40,33 +49,45 @@ public class ProductReviewController {
     // CUSTOMER SECTION (Authenticated endpoints)
     // =======================================================================
 
-    /** Create or update a review for the order item (only if the order is Delivered). */
-    @PostMapping("/customers/{customerId}/orders/{orderId}/items/{orderItemId}/review")
+    /**
+     * Create or update a review for the order item (only if the order is
+     * Delivered).
+     */
+    @PostMapping("review")
     @ResponseStatus(HttpStatus.OK)
     public Map<String, Object> createOrUpdateReview(
-            @PathVariable String customerId,
-            @PathVariable String orderId,
-            @PathVariable String orderItemId,
-            @RequestBody Map<String, Object> body
-    ) {
-        Integer rating   = body.get("rating")    == null ? null : ((Number) body.get("rating")).intValue();
-        String  title    = body.get("title")     == null ? null : body.get("title").toString();
-        String  comment  = body.get("comment")   == null ? null : body.get("comment").toString();
-        String  images   = body.get("imagesJson")== null ? null : body.get("imagesJson").toString();
+            @RequestParam String customerId,
+            @RequestParam String orderId,
+            @RequestParam String productId,
+            @RequestBody Map<String, Object> body) {
+        Integer rating = body.get("rating") == null ? null : ((Number) body.get("rating")).intValue();
+        String title = body.get("title") == null ? null : body.get("title").toString();
+        String comment = body.get("comment") == null ? null : body.get("comment").toString();
+        String images = body.get("imagesJson") == null ? null : body.get("imagesJson").toString();
 
-        return productReviewService.createOrUpdateReview(
-                customerId, orderId, orderItemId, rating, title, comment, images, null
-        );
+        Optional<Product> product = productservice.getProductById(productId);
+        if (!product.isPresent()) {
+            throw new RuntimeException("Product not found with id: " + productId);
+        }
+
+        product.get().setRating((float) productReviewService_.getAverageRating(productId));
+        productservice.saveProduct(product.get());
+        System.out.println("[ProductReviewController] Product rating updated to: " + product.get().getRating());
+
+        return productReviewService.createOrUpdateReview(customerId, orderId, productId, rating, title, comment,
+                images, null);
+
     }
 
-    /** Get the caller’s own review for the product tied to this order item (if any). */
-    @GetMapping("/customers/{customerId}/orders/{orderId}/items/{orderItemId}/review")
+    /**
+     * Get the caller’s own review for the product tied to this order item (if any).
+     */
+    @GetMapping("review")
     public Map<String, Object> getOwnReview(
-            @PathVariable String customerId,
-            @PathVariable String orderId,
-            @PathVariable String orderItemId
-    ) {
-        return productReviewService.getOwnReviewForOrderItem(customerId, orderId, orderItemId);
+            @RequestParam String customerId,
+            @RequestParam String orderId,
+            @RequestParam String productId) {
+        return productReviewService.getOwnReviewForOrderItem(customerId, orderId, productId);
     }
 
     // =======================================================================
@@ -79,11 +100,9 @@ public class ProductReviewController {
     public Page<ProductReview> listApprovedReviews(
             @PathVariable String productId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         return productReviewRepository.findByProductIdAndStatusOrderByCreatedAtDesc(
-                productId, ReviewStatus.Approved, PageRequest.of(page, size)
-        );
+                productId, ReviewStatus.Approved, PageRequest.of(page, size));
     }
 
     /** Get summary statistics for approved product reviews. */

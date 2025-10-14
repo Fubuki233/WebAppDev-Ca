@@ -33,6 +33,7 @@ public class SkuController {
     public String setSku(@RequestParam String id, @RequestParam String colour, @RequestParam String size,
             @RequestParam int quantity) {
         String sku = SkuTool.createSku(id, colour, size, productService);
+        System.out.println("[SkuController] Setting SKU: " + sku + " with quantity: " + quantity);
 
         return skuService.createSku(sku, quantity);
     }
@@ -43,7 +44,7 @@ public class SkuController {
             return -1;
         }
         String sku = SkuTool.createSku(id, colour, size, productService);
-        System.out.println("Getting quantity for SKU: " + sku);
+        System.out.println("[SkuController] Getting quantity for SKU: " + sku);
         return skuService.getQuantity(sku);
     }
 
@@ -53,6 +54,7 @@ public class SkuController {
             return -1;
         }
         String sku = SkuTool.createSku(id, colour, size, productService);
+        System.out.println("[SkuController] Checking out SKU: " + sku);
 
         return skuService.checkoutSku(sku);
     }
