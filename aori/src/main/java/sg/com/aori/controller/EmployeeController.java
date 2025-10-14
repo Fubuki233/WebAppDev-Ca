@@ -118,7 +118,7 @@ public class EmployeeController {
 
     // --- RENDER FORM TO EDIT EMPLOYEE (Update - GET) ---
     // GET /admin/employees/{id}/edit
-    @GetMapping("/{id}/edit")
+    @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model) {
         // DEBUGGING: Check the ID from the URL path
         System.out.println("DEBUG: showEditForm() called. Employee ID from path: " + id);
