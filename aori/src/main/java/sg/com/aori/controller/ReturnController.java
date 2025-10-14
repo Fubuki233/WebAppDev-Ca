@@ -5,9 +5,19 @@ import sg.com.aori.service.ReturnService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 
+
+/*
+ * * @author Simon Lei
+ * * @date 2025-10-14
+ * * @version 1.1
+ * Update on the ReturnController about validations and error handling.
+ */
 @RestController
 @RequestMapping("/api/returns")
+@Validated
 public class ReturnController {
 
     private final ReturnService returnService;
@@ -19,14 +29,13 @@ public class ReturnController {
     // Step 3 & 4: Receives the Returns entity directly from the JSON body.
     @PostMapping("/request")
     public ResponseEntity<String> initiateReturn(
-            @RequestBody Returns returns) { // 👈 Accepting the Entity directly
+            @RequestBody @Validated(Returns.OnCreate.class) @Valid Returns returns, // 👈 Accepting the Entity directly
+            @RequestHeader("X-User-Id") String userId) { // Assuming user ID is passed in header for simplicity
 
         try {
             // NOTE: We rely on the request JSON body to contain 'orderId', 'productId', and
             // 'requestReason'.
-
-            String userId = "current_logged_in_user_id";
-
+            
             // Delegate the entire entity to the service
             String confirmationMessage = returnService.processReturnRequest(returns, userId);
 

@@ -26,6 +26,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 
 @Service
 @Validated
@@ -46,7 +47,7 @@ public class ReturnService implements IReturn {
      * The Returns entity must contain a valid orderItemId and reason.
      */
     @Transactional
-    public String processReturnRequest(Returns returns, String userId) {
+    public String processReturnRequest(@Valid Returns returns, String userId) {
 
         // --- 1. Find OrderItem and Check Eligibility ---
 
