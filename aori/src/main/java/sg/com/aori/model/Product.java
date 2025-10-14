@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Entity representing a product in the system.
@@ -328,33 +327,37 @@ public class Product {
 				+ ", tags=" + tags + ", category=" + category + "]";
 	}
 
-    // Utility method to convert colors JSON string to List of Maps
+    // UTILITY METHODS TO DEAL WITH JSON FIELDS
+
+    // Utility method to convert colors JSON string to a List of Strings
     @Transient
     @JsonIgnore
-    public List<Map<String, String>> getColorsAsList() {
-    if (this.colors == null || this.colors.isBlank()) {
-        return Collections.emptyList();
-    }
-    try {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(this.colors, new TypeReference<List<Map<String, String>>>() {});
-    } catch (Exception e) {
-        return Collections.emptyList(); // for exception handling
-    }
+    public List<String> getColorsAsList() {
+        if (this.colors == null || this.colors.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            // Parse into a simple List of Strings
+            return mapper.readValue(this.colors, new TypeReference<List<String>>() {});
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 
-    // Utility method to convert size JSON string to List of Maps
+    // Utility method to convert size JSON string to a List of Strings
     @Transient
     @JsonIgnore
-    public List<Map<String, Object>> getSizesAsList() {
+    public List<String> getSizesAsList() {
         if (this.size == null || this.size.isBlank()) {
             return Collections.emptyList();
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(this.size, new TypeReference<List<Map<String, Object>>>() {});
+            // Parse into a simple List of Strings
+            return mapper.readValue(this.size, new TypeReference<List<String>>() {});
         } catch (Exception e) {
-            return Collections.emptyList(); // for exception handling
+            return Collections.emptyList();
         }
     }
 
