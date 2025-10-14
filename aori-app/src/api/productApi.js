@@ -8,6 +8,10 @@
  * @author Sun Rui
  * @date 2025-10-14
  * @version 1.1- The results of the front-end self-paging are uniformly intercepted by page/limit and returned as total and totalPages.
+ * 
+ * * @author Sun Rui
+ * @date 2025-10-14
+ * @version 1.2- Added fuzzy matching to filters.search to display matching items
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 
@@ -115,6 +119,23 @@ const applyClientSideFilters = (products, filters) => {
     // Rating filter (show products with rating >= selected rating)
     if (filters.rating && filters.rating > 0) {
         filtered = filtered.filter(p => p.rating && p.rating >= filters.rating);
+    }
+
+    // Search filter (case-insensitive match on key text fields)
+    if (filters.search && filters.search.trim().length > 0) {
+        const search = filters.search.trim().toLowerCase();
+        filtered = filtered.filter((p) => {
+            const name = (p.name || p.productName || '').toLowerCase();
+            const type = (p.type || '').toLowerCase();
+            const code = (p.productCode || '').toLowerCase();
+            const category = (p.categoryName || p.category || '').toLowerCase();
+            return (
+                name.includes(search) ||
+                type.includes(search) ||
+                code.includes(search) ||
+                category.includes(search)
+            );
+        });
     }
 
     return filtered;
