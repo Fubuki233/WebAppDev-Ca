@@ -1,17 +1,13 @@
 package sg.com.aori.controller;
 
-import java.math.BigDecimal;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import jakarta.validation.constraints.Size;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import lombok.RequiredArgsConstructor;
-import sg.com.aori.service.ProductDetailService;
-import sg.com.aori.service.ProductDetailVM;
+import sg.com.aori.model.Product;
 import sg.com.aori.service.ProductSearchService;
-import sg.com.aori.service.ProductSummaryVM;
+
+import java.util.List;
+
 
 /**
  * Controller for product search and detail endpoints.
@@ -23,20 +19,20 @@ import sg.com.aori.service.ProductSummaryVM;
 
 @RestController
 @RequestMapping("/api/products")
-@RequiredArgsConstructor
+@Validated
 public class ProductSearchController {
 
     private final ProductSearchService productSearchService;
 
-    @GetMapping("/search")
-    public Page<ProductSummaryVM> search(
-            @RequestParam(required = false) String q,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) Boolean inStock,
-            @PageableDefault(size = 12, sort = "createdAt") Pageable pageable) {
-        return productSearchService.search(q, category, minPrice, maxPrice, inStock, pageable);
+    public ProductSearchController(ProductSearchService productSearchService) {
+        this.productSearchService = productSearchService;
     }
 
+    @GetMapping("/search")
+    public List<Product> search(
+            @RequestParam(name = "query", required = false)
+            @Size(max = 120, message = "query too long") String query
+    ) {
+        return productSearchService.search(query);
+    }
 }
