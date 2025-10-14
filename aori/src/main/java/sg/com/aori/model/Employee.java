@@ -57,14 +57,14 @@ public class Employee {
 
     // first_name VARCHAR(50) NOT NULL,
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z]+$", message = "First name must contain alphabets only")
+    @Pattern(regexp = "^[A-Za-z\\s-']+$", message = "First name must contain alphabets only")
     @Length(max = 50)
     @Column(name = "first_name", length = 50, nullable = false)
     private String firstName;
 
     // last_name VARCHAR(50) NOT NULL,
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z]+$", message = "Last name must contain alphabets only")
+    @Pattern(regexp = "^[A-Za-z\\s-']+$", message = "Last name must contain alphabets only")
     @Length(max = 50)
     @Column(name = "last_name", length = 50, nullable = false)
     private String lastName;
