@@ -26,7 +26,7 @@
                         <dd class="col-sm-9" th:text="${product.productCode}"></dd>
 
                         <dt class="col-sm-3">Category</dt>
-                        <dd class="col-sm-9" th:text="${product.category.categoryName}"></dd>
+                        <dd class="col-sm-9" th:text="${product.category != null ? product.category.categoryName : 'N/A'}"></dd>
 
                         <dt class="col-sm-3">Collection</dt>
                         <dd class="col-sm-9" th:text="${product.collection}"></dd>

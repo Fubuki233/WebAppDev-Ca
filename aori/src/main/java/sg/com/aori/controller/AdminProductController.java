@@ -113,11 +113,19 @@ public class AdminProductController {
 	@PostMapping("/save")
 	public String saveProduct(@ModelAttribute("product") Product product,
 			@RequestParam("sizeJson") String sizeJson,
-			@RequestParam("colorJson") String colorJson,
+			@RequestParam("colorJson") String colorJson, 
+			@RequestParam(name = "category.categoryId", required = false) String categoryId,
 			RedirectAttributes redirectAttributes) {
 
 		product.setSize(sizeJson);
 		product.setColors(colorJson);
+
+		// --- START: Fix for saving category ---
+		// Manually set the categoryId from the form submission.
+		// This is crucial because Spring's @ModelAttribute data binding doesn't always
+		// handle nested properties like `category.categoryId` correctly on its own.
+		product.setCategoryId(categoryId);
+		// --- END: Fix for saving category ---
 
 		// Use ServiceImpl to create or update the product
 		productService.saveProduct(product);
