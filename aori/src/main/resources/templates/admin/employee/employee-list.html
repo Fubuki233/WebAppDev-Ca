@@ -56,12 +56,12 @@
             </thead>
             <tbody>
             <tr th:each="employee : ${employees}">
-                <td th:text="${employee.employeeId}">UUID-12345</td>
-                <td th:text="${employee.firstName} + ' ' + ${employee.lastName}">Alex Chen</td>
-                <td th:text="${employee.email}">alex.chen@aori.com</td>
-                <td th:text="${employee.phoneNumber}">+6598765432</td>
+                <td th:text="${employee.employeeId}"></td>
+                <td th:text="${employee.firstName} + ' ' + ${employee.lastName}"></td>
+                <td th:text="${employee.email}"></td>
+                <td th:text="${employee.phoneNumber}"></td>
                 
-                <td th:text="${employee.role != null ? employee.role.roleName : 'N/A'}">Manager</td>
+                <td th:text="${employee.role != null ? employee.role.roleName : 'N/A'}"></td>
                 
                 <td>
                     <span th:classappend="${employee.status.name() == 'Active'} ? 'bg-success' : 
@@ -73,12 +73,20 @@
                 <td th:text="${#temporals.format(employee.createdAt, 'yyyy-MM-dd')}">2025-10-10</td>
                 
                 <td>
+                    <!--
                     <a th:href="@{/admin/employees/{id}/edit(id=${employee.employeeId})}"
                        class="btn btn-sm btn-outline-info">Edit</a>
                        
                     <a th:href="@{/admin/employees/{id}/delete(id=${employee.employeeId})}"
                        class="btn btn-sm btn-outline-danger"
-                       onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
+                       onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a> -->
+                    
+                    <a th:href="@{/admin/employees/edit/{id}(id=${employee.employeeId})}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    
+                    <form th:action="@{/admin/employees/delete/{id}(id=${employee.employeeId})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                    
                 </td>
             </tr>
             </tbody>

@@ -81,11 +81,11 @@
                 </thead>
                 <tbody id="product-table-body">
                     <tr th:each="product : ${products.content}">
-                        <td th:text="${product.productCode}">AORI-KSA-001</td>
-                        <td th:text="${product.productName}">Abstract Print Shirt</td>
-                        <td th:text="${product.category.categoryName}">Shirts</td>
-                        <td th:text="${#numbers.formatCurrency(product.price)}">$99.00</td>
-                        <td th:text="${product.stockQuantity}">150</td>
+                        <td th:text="${product.productCode}"></td>
+                        <td th:text="${product.productName}"></td>
+                        <td th:text="${product.category.categoryName}"></td>
+                        <td th:text="${#numbers.formatCurrency(product.price)}"></td>
+                        <td th:text="${product.stockQuantity}"></td>
                         <td>
                             <a th:href="@{/admin/products/{id}(id=${product.productId})}" class="btn btn-sm btn-outline-secondary">View</a>
                             <a th:href="@{/admin/products/edit/{id}(id=${product.productId})}" class="btn btn-sm btn-outline-primary">Edit</a>
