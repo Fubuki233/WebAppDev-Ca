@@ -241,7 +241,6 @@ public class AdminProductController {
 			model.addAttribute("skuQuantities", skuQuantities);
 			// --- END: Fetch and pass SKU quantities for editing ---
 
-
 			model.addAttribute("categories", categories);
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 			model.addAttribute("allSeasons", Product.Season.values());
@@ -261,23 +260,6 @@ public class AdminProductController {
 	// This simplifies the controller and form.
 	// The form will submit to POST /admin/products/save for both new and existing products.
 	// The presence of product.productId will determine if it's a create or update.
-
-	/*
-	 * Older method before adding business logic to not delete products with orders
-	 * // --- DELETE EXISTING PRODUCT ---
-	 * 
-	 * @GetMapping("/delete/{id}")
-	 * public String deleteProduct(@PathVariable String id, @ModelAttribute Product
-	 * product, RedirectAttributes redirectAttributes) {
-	 * 
-	 * productService.deleteProduct(id);
-	 * 
-	 * redirectAttributes.addFlashAttribute("message",
-	 * "Product deleted successfully!");
-	 * 
-	 * return "redirect:/admin/products";
-	 * }
-	 */
 
 	// --- DELETE EXISTING PRODUCT ---
 	@PostMapping("/delete")
@@ -309,7 +291,7 @@ public class AdminProductController {
 			model.addAttribute("product", product);
 
 			// --- SKU Quantities ---
-			// We use a TreeMap to keep the colors sorted for a consistent display.
+			// Treemap is used to keep the colors sorted for a consistent display.
 			Map<String, Map<String, Integer>> skuQuantities = new TreeMap<>();
 
 			List<String> colors = product.getColorsAsList();
