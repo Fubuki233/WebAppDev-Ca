@@ -65,7 +65,7 @@ public class AdminProductController {
 	private CategoryRepository categoryRepository;
 
 	// --- SHOW ALL PRODUCTS (Read) ---
-	@GetMapping
+	@GetMapping(value = { "", "/" })
 	public String listAllProducts(Model model,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size,

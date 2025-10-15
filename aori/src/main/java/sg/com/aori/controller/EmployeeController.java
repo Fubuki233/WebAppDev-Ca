@@ -193,8 +193,8 @@ public class EmployeeController {
     }
 
     // --- DELETE EMPLOYEE ---
-    // GET /employees/{id}/delete (Simple method often used for quick UI links)
-    @GetMapping("/{id}/delete")
+    // POST /admin/employees/delete/{id}
+    @PostMapping("/delete/{id}")
     public String deleteEmployee(@PathVariable @NotBlank(message = "Employee ID cannot be empty") String id) {
         // DEBUGGING: Confirm the ID being targeted for deletion
         System.out.println("DEBUG: deleteEmployee() called. ID to delete: " + id);
