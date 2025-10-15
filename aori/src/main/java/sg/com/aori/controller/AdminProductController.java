@@ -48,15 +48,15 @@ import sg.com.aori.utils.SkuTool;
 @RequestMapping("/admin/products")
 public class AdminProductController {
 
-	// --- DEPENDENCY INJECTION ---
+	// --- Dependency Injection: SKU Service ---
 	@Autowired
 	private SkuService skuService;
 
-	// --- DEPENDENCY INJECTION ---
+	// --- Dependency Injection: CRUD Product Service ---
 	@Autowired
 	private CRUDProductService productService;
 
-	// inject CategoryRepository to populate the category dropdown in the form
+	// --- Dependency Injecgtion: CategoryRepository to populate the category dropdown in the form
 	@Autowired
 	private CategoryRepository categoryRepository;
 
@@ -88,6 +88,9 @@ public class AdminProductController {
 		model.addAttribute("selectedCollection", collection);
 		model.addAttribute("keyword", keyword);
 
+        // Set active page for navigation highlighting
+        model.addAttribute("activePage", "products");
+
 		// return the view name
 		return "admin/products/product-list";
 	}
@@ -104,6 +107,9 @@ public class AdminProductController {
 
 		// Pass the list of all possible sizes for checkboxes
 		model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
+
+		// Set active page for navigation highlighting
+        model.addAttribute("activePage", "products");
 
 		// return the view name
 		return "admin/products/product-form";
@@ -187,6 +193,10 @@ public class AdminProductController {
 			model.addAttribute("colorJson", oneOptProduct.get().getColors());
 			model.addAttribute("categories", categories);
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
+
+			// Set active page for navigation highlighting
+        	model.addAttribute("activePage", "products");
+
 			return "admin/products/product-form";
 		} else {
 			redirectAttributes.addFlashAttribute("error", "Product not found with ID: " + id);
@@ -242,7 +252,7 @@ public class AdminProductController {
 			Product product = productOpt.get();
 			model.addAttribute("product", product);
 
-			// --- START: Fetch SKU Quantities ---
+			// --- SKU Quantities ---
 			// We use a TreeMap to keep the colors sorted for a consistent display.
 			Map<String, Map<String, Integer>> skuQuantities = new TreeMap<>();
 
@@ -259,7 +269,10 @@ public class AdminProductController {
 				skuQuantities.put(color, sizeQuantityMap);
 			}
 			model.addAttribute("skuQuantities", skuQuantities);
-			// --- END: Fetch SKU Quantities ---
+			// --- END: SKU Quantities ---
+
+			// Set active page for navigation highlighting
+        	model.addAttribute("activePage", "products");
 
 			return "admin/products/product-view";
 		} else {

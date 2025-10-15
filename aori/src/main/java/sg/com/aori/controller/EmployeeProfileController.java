@@ -46,7 +46,7 @@ public class EmployeeProfileController {
      */
     @GetMapping
     public String viewProfilePage(Model model, HttpSession session) {
-        // Check the session for logged-in employee's ID (primary key)
+        // 1. Check the session for logged-in employee's ID (primary key)
         String loggedInEmployeeId = (String) session.getAttribute("employeeId"); // changed this on 11 Oct
 
         // If not logged in, redirect to login page
@@ -54,16 +54,16 @@ public class EmployeeProfileController {
             return "redirect:/admin/login";
         }
         try {
-            // Fetch employee details from the database using the ID from the session
+            // 2. Fetch employee details from the database using the ID from the session
             Employee employee = employeeRepository.findById(loggedInEmployeeId)
                     .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
             
-            // Create DTO instance and populate it with existing data
+            // 3. Create DTO instance and populate it with existing data
             EmployeeProfileDTO profileDto = new EmployeeProfileDTO();
             profileDto.setEmployeeId(employee.getEmployeeId());
             profileDto.setPhoneNumber(employee.getPhoneNumber());
             
-            // Add full employee object for display and DTO for form binding, set active page 
+            // 4. Add full employee object for display and DTO for form binding, set active page 
             model.addAttribute("employee", employee);
             model.addAttribute("profileDto", profileDto);
             model.addAttribute("activePage", "profile");
@@ -79,7 +79,7 @@ public class EmployeeProfileController {
     
     @PostMapping("/profile/edit")
     public String updateProfile(@Valid @ModelAttribute("profileDto") EmployeeProfileDTO profileDto,
-                              BindingResult bindingResult, // Note: This must come immediately after the @Valid parameter
+                              BindingResult bindingResult,
                               RedirectAttributes redirectAttributes,
                               HttpSession session,
                               Model model) {
@@ -104,20 +104,12 @@ public class EmployeeProfileController {
         } else {
         // If validation passes, proceed to update
             try {
-                // Fetch the existing employee from the database, as required by the Service Layer
                 
-                /* OLD METHOD WHIC DID NOT WORK
-                Employee existingEmployee = employeeRepository.findById(loggedInEmployeeId)
-                        .orElseThrow(() -> new EntityNotFoundException("Employee not found."));
-
-                // Update only the field that was meant to be changed.
-                existingEmployee.setPhoneNumber(profileDto.getPhoneNumber());
-
-                // Save the updated entity
-                manageEmployeeProfile.updateEmployeeProfile(loggedInEmployeeId, existingEmployee);
-                redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
-                */
-
+                /*
+                 * Note: Updated method (12 Oct) uses DTO to only update the phone number field.
+                 * Previous method of fetching entire Employee entity and updating
+                 * caused issues with other fields being nullified.
+                 */
                 manageEmployeeProfile.updateEmployeeProfile(profileDto.getEmployeeId(), profileDto);
                 redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
 

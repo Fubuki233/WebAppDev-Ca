@@ -52,6 +52,8 @@ public class EmployeeController {
         System.out.println("DEBUG: listEmployees() called. Retrieved " + employees.size() + " employees.");
         // Pass the list of employees to the view template
         model.addAttribute("employees", employees);
+        // Set active page for navigation highlighting
+        model.addAttribute("activePage", "employees");
 
         // Return the name of the Thymeleaf template
         return "admin/employee/employee-list";
@@ -66,6 +68,8 @@ public class EmployeeController {
         // Set up the form backing object and roles for initial display
         model.addAttribute("employee", new Employee());
         model.addAttribute("allRoles", roleService.getAllRoles());
+        // Set active page for navigation highlighting
+        model.addAttribute("activePage", "employees");
 
         return "admin/employee/employee-form"; // Use the same form template for create and update
     }
@@ -93,7 +97,7 @@ public class EmployeeController {
             return "admin/employee/employee-form";
         }
 
-        // 2. Handle Service/Business Logic Errors (e.g., unique email check)
+        // 2. Handle Service/Business Logic Errors (e.g. unique email check)
         try {
             employeeService.createEmployee(employee);
 
@@ -138,12 +142,14 @@ public class EmployeeController {
         // Also pass the list of all roles for the dropdown
         model.addAttribute("allRoles", roleService.getAllRoles());
 
+        // Set active page for navigation highlighting
+        model.addAttribute("activePage", "employees");
+
         return "admin/employee/employee-form";
     }
 
     // --- PROCESS EDITED EMPLOYEE (Update - POST/PUT) ---
-    // POST /employees/{id} (Often used instead of PUT in pure form submissions for
-    // simplicity)
+    // POST /employees/{id} (Often used instead of PUT in pure form submissions for simplicity)
     @PostMapping("/{id}")
     public String updateEmployee(@PathVariable String id,
             @Validated(ValidationGroups.Update.class) @ModelAttribute("employee") Employee employeeDetails,
@@ -157,8 +163,10 @@ public class EmployeeController {
             // you MUST re-add any model attributes the form needs, like 'allRoles'.
             model.addAttribute("allRoles", roleService.getAllRoles());
 
-            // Ensure the ID is correctly set on the model object for the form action to
-            // work
+            // Set active page for navigation highlighting
+            model.addAttribute("activePage", "employees");
+
+            // Ensure the ID is correctly set on the model object for the form action to work
             employeeDetails.setEmployeeId(id);
             return "admin/employee/employee-form";
         }
