@@ -9,11 +9,11 @@
 		<relativePath/>
 		<!-- lookup parent from repository -->
 	</parent>
-	<groupId>icu.zyh111</groupId>
+	<groupId>sg.com.aori</groupId>
 	<artifactId>webdev</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>webdev</name>
-	<description>Demo project for Spring Boot</description>
+	<name>AORI e-Commerce Website</name>
+	<description>SA61 Team 4 Group Project for Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
