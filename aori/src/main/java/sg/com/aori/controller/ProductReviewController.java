@@ -1,35 +1,28 @@
-/* @author Derek
- * @date 2025-10-15
- * @version 1.2 - Added getOrderReviewStatus endpoint
- *
- * Combined controller for:
- * - Authenticated customer review operations (create/update/read own)
- * - Public product review viewing (approved reviews only)
- * - Order review status tracking
- * 
- * 
- */
-
 package sg.com.aori.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import sg.com.aori.interfaces.IProductReview;
-import sg.com.aori.model.Customer;
-import sg.com.aori.model.Product;
-import sg.com.aori.model.ProductReview;
+import sg.com.aori.model.*;
 import sg.com.aori.repository.CustomerRepository;
 import sg.com.aori.repository.ProductReviewRepository;
 import sg.com.aori.service.CRUDProductService;
 import sg.com.aori.service.ProductReviewService;
+
+/**
+ * Combined controller for:
+ * - Authenticated customer review operations (create/update/read own)
+ * - Public product review viewing (approved reviews only)
+ * - Order review status tracking
+ * 
+ * @author Derek
+ * @date 2025-10-15
+ * @version 1.2 - Added getOrderReviewStatus endpoint
+ */
 
 @RestController
 @RequestMapping("/api")
@@ -49,10 +42,6 @@ public class ProductReviewController {
         this.productReviewService = productReviewService;
         this.productReviewRepository = productReviewRepository;
     }
-
-    // =======================================================================
-    // CUSTOMER SECTION (Authenticated endpoints)
-    // =======================================================================
 
     /**
      * Create or update a review for the order item (only if the order is
@@ -105,11 +94,9 @@ public class ProductReviewController {
         return productReviewService.getOrderReviewStatus(customerId, orderId);
     }
 
-    // =======================================================================
-    // PUBLIC SECTION (Open access for reading reviews)
-    // =======================================================================
-
-    /** List all APPROVED reviews for a product (publicly visible). */
+    /**
+     * List all APPROVED reviews for a product (publicly visible).
+     */
     @GetMapping("/public/products/{productId}/reviews")
     @ResponseStatus(HttpStatus.OK)
     public List<Map<String, Object>> listApprovedReviews(
@@ -127,15 +114,14 @@ public class ProductReviewController {
             reviewData.put("title", review.getTitle());
             reviewData.put("comment", review.getComment());
             reviewData.put("createdAt", review.getCreatedAt());
-            
-            // Get customer name
+
             String customerName = "Anonymous";
             if (review.getUserId() != null) {
                 Optional<Customer> customer = customerRepository.findById(review.getUserId());
                 if (customer.isPresent()) {
                     Customer c = customer.get();
-                    customerName = (c.getFirstName() != null ? c.getFirstName() : "") + 
-                                 (c.getLastName() != null ? " " + c.getLastName() : "");
+                    customerName = (c.getFirstName() != null ? c.getFirstName() : "") +
+                            (c.getLastName() != null ? " " + c.getLastName() : "");
                     customerName = customerName.trim();
                     if (customerName.isEmpty()) {
                         customerName = "Anonymous";
@@ -143,35 +129,11 @@ public class ProductReviewController {
                 }
             }
             reviewData.put("customerName", customerName);
-            
+
             result.add(reviewData);
         }
 
         return result;
 
     }
-
-    // /** Get summary statistics for approved product reviews. */
-    // @GetMapping("/public/products/{productId}/reviews/stats")
-    // @ResponseStatus(HttpStatus.OK)
-    // public Map<String, Object> getReviewStatistics(@PathVariable String
-    // productId) {
-    // double avgRating = productReviewRepository.avgRating(productId);
-    // long count = productReviewRepository.countByProductId(productId);
-    // List<Object[]> ratingBuckets =
-    // productReviewRepository.ratingBuckets(productId);
-
-    // Map<Integer, Long> bucketMap = new LinkedHashMap<>();
-    // for (Object[] obj : ratingBuckets) {
-    // Integer rating = (Integer) obj[0];
-    // Long cnt = (Long) obj[1];
-    // bucketMap.put(rating, cnt);
-    // }
-
-    // Map<String, Object> response = new LinkedHashMap<>();
-    // response.put("averageRating", avgRating);
-    // response.put("totalReviews", count);
-    // response.put("distribution", bucketMap);
-    // return response;
-    // }
 }

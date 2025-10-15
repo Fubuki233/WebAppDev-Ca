@@ -1,13 +1,13 @@
 package sg.com.aori.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import sg.com.aori.model.ViewHistory;
 import sg.com.aori.service.HistoryService;
-
-import java.util.List;
 
 /**
  * ViewHistoryController for handling HTTP requests related to product view

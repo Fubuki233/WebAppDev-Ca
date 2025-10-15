@@ -25,7 +25,6 @@ import sg.com.aori.service.CustomerService;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    /** Service handling the Create Account use case */
     private final ICreateAccount createAccountService;
 
     private final CustomerService customerService;

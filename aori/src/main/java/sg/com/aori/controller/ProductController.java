@@ -1,7 +1,9 @@
 package sg.com.aori.controller;
 
-import sg.com.aori.model.Product;
-import sg.com.aori.service.CRUDProductService;
+import java.util.List;
+import java.util.Optional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,10 +12,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import java.util.List;
-import java.util.Optional;
+import sg.com.aori.model.Product;
+import sg.com.aori.service.CRUDProductService;
 
 /**
  * Controller class for handling product-related requests
@@ -40,6 +40,7 @@ import java.util.Optional;
 @RequestMapping("/api/products")
 @Validated
 public class ProductController {
+
     @Autowired
     private CRUDProductService crudProductService;
 

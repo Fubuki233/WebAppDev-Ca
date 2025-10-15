@@ -1,6 +1,8 @@
 package sg.com.aori.interceptor;
 
 import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -8,33 +10,30 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import sg.com.aori.service.EmployeeService;
 import sg.com.aori.service.LoginService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import sg.com.aori.utils.AuthFilter;
-import sg.com.aori.config.DebugMode;
 import sg.com.aori.utils.AuthHandler;
+import sg.com.aori.config.DebugMode;
 
 /**
  * Interceptor to log and validate user sessions.
  *
  * @author Yunhe
  * @date 2025-10-07
- * @version 1.0 basic version
- *          ------------------------------------------------------------------------
+ * @version 1.0 - Basic version
+ * 
  * @author Yunhe
  * @date 2025-10-09
- * @version 2.0 introduced AuthFilter for bypass rules, now works well, but
+ * @version 2.0 - introduced AuthFilter for bypass rules, now works well, but
  *          haven't introduced role-based access control yet
- *          ------------------------------------------------------------------------
+ * 
  * @author Xiaobo
  * @date 2025-10-09
- * @version 3.0 Introduce role-based access control for employee. Seperate 2
+ * @version 3.0 - Introduce role-based access control for employee. Seperate 2
  *          types of access (Customer and Employee)
- *          ------------------------------------------------------------------------
+ * 
  * @author Yunhe
  * @date 2025-10-09
- * @version 3.1 optimized.
- *          ------------------------------------------------------------------------
+ * @version 3.1 - Optimized
  */
 
 @Component
@@ -45,12 +44,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     EmployeeService employeeService;
 
-    // Configuration Constant for Employee Paths
     private static final String EMPLOYEE_PATH_PREFIX = "/api/permissions";
-
-    // ----------------------------------------------------------------------------------
-    // PUBLIC preHandle METHOD
-    // ----------------------------------------------------------------------------------
 
     @Override
     public boolean preHandle(HttpServletRequest request,
@@ -68,19 +62,18 @@ public class AuthInterceptor implements HandlerInterceptor {
         Map<String, String> requestMap = Map.of("path", path, "method", method);
         System.out.println("[LoggingInterceptor] Request map: " + requestMap);
 
-        // Allow public API endpoints
         if (AuthFilter.isAuthorized(requestMap) || path.contains("/api/public")) {
             System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
             return true;
         }
-        // 1. Employee/Admin Check (For security, we need put this first)
+
         if (path.startsWith(EMPLOYEE_PATH_PREFIX) || path.contains("/admin")) {
             return AuthHandler.handleEmployeeAccess(request, response, handler, employeeService);
         }
 
-        // 2. Customer Access Check
         System.out.println("[LoggingInterceptor] Not a bypass request - Validating customer session for path: " + path
                 + ", method: " + method);
+
         return AuthHandler.handleCustomerAccess(request, response, loginService);
     }
 }
