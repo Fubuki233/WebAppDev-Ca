@@ -17,6 +17,8 @@
 
 package sg.com.aori.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -123,7 +126,7 @@ public class AdminProductController {
 	@PostMapping("/save")
 	public String saveProduct(@Valid @ModelAttribute("product") Product product,
 			@RequestParam("sizeJson") String sizeJson,
-			@RequestParam("colorJson") String colorJson,
+			@RequestParam("colorJson") String colorJson, @RequestParam("skuQuantitiesJson") String skuQuantitiesJson,
 			RedirectAttributes redirectAttributes, Model model) { // Add Model
 
 		try {
@@ -134,21 +137,32 @@ public class AdminProductController {
 			// Find if another product with the same code already exists.
 			String existingProductId = productService.findProductIdByProductCode(product.getProductCode());
 
-			// Check for duplicates. This is a duplicate if:
-			// 1. A product with this code exists (existingProductId is not null)
-			// 2. We are creating a NEW product (product.getProductId() is empty) OR
-			//    we are editing a product but the found ID is DIFFERENT from the one we are editing.
+			// Check for duplicates.
 			if (existingProductId != null && 
 				(product.getProductId() == null || product.getProductId().isEmpty() || !existingProductId.equals(product.getProductId()))) {
-				
-				// If it's a duplicate, throw an exception to be caught by the catch block.
-				// This is cleaner than duplicating the error handling logic.
 				throw new org.springframework.dao.DataIntegrityViolationException("Duplicate product code");
 			}
 			// --- END: Proactive Duplicate Product Code Check ---
 
-			// Use ServiceImpl to create or update the product
+			// Save the product entity first to ensure it has a productId.
 			productService.saveProduct(product);
+
+			// --- START: Save SKU Quantities ---
+			ObjectMapper objectMapper = new ObjectMapper();
+			Map<String, Map<String, Integer>> skuQuantities = objectMapper.readValue(skuQuantitiesJson,
+					new TypeReference<Map<String, Map<String, Integer>>>() {
+					});
+
+			for (Map.Entry<String, Map<String, Integer>> colorEntry : skuQuantities.entrySet()) {
+				String color = colorEntry.getKey();
+				for (Map.Entry<String, Integer> sizeEntry : colorEntry.getValue().entrySet()) {
+					String size = sizeEntry.getKey();
+					Integer quantity = sizeEntry.getValue();
+					String sku = SkuTool.createSku(product.getProductId(), color.replace("#", ""), size, productService);
+					skuService.createSku(sku, quantity);
+				}
+			}
+			// --- END: Save SKU Quantities ---
 
 			// Add success message for user on redirect
 			String successMessage = (product.getProductId() != null && !product.getProductId().isEmpty())
@@ -173,9 +187,24 @@ public class AdminProductController {
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 			model.addAttribute("sizeJson", sizeJson);
 			model.addAttribute("colorJson", colorJson);
+			model.addAttribute("skuQuantitiesJson", skuQuantitiesJson);
 			// --- END: Re-populate form data ---
 
 			return "admin/products/product-form"; // Return to the form view, not a redirect
+		} catch (JsonProcessingException e) {
+			// This block catches errors from Jackson when parsing JSON strings.
+			model.addAttribute("error", "Failed to save product. There was an error processing the size, color, or stock quantity data.");
+			
+			// --- Re-populate form data for re-rendering ---
+			model.addAttribute("categories", categoryRepository.findAll());
+			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
+			model.addAttribute("allSeasons", Product.Season.values());
+			model.addAttribute("sizeJson", sizeJson);
+			model.addAttribute("colorJson", colorJson);
+			model.addAttribute("skuQuantitiesJson", skuQuantitiesJson);
+			// --- END: Re-populate form data ---
+
+			return "admin/products/product-form";
 		}
 	}
 
@@ -187,12 +216,32 @@ public class AdminProductController {
 
 		if (oneOptProduct.isPresent()) {
 			// If product is found, add it and the categories to the model
-			model.addAttribute("product", oneOptProduct.get());
+			Product product = oneOptProduct.get();
+			model.addAttribute("product", product);
 			List<Category> categories = categoryRepository.findAll();
 			// FIX: Pass the raw JSON strings for sizes and colors to the form
 			// to prevent Thymeleaf from mis-parsing the list.
-			model.addAttribute("sizeJson", oneOptProduct.get().getSize());
-			model.addAttribute("colorJson", oneOptProduct.get().getColors());
+			model.addAttribute("sizeJson", product.getSize());
+			model.addAttribute("colorJson", product.getColors());
+
+			// --- START: Fetch and pass SKU quantities for editing ---
+			Map<String, Map<String, Integer>> skuQuantities = new HashMap<>();
+			List<String> colors = product.getColorsAsList();
+			List<String> sizes = product.getSizesAsList();
+
+			for (String color : colors) {
+				Map<String, Integer> sizeQuantityMap = new HashMap<>();
+				for (String size : sizes) {
+					String sku = SkuTool.createSku(product.getProductId(), color.replace("#", ""), size, productService);
+					int quantity = skuService.getQuantity(sku);
+					sizeQuantityMap.put(size, quantity);
+				}
+				skuQuantities.put(color, sizeQuantityMap);
+			}
+			model.addAttribute("skuQuantities", skuQuantities);
+			// --- END: Fetch and pass SKU quantities for editing ---
+
+
 			model.addAttribute("categories", categories);
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 			model.addAttribute("allSeasons", Product.Season.values());
@@ -267,9 +316,12 @@ public class AdminProductController {
 				for (String size : sizes) {
 					String sku = SkuTool.createSku(product.getProductId(), color.replace("#", ""), size, productService);
 					int quantity = skuService.getQuantity(sku);
+					System.out.println("[AdminProductController] Fetched quantity for SKU: " + sku + " = " + quantity);
 					sizeQuantityMap.put(size, quantity);
+					
 				}
 				skuQuantities.put(color, sizeQuantityMap);
+				System.out.println("[AdmninProductController] SKU Quantities: " + skuQuantities);
 			}
 			model.addAttribute("skuQuantities", skuQuantities);
 			// --- END: SKU Quantities ---

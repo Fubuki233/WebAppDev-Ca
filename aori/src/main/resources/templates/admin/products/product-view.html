@@ -116,7 +116,10 @@
                                     </td>
                                     <!-- For each size, find the corresponding quantity in the map -->
                                     <td th:each="size : ${product.getSizesAsList()}" class="align-middle">
-                                        <span th:text="${skuQuantities[colorEntry.key][size]}">0</span>
+                                        <!-- Correct way to access nested map value in Thymeleaf -->
+                                        <th:block th:with="sizeQuantityMap=${colorEntry.value}">
+                                            <span th:text="${sizeQuantityMap[size]} ?: 0"></span>
+                                        </th:block>
                                     </td>
                                 </tr>
                             </tbody>

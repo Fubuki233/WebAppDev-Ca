@@ -28,12 +28,13 @@ public class SkuService implements ISku {
     @Override
     public String createSku(String sku, int quantity) {
         sku = SkuTool.convertUUIDSkutoProductCodeSku(sku, productService);
-
-        Sku newSku = new Sku();
-        newSku.setSku(sku);
-        newSku.setQuantity(quantity);
-        skuRepository.save(newSku);
-        System.out.println("Created SKU: " + sku + " with quantity: " + quantity);
+        
+        // Find if the SKU already exists, or create a new one. This is an "upsert".
+        Sku skuEntity = skuRepository.findById(sku).orElse(new Sku());
+        skuEntity.setSku(sku);
+        skuEntity.setQuantity(quantity);
+        skuRepository.save(skuEntity);
+        System.out.println("Saved SKU: " + sku + " with quantity: " + quantity);
         return sku;
     }
 
