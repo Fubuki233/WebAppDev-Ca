@@ -3,7 +3,6 @@ package sg.com.aori.controller;
 import java.util.*;
 import java.util.stream.Collectors;
 import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
 
 import sg.com.aori.model.Category;
 import sg.com.aori.model.Product;
@@ -120,16 +120,16 @@ public class AdminProductController {
 		try {
 
 			if (bindingResult.hasErrors()) {
-						// Re-populate model attributes needed for the form
-						model.addAttribute("categories", categoryRepository.findAll());
-						model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
-						model.addAttribute("allSeasons", Product.Season.values());
-						model.addAttribute("sizeJson", sizeJson);
-						model.addAttribute("colorJson", colorJson);
-						model.addAttribute("skuQuantitiesJson", skuQuantitiesJson);
+				// Re-populate model attributes needed for the form
+				model.addAttribute("categories", categoryRepository.findAll());
+				model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
+				model.addAttribute("allSeasons", Product.Season.values());
+				model.addAttribute("sizeJson", sizeJson);
+				model.addAttribute("colorJson", colorJson);
+				model.addAttribute("skuQuantitiesJson", skuQuantitiesJson);
 
-						return "admin/products/product-form";
-					}
+				return "admin/products/product-form";
+			}
 
 			product.setSize(sizeJson);
 			product.setColors(colorJson);
