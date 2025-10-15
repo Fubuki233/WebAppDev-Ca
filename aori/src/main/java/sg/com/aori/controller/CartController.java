@@ -1,17 +1,3 @@
-/**
- * v1.1: REST API applied
- * v1.2: Session applied
- * v1.3: Provide reference of how to get customerId from session
- * v1.4: Test completed
- * v1.5(Sun): Add validation for addToCart
- * v1.6: Change annotation into English
- * v1.7: Added sku
- * v1.8: Optimzation
- * @author Jiang, Sun Rui
- * @date 2025-10-14
- * @version 1.7
- */
-
 package sg.com.aori.controller;
 
 import java.math.BigDecimal;
@@ -27,14 +13,25 @@ import sg.com.aori.interfaces.ICart;
 import sg.com.aori.model.ShoppingCart;
 import sg.com.aori.service.CRUDProductService;
 import sg.com.aori.service.SkuService;
-// import sg.com.aori.utils.getSession;
 import sg.com.aori.utils.SkuTool;
+
+/**
+ * @author Jiang
+ * @version 2.0 - REST API applied
+ * @version 2.1 - Session applied
+ * @version 2.2 - Test completed
+ * 
+ * @author Sun Rui
+ * @version 2.3 - Add validation for addToCart
+ * 
+ * @author Jiang
+ * @version 2.4 - Added sku, optimized detail statements
+ */
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
 
-    // Business self-adjustment: Add an upper limit constant in the class
     private static final int MAX_QTY_PER_ITEM = 100;
 
     @Autowired
@@ -46,22 +43,10 @@ public class CartController {
     @Autowired
     private SkuService skuService;
 
-    // @Autowired
-    // private CartRepository cartRepository;
-
-    // @Autowired
-    // private CustomerService customerService;
-
-    // private String getCustomerIdFromSession(HttpSession session) {
-    // String email = (String) session.getAttribute("email");
-    // if (email == null)
-    // return null;
-    // Customer customer = customerService.findCustomerByEmail(email).orElse(null);
-    // return customer != null ? customer.getCustomerId() : null;
-    // // ***** Use the statement below if customerId is stored in session
-    // // return (String) session.getAttribute("customerId");
-    // }
-    /*
+    /**
+     * Show all items in cart.
+     * Example response:
+     * 
      * With 1 item in cart:
      * {
      * "totalAmount": 779.00,
@@ -120,6 +105,7 @@ public class CartController {
      * ],
      * "itemCount": 1
      * }
+     * 
      * When there is no any item in cart:
      * {
      * "totalAmount": 0,
@@ -132,13 +118,8 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> getCart(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // ***** Syntax for tapping onto 'utils'
-            // String customerId = getSession.getCustomerId(session);
-            // Changed from "customerId" to "id" to match AuthController's session attribute
             String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
-                // ***** Temporary use an existing id, use the annotated 3 lines in real app
-                // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 response.put("success", false);
                 response.put("message", "User not logged in");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -161,8 +142,10 @@ public class CartController {
         }
     }
 
-    // Process checkout request
     /**
+     * Process checkout and create order
+     * Example response:
+     * 
      * Normal situation:
      * {
      * "orderId": "e4d7afaa-f18e-4440-aa87-62a7994a9316",
@@ -179,10 +162,8 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> checkout(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Changed from "customerId" to "id" to match AuthController's session attribute
             String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
-                // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 response.put("success", false);
                 response.put("message", "User not logged in");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -209,8 +190,10 @@ public class CartController {
         }
     }
 
-    // Add item to cart
-    /*
+    /**
+     * Add item to cart
+     * Example input and response:
+     * 
      * JSON Input format:
      * {
      * "productId": "8afc68df-80fe-479d-83d1-eb817bfeb597",
@@ -227,28 +210,20 @@ public class CartController {
             HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Changed from "customerId" to "id" to match AuthController's session attribute
             String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
-                // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 response.put("success", false);
                 response.put("message", "User not logged in");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            // String productId = (String) request.get("productId"); **********
-            // Integer quantity = (Integer) request.get("quantity"); *********
-
-            // The productId must exist and not null
-
             Object skuObj = request.get("sku");
-            // Object pidObj = request.get("productId");
             if (!(skuObj instanceof String sku) || sku.isBlank()) {
                 response.put("success", false);
                 response.put("message", "productId is required");
                 return ResponseEntity.badRequest().body(response);
             }
-            sku = (String) skuObj; // Or use the pid
+            sku = (String) skuObj;
             sku = SkuTool.convertUUIDSkutoProductCodeSku(sku, productService);
             System.out.println("[CartController] sku: " + sku);
             String productId = SkuTool.getProductIdBySku(sku, productService);
@@ -261,7 +236,6 @@ public class CartController {
                         "message", "SKU not found or out of stock"));
             }
 
-            // The quantity must exist, can be Integer/Long/Double/String
             Object qObj = request.get("quantity");
             Integer quantity = null;
             if (qObj instanceof Integer i) {
@@ -273,14 +247,14 @@ public class CartController {
                 }
             } else if (qObj instanceof Long l) {
                 try {
-                    quantity = Math.toIntExact(l); // Prevent overflow
+                    quantity = Math.toIntExact(l);
                 } catch (ArithmeticException ex) {
                     response.put("success", false);
                     response.put("message", "quantity is too large");
                     return ResponseEntity.badRequest().body(response);
                 }
             } else if (qObj instanceof Double d) {
-                quantity = (int) Math.floor(d); // If it is a decimal in JSON, round down
+                quantity = (int) Math.floor(d);
             } else if (qObj instanceof String s) {
                 try {
                     quantity = Integer.valueOf(s.trim());
@@ -306,10 +280,8 @@ public class CartController {
                 response.put("message", "quantity must be <= " + MAX_QTY_PER_ITEM);
                 return ResponseEntity.badRequest().body(response);
             }
-            System.out.println("----------------------------------------------");
-            // ***** sku added
+
             cartService.addToCart(customerId, productId, quantity, sku);
-            System.out.println("----------------------------------------------");
 
             response.put("success", true);
             response.put("message", "Product added to cart");
@@ -322,9 +294,10 @@ public class CartController {
         }
     }
 
-    // Remove item from cart
-    // Remove need the cart_id, so it almost must success
-    /*
+    /**
+     * Remove item from cart
+     * Example response:
+     * 
      * {
      * "success": true,
      * "message": "Item removed from cart"
@@ -334,11 +307,8 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> removeFromCart(@PathVariable String cartId, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // ***** To reference session and get customerId
-            // Changed from "customerId" to "id" to match AuthController's session attribute
             String customerId = (String) session.getAttribute("id");
             if (customerId == null) {
-                // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
                 response.put("success", false);
                 response.put("message", "User not logged in");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

@@ -1,32 +1,28 @@
-/**
- * Service for Return entity.
- *
- * @author xiaobo
- * @date 2025-10-09
- * @version 1.0
- */
-
-/*
- * * @author Simon Lei
- * * @date 2025-10-11
- * * @version 2.0
- * Update on the Returns entity to add some validations.
- */
-
 package sg.com.aori.service;
 
-import sg.com.aori.model.Orders;
-import sg.com.aori.model.Returns;
+import sg.com.aori.model.*;
 import sg.com.aori.interfaces.IReturn;
-import sg.com.aori.model.OrderItem;
 import sg.com.aori.repository.OrderRepository;
 import sg.com.aori.repository.ReturnRepository;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+
 import jakarta.validation.Valid;
+import java.util.Optional;
+
+/**
+ * Service for Return entity.
+ *
+ * @author Xiaobo
+ * @date 2025-10-09
+ * @version 1.0
+ * 
+ * @author Simon Lei
+ * @date 2025-10-11
+ * @version 2.0 - Update on the Returns entity to add some validations
+ */
 
 @Service
 @Validated

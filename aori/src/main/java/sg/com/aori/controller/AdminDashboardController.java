@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin") // Base path for admin pages
+@RequestMapping("/admin")
 public class AdminDashboardController {
 
     @Autowired
@@ -34,19 +34,16 @@ public class AdminDashboardController {
 
     @GetMapping("/dashboard")
     public String showDashboard(HttpSession session, Model model) {
-        // Simple check to ensure a logged-in employee is accessing the page
         String employeeId = (String) session.getAttribute("employeeId");
 
         if (employeeId == null) {
             return "redirect:/admin/login";
         }
 
-        // add the found employee object to the model
         employeeRepository.findById(employeeId).ifPresent(employee -> {
             model.addAttribute("employee", employee);
         });
 
-        // Add statistics for dashboard cards
         long totalOrders = orderRepository.count();
         long totalProducts = productRepository.count();
         long totalEmployees = employeeRepository.count();
@@ -55,10 +52,8 @@ public class AdminDashboardController {
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("totalEmployees", totalEmployees);
 
-        // Set the active page for navigation highlighting
         model.addAttribute("activePage", "dashboard");
 
-        // Return the path to the HTML view: /templates/admin/dashboard.html
         return "admin/dashboard";
     }
 }

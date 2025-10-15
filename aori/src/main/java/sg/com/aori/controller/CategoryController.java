@@ -7,15 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -24,15 +16,13 @@ import sg.com.aori.service.CategoryService;
 
 /**
  * REST Controller for Category operations.
- * 
- * 
  *
  * @author Yunhe
  * @date 2025-10-06
- * @version 1.0 -All tests passed
+ * @version 1.0 - All tests passed
  * 
  * @author Yunhe, Sun Rui
- * @date 2025-10-09 -all validation had been added
+ * @date 2025-10-09 - All validation had been added
  * @version 1.1
  */
 @CrossOrigin

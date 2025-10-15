@@ -1,6 +1,24 @@
+package sg.com.aori.controller;
+
+import sg.com.aori.model.Product;
+import sg.com.aori.service.CRUDProductService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Controller class for handling product-related requests
- * This class is coded using REST API to cater for future integration with mobile app.
+ * This class is coded using REST API to cater for future integration with
+ * mobile app.
  * Now, all the methods had been tested
  * 
  * @author Yunhe
@@ -8,38 +26,14 @@
  * @version 1.1
  * 
  * @author Ying Chun
- * @date 2025-10-10 (v2.0)
- * @version 2.0 - Refactored to adjust HTTP responses and tie in with changes made to CRUDProductService
+ * @date 2025-10-10
+ * @version 2.0 - Refactored to adjust HTTP responses and tie in with changes
+ *          made to CRUDProductService
  * 
  * @author Yunhe
  * @date 2025-10-13
  * @version 3.0 added recommendation APIs
  */
-package sg.com.aori.controller;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-// import org.springframework.web.bind.annotation.RequestParam; - used in old method
-import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import sg.com.aori.model.Product;
-import sg.com.aori.service.CRUDProductService;
 
 @CrossOrigin
 @RestController
@@ -52,7 +46,7 @@ public class ProductController {
     @Autowired
     private sg.com.aori.service.ProductRecommendationService recommendationService;
 
-    String collectionDisplay = "Shizen"; // default collection display
+    String collectionDisplay = "Shizen";
 
     @PostMapping("/admin/collectionDisplay")
     public String setCollect(@RequestParam("collectionDisplay") String collectionDisplay) {
@@ -75,7 +69,6 @@ public class ProductController {
      * @param product The product to create.
      * @return The created product.
      */
-
     @PostMapping("/admin")
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         if (product.getProductId() == null || product.getProductId().isEmpty()) {
@@ -92,13 +85,6 @@ public class ProductController {
      * 
      * @param category Optional category slug or categoryId to filter products
      * @return List of products
-     * 
-     *         Examples:
-     *         - GET /api/products - returns all products
-     *         - GET /api/products?category=women-loungewear - returns products in
-     *         women-loungewear category
-     *         - GET /api/products?category=9c3b9b6a-2319-52ba-ac5a-68f9345d64fa -
-     *         returns products by categoryId
      */
     @GetMapping()
     public Optional<List<Product>> getAllProducts(
@@ -119,8 +105,8 @@ public class ProductController {
 
     /**
      * Get a product by ID.
+     * Example response:
      * 
-     * sample output:
      * {
      * "productId": "6a5f02fe-5f52-45c8-9d2d-b50f47e13a38",
      * "productCode": "PROD-000001",
@@ -186,39 +172,10 @@ public class ProductController {
      * "careInstructions": "Machine wash cold, hang dry.",
      * "createdAt": "2025-10-07T16:10:11.693456"
      * }
-     *
+     * 
+     * @param id      The product's id
      * @param product The product to create.
      * @return The created product.
-     */
-
-    /*
-     * Previous method by Yunhe
-     * 
-     * @PutMapping("/admin")
-     * 
-     * public ResponseEntity<Product>
-     * updateProduct(@RequestParam("id") @NotBlank(message =
-     * "Product Id cannot be empty") String id, @Valid @RequestBody Product product)
-     * {
-     * 
-     * Product updatedProduct = crudProductService.updateProduct(id, product);
-     * System.out.println("[ProductController] Updated product: " + updatedProduct);
-     * return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
-     * }
-     * 
-     * @DeleteMapping("/admin")
-     * public ResponseEntity<Product>
-     * deleteProduct(@RequestParam("id") @NotBlank(message =
-     * "Product Id annot be empty") String productId) {
-     * System.out.println("[ProductController] Deleting product with ID: " +
-     * productId);
-     * Product deletedProduct = crudProductService.deleteProduct(productId);
-     * return ResponseEntity.status(HttpStatus.OK).body(deletedProduct);
-     * }
-     */
-
-    /**
-     * REFACTORED: Now uses @PathVariable for a more standard RESTful URL.
      */
     @PutMapping("/admin/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
@@ -228,8 +185,7 @@ public class ProductController {
     }
 
     /**
-     * REFACTORED: Now uses @PathVariable and handles all errors from the service
-     * by returning specific HTTP status codes.
+     * Delete product
      */
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable String id) {

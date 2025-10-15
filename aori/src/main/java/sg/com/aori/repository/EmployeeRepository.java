@@ -1,3 +1,11 @@
+/**
+ * Repository interface for Employee entity.
+ *
+ * @author Xiaobo, Sun Rui
+ * @date 2025-10-08
+ * @version 1.1
+ */
+
 package sg.com.aori.repository;
 
 import java.util.List;
@@ -11,14 +19,8 @@ import org.springframework.data.repository.query.Param;
 import jakarta.transaction.Transactional;
 import sg.com.aori.model.Employee;
 
-/**
- * Repository interface for Employee entity.
- *
- * @author xiaobo, Sun RUI
- * @date 2025-10-08
- * @version 1.1
- */
 public interface EmployeeRepository extends JpaRepository<Employee, String> {
+
     /**
      * Finds employees by their last name.
      * Derived Query: findByLastName

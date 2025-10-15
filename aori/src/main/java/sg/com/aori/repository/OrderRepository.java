@@ -1,10 +1,3 @@
-/**
- * v1.1: Added method findByOrderId
- * @author Jiang
- * @date 2025-10-07
- * @version 1.1
- */
-
 package sg.com.aori.repository;
 
 import sg.com.aori.model.OrderItem;
@@ -16,6 +9,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
+/**
+ * @author Jiang, Derek, Xiaobo, Ying Chun
+ * @date 2025-10-07
+ * @version 1.1: Added findByOrderId
+ * @version 1.2(Derek): Added findByOrderIdAndCustomerId
+ * @version 1.3(Xiaobo): Added findOrderItemForReturn
+ * @version 1.3(Ying Chun): Added findByIdWithCustomer
+ */
 
 @Repository
 public interface OrderRepository extends JpaRepository<Orders, String> {
@@ -46,8 +48,6 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
         boolean existsByIdAndCustomerId(@Param("orderId") String orderId, @Param("customerId") String customerId);
 
         /**
-         * xiaobo Date
-         * 2025-10-09
          * Securely finds the OrderItem associated with a specific order, product, and
          * customer.
          * This is Step 5 (Find Order) in the return process and includes a crucial
@@ -63,32 +63,18 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
                         @Param("customerId") String customerId);
 
         /**
-         * Finds a specific OrderItem by its ID and ensures it belongs to the given
-         * user.
+         * Finds a specific OrderItem by its ID and ensures it belongs to the given user.
          */
-
         @Query("SELECT oi FROM OrderItem oi JOIN oi.order o WHERE oi.orderItemId = :itemId AND o.customerId = :userId")
         Optional<OrderItem> findOrderItemByItemIdAndUserId(
                         @Param("itemId") String orderItemId,
                         @Param("userId") String userId);
-
-        /*
-         * @author Derek
-         * 
-         * @date 2025-10-08
-         * 
-         * @version 1.0
-         */
 
         // for product review
         Optional<Orders> findByOrderIdAndCustomerId(String orderId, String customerId);
 
         /**
          * Find order by ID with customer details eagerly loaded
-         * 
-         * @author Ying Chun
-         * @date 2025-10-15
-         * @version 1.0
          */
         @Query("SELECT o FROM Orders o LEFT JOIN FETCH o.customer WHERE o.orderId = :orderId")
         Optional<Orders> findByIdWithCustomer(@Param("orderId") String orderId);

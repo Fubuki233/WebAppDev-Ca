@@ -1,0 +1,117 @@
+<!-- 
+ * Aori Admin Portal Create employee page
+ * 
+ * @author Xiaobo
+ * @date 2025-10-12
+ * @version 1.0 
+ */
+ -->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${employee.employeeId != null ? 'Edit Employee' : 'Create New Employee'}">Employee Form</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2" th:text="${employee.employeeId != null ? 'Edit Employee: ' + employee.firstName + ' ' + employee.lastName : 'Create New Employee'}">Employee Form Title</h1>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form th:action="${employee.employeeId != null ? '/admin/employees/' + employee.employeeId : '/admin/employees/'}" 
+                  th:object="${employee}" 
+                  method="post">
+
+                <input type="hidden" th:field="*{employeeId}" th:if="${employee.employeeId != null}" />
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required>
+                        <span class="text-danger" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">First Name Error</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required>
+                        <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Last Name Error</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" th:field="*{email}" 
+                           th:attr="readonly=${employee.employeeId != null}" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('email')}">
+                        <p th:each="err : ${#fields.errors('email')}" th:text="${err}"></p>
+                    </div>
+                </div>
+
+                <!-- Create Mode -->
+                <div class="mb-3" th:if="${employee.employeeId == null}">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" th:field="*{password}" required>
+                    <div class="form-text">Must be 8+ chars, include upper, lower, digit, and symbol.</div>
+                    <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
+                </div>
+
+                <!-- Edit Mode -->
+                <div class="mb-3" th:if="${employee.employeeId != null}">
+                    <label for="password" class="form-label">New Password (Optional)</label>
+                    <input type="password" class="form-control" id="password" th:field="*{password}"
+                           placeholder="Leave blank to keep current password">
+                    <div class="form-text">Must be 8+ chars, include upper, lower, digit, and symbol.</div>
+                    <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</span>
+                </div>
+
+                <div class="mb-3">
+                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phoneNumber" th:field="*{phoneNumber}">
+                    <div class="form-text">e.g., +6598765432</div>
+                    <span class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}">Invalid Phone Number Input</span>
+            </div>
+                
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" th:field="*{role.roleId}" required>
+                        <option value="">-- Select a Role --</option>
+                        <option th:each="role : ${allRoles}" 
+                                th:value="${role.roleId}" 
+                                th:text="${role.roleName}"
+                                th:selected="${employee.role != null and employee.role.roleId == role.roleId}">Role Name</option>
+                    </select>
+                    <span class="text-danger" th:if="${#fields.hasErrors('role')}" th:errors="*{role}">Role Error</span>
+                </div>
+
+                <div class="mb-3" th:if="${employee.employeeId != null}">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" th:field="*{status}" required>
+                        <option th:each="status : ${T(sg.com.aori.model.Employee.EmployeeStatus).values()}"
+                                th:value="${status}"
+                                th:text="${status.toString()}"
+                                th:selected="${employee.status != null and employee.status.name() == status.name()}">Status Value</option>
+                    </select>
+                    <span class="text-danger" th:if="${#fields.hasErrors('status')}" th:errors="*{status}">Status Error</span>
+                </div>
+
+                <div class="d-flex justify-content-between pt-3 border-top">
+                    <a th:href="@{/admin/employees/}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary" th:text="${employee.employeeId != null ? 'Update' : 'Create Employee'}">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

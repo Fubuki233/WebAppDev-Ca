@@ -1,0 +1,28 @@
+<!--@author Ying Chun
+	@date 2025-10-07
+	@version 1.0
+
+// Need to update fields, this is just a draft
+ -->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>Aori Admin: Product Form</title>
+	</head>
+	<body>
+		<h1 th:text="${product.id == null ? 'Create Product' : 'Edit Product'}"></h1>
+		<form th:action="@{${product.id == null} ? '/admin/products' : '/admin/products/update/' + ${product.id}}" 
+		      th:object="${product}" method="post">
+			<label>Name: <input type="text" th:field="*{name}" /></label><br>
+			<label>Category: <input type="text" th:field="*{category}" /></label><br>  
+		    <label>Collection: <input type="text" th:field="*{collection}" /></label><br>
+		    <label>Description: <input type="text" th:field="*{description}" /></label><br>
+		    <label>Price: <input type="number" step="0.01" th:field="*{price}" /></label><br>
+			<label>Material: <input type="text" th:field="*{material}" /></label><br>
+			<label>Season: <input type="text" th:field="*{season}" /></label><br>
+		    <label>Image URL: <input type="text" th:field="*{imageUrl}" /></label><br>
+		    <button type="submit">Save</button>
+		</form>
+	</body>
+</html>

@@ -1,17 +1,7 @@
-/**
- * v1.1: Removed variant, modified it into product
- * v1.2: Timeout limit 60s -> 10s
- * @author Jiang
- * @date 2025-10-10
- * @version 1.2
- */
-
 package sg.com.aori.service;
 
 import sg.com.aori.interfaces.IOrder;
-import sg.com.aori.model.OrderItem;
-import sg.com.aori.model.Orders;
-import sg.com.aori.model.Product;
+import sg.com.aori.model.*;
 import sg.com.aori.repository.InventoryRepository;
 import sg.com.aori.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-// import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+
+/**
+ * @author Jiang
+ * @date 2025-10-10
+ * @version 1.0
+ * @version 1.1 - Removed variant, modified it into product
+ * @version 1.2 - Timeout limit 60s -> 10s
+ */
 
 @Service
 @Transactional
@@ -74,7 +71,7 @@ public class OrderService implements IOrder {
         CompletableFuture<Boolean> paymentFuture = CompletableFuture.supplyAsync(() -> {
             try {
                 // Simulate payment processing with FinanceService
-                // ***** Timeout limit can be modified here
+                // Timeout limit can be modified here
                 for (int i = 0; i < 10; i++) {
                     Boolean paymentResult = financeService.verifyPayment(orderId);
                     System.out.println(i + "s, paymentResult=" + paymentResult);

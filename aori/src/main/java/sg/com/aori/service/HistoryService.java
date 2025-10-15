@@ -1,13 +1,5 @@
 package sg.com.aori.service;
 
-/**
- * HistoryService implements IViewHistory to manage product view history.
- * @Author Yunhe
- * @date 2025-10-12
- * @version 1.0
- */
-import sg.com.aori.interfaces.IViewHistory;
-
 import java.util.List;
 
 import org.json.JSONObject;
@@ -16,9 +8,18 @@ import org.springframework.stereotype.Service;
 
 import sg.com.aori.repository.ViewHistoryRepository;
 import sg.com.aori.model.ViewHistory;
+import sg.com.aori.interfaces.IViewHistory;
+
+/**
+ * HistoryService implements IViewHistory to manage product view history.
+ * @author Yunhe
+ * @date 2025-10-12
+ * @version 1.0
+ */
 
 @Service
 public class HistoryService implements IViewHistory {
+
     @Autowired
     private ViewHistoryRepository viewHistoryRepository;
 
@@ -39,9 +40,7 @@ public class HistoryService implements IViewHistory {
                 for (int i = 1; i < existingViews.size(); i++) {
                     viewHistoryRepository.delete(existingViews.get(i));
                 }
-
             }
-
             jsonObject.put("action", "updated");
             jsonObject.put("timestamp", viewHistory.getTimestamp());
             jsonObject.put("id", viewHistory.getId());

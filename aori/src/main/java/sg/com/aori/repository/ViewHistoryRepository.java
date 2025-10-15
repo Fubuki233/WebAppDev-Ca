@@ -1,5 +1,12 @@
 package sg.com.aori.repository;
 
+import sg.com.aori.model.ViewHistory;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 /**
  * ViewHistoryRepository for managing product view history in the database.
  * 
@@ -7,12 +14,6 @@ package sg.com.aori.repository;
  * @date 2025-10-12
  * @version 1.0
  */
-import sg.com.aori.model.ViewHistory;
-
-import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ViewHistoryRepository extends JpaRepository<ViewHistory, String> {

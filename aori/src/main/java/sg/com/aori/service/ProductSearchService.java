@@ -1,8 +1,6 @@
 package sg.com.aori.service;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import sg.com.aori.model.Product;
@@ -20,11 +18,6 @@ import java.util.List;
  * @author Simon Lei
  * @date 2025-10-08
  * @version 1.0
- */
-
-/*
- * @author Simon Lei
- * @date 2025-10-14
  * @version 1.1
  */
 
@@ -53,7 +46,6 @@ public class ProductSearchService {
                                 BigDecimal priceMax) {
 
         String query = (q == null) ? "" : q.trim();
-        String qLower = query.toLowerCase(Locale.ROOT);
 
         Set<String> categoryNames = categoryRepository.findAll().stream()
                 .map(c -> Optional.ofNullable(c.getCategoryName()).orElse(""))
