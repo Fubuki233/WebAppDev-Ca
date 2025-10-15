@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @version 1.0
  * @version 1.1 - Modfied variant into product
  * 
@@ -17,7 +17,7 @@ import jakarta.validation.constraints.*;
  * @author Sun Rui
  * @version 1.3 - Added validation constraint
  * 
- * @author Jiang
+ * @author Yibai
  * @date 10-14
  * @version 1.4 - Added sku
  */

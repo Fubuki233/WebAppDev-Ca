@@ -18,7 +18,7 @@ import sg.com.aori.service.RoleService;
 /**
  * Controller for Employee entity.
  *
- * @author Xiaobo, SunRui
+ * @author Xiaobo, Sun Rui
  * @date 2025-10-10
  * @version 1.1
  */

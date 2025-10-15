@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import sg.com.aori.model.ShoppingCart;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @version 1.0
  * @version 1.1 - Modified variant related code
  * @version 1.2 - Optimized import

@@ -16,7 +16,7 @@ import sg.com.aori.service.SkuService;
 import sg.com.aori.utils.SkuTool;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @version 2.0 - REST API applied
  * @version 2.1 - Session applied
  * @version 2.2 - Test completed
@@ -24,7 +24,7 @@ import sg.com.aori.utils.SkuTool;
  * @author Sun Rui
  * @version 2.3 - Add validation for addToCart
  * 
- * @author Jiang
+ * @author Yibai
  * @version 2.4 - Added sku, optimized detail statements
  */
 

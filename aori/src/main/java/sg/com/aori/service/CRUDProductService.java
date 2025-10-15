@@ -30,7 +30,7 @@ import sg.com.aori.model.Product;
  * @date 2025-10-13
  * @version 2.1 - Added recalculateAverageRating method
  * 
- * @author Jiang
+ * @author Yibai
  * @date 2025-10-16
  * @version 2.2 - Added findProductIdByProductCode method
  */

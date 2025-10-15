@@ -15,7 +15,7 @@ import sg.com.aori.model.*;
 import sg.com.aori.repository.*;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @version 1.0
  * @version 1.1 - Small adjustments, including a simple validation before
  *          creating order

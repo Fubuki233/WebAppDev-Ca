@@ -18,7 +18,7 @@ import sg.com.aori.model.OrderItem;
  * @date 2025-10-8
  * @version 1.1 - Added findByOrderItemIdAndOrderId
  * 
- * @author Jiang
+ * @author Yibai
  * @date 2025-10-10
  * @version 1.2 - Aded findByOrderId
  */

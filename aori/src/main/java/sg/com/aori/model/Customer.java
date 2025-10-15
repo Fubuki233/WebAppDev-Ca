@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
 /**
  * Entity of Customer.
  *
- * @author YunHe & SunRui
+ * @author Yunhe & Sun Rui
  * @date 2025-10-08
  * @version 1.1
  */

@@ -10,7 +10,7 @@ import sg.com.aori.model.CustomerAddress;
 /**
  * Repository Interface for CustomerAddress Entity
  *
- * @author SunRui
+ * @author Sun Rui
  * @date 2025-10-07
  * @version 1.0
  * 

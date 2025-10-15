@@ -16,7 +16,7 @@ import sg.com.aori.repository.InventoryRepository;
 import sg.com.aori.repository.OrderRepository;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @date 2025-10-10
  * @version 1.0
  * @version 1.1 - Removed variant, modified it into product

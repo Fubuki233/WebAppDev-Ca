@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @version 1.0
  * @version 1.1 - Modified variant related code, Add constraints to entities
  * @version 1.2 - Added sku

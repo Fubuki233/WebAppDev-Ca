@@ -14,7 +14,7 @@ import sg.com.aori.repository.CustomerRepository;
 /**
  * Service Implementation for Create Customer Account
  *
- * @author SunRui
+ * @author Sun Rui
  * @date 2025-10-10
  * @version 1.3 - optimize logic
  */

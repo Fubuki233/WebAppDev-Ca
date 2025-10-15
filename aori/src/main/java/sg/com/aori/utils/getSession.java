@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpSession;
  * @param session
  * @return customerId
  * 
- * @author Jiang
+ * @author Yibai
  * @date 2025-10-08
  * @version 1.0
  */

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import sg.com.aori.model.Product;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @date 2025-10-07
  * @version 1.0
  */
