@@ -1,12 +1,3 @@
-/**
- * Service Implementation for Managing Customer Account
- * 
- * @author Ying Chun
- * @date 2025-10-08
- * @version 1.0 - Previously named CustomerProfileService
- * @version 2.0 - Renamed as CustomerAccountService. Introduce Http Session to authenticate users before they can perform actions.
- */
-
 package sg.com.aori.service;
 
 import java.util.List;
@@ -22,6 +13,15 @@ import sg.com.aori.model.CustomerAddress;
 import sg.com.aori.repository.CustomerAddressRepository;
 import sg.com.aori.repository.CustomerRepository;
 import sg.com.aori.interfaces.ICustomerAccount;
+
+/**
+ * Service Implementation for Managing Customer Account
+ * 
+ * @author Ying Chun
+ * @date 2025-10-08
+ * @version 1.0 - Previously named CustomerProfileService
+ * @version 2.0 - Renamed as CustomerAccountService. Introduce Http Session to authenticate users before they can perform actions.
+ */
 
 @Service
 @Transactional(readOnly = true)

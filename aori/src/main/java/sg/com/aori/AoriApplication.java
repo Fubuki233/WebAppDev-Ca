@@ -16,7 +16,6 @@ public class AoriApplication implements ServletContextInitializer {
 
 	@Override
 	public void onStartup(ServletContext servletContext) {
-		// Disable URL-based session tracking
 		servletContext.setSessionTrackingModes(Collections.singleton(SessionTrackingMode.COOKIE));
 	}
 }

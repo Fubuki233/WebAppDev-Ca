@@ -2,14 +2,9 @@ package sg.com.aori.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sg.com.aori.model.Orders;
-import sg.com.aori.model.OrderItem;
-import sg.com.aori.model.Product;
-import sg.com.aori.model.ShoppingCart;
-import sg.com.aori.repository.OrderRepository;
-import sg.com.aori.repository.OrderItemRepository;
-import sg.com.aori.repository.ProductRepository;
-import sg.com.aori.repository.CartRepository;
+
+import sg.com.aori.model.*;
+import sg.com.aori.repository.*;
 
 import java.util.*;
 import java.util.stream.Collectors;

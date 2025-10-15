@@ -7,8 +7,7 @@ import java.util.Optional;
 /**
  * Interface for Return entity.
  *
- * @author xiaobo
- * 
+ * @author Xiaobo
  * @date 2025-10-09
  * @version 1.0
  */

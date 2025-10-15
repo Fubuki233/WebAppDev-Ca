@@ -1,4 +1,3 @@
-
 /**
  * Entity of Customer.
  *
@@ -10,9 +9,7 @@
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -51,6 +48,7 @@ public class Customer {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
+    @NotBlank
     @Length(min = 8, max = 255)
     @Column(name = "password", nullable = false, length = 255)
     private String password;

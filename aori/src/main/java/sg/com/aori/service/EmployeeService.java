@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * Service for Employee entity.
  *
- * @author xiaobo SunRui
+ * @author Xiaobo, Sun Rui
  * @date 2025-10-08
  * @version 1.1
  */

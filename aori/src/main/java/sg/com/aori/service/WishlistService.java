@@ -21,33 +21,26 @@ import sg.com.aori.repository.WishlistRepository;
 @Service
 public class WishlistService implements IWishlist {
 
-	// repository for Wishlist
 	private final WishlistRepository wishlistRepository;
 
 	public WishlistService(WishlistRepository wishlistRepository) {
 		this.wishlistRepository = wishlistRepository;
-
 	}
 
-	// Toggle wishlist; returns true if added, false if removed
 	@Override
 	@Transactional
 	public boolean toggle(String customerId, String productId) {
 		validate(customerId, productId);
-
-		// returns false if product existed and was deleted from wishlist
 		int deleted = wishlistRepository.deleteByCustomerIdAndProductId(customerId, productId);
+
 		if (deleted > 0) {
 			return false;
 		}
 
-		// else add to wishlist
 		wishlistRepository.save(new Wishlist(customerId, productId));
 		return true;
 	}
 
-	// Initial state for the heart: heart filled - in wishlist, heart empty - not in
-	// wishlist
 	@Override
 	@Transactional(readOnly = true)
 	public boolean exists(String customerId, String productId) {
@@ -55,7 +48,6 @@ public class WishlistService implements IWishlist {
 		return wishlistRepository.existsByCustomerIdAndProductId(customerId, productId);
 	}
 
-	// returns all wishlisted products, orderbycreatedat descending
 	@Override
 	@Transactional(readOnly = true)
 	public List<Wishlist> list(String customerId) {

@@ -100,9 +100,8 @@ public class CartService implements ICart {
             order.setCustomer(customer);
             order.setCustomerId(customerId);
 
-            // Set order status to Pending until payment is completed
-            order.setOrderStatus(Orders.OrderStatus.Pending);
-            order.setPaymentStatus(Orders.PaymentStatus.Pending);
+            order.setOrderStatus(Orders.OrderStatus.Shipped);
+            order.setPaymentStatus(Orders.PaymentStatus.Paid);
 
             BigDecimal totalAmount = calculateTotal(cartItems);
             order.setTotalAmount(totalAmount);

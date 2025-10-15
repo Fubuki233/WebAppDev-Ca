@@ -1,10 +1,3 @@
-/**
- * Entity representing a category for a product in the system.
- * Updated entity - simplified broad categories to 3 types only
- * @author tangyingchun
- * @date 2025-10-08
- * @version 2.0
- */
 
 package sg.com.aori.model;
 
@@ -12,6 +5,15 @@ import jakarta.persistence.*;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+/**
+ * Entity representing a category for a product in the system.
+ * Updated entity - simplified broad categories to 3 types only
+ * 
+ * @author Tang Ying Chun
+ * @date 2025-10-08
+ * @version 2.0
+ */
 
 @Entity
 @Table(name = "Category")
@@ -42,8 +44,8 @@ public class Category {
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
 
-    @JsonIgnore // to avoid serialization issues, otherwise will
-                // generate infinite recursion
+    @JsonIgnore
+
     private List<Product> products;
 
     public Category() {

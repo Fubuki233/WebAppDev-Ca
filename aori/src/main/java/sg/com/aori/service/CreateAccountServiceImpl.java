@@ -1,11 +1,4 @@
-/**
- * Service Implementation for Create Customer Account
- *optimize logic
- * 
- * @author SunRui
- * @date 2025-10-10
- * @version 1.3
- */
+
 
 package sg.com.aori.service;
 
@@ -19,6 +12,14 @@ import sg.com.aori.model.Customer;
 import sg.com.aori.model.CustomerAddress;
 import sg.com.aori.repository.CustomerAddressRepository;
 import sg.com.aori.repository.CustomerRepository;
+
+/**
+ * Service Implementation for Create Customer Account
+ *
+ * @author SunRui
+ * @date 2025-10-10
+ * @version 1.3 - optimize logic
+ */
 
 /**
  * Default implementation for the "Create Account" use case service.

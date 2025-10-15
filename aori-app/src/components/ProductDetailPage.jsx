@@ -29,9 +29,6 @@ const ProductDetailPage = ({ productId }) => {
     const [availableStock, setAvailableStock] = useState(-1);
     const [checkingStock, setCheckingStock] = useState(false);
 
-    // Notification states
-    const [notification, setNotification] = useState({ show: false, message: '', type: '' });
-
     // Review states
     const [reviews, setReviews] = useState([]);
     const [loadingReviews, setLoadingReviews] = useState(false);
@@ -125,12 +122,12 @@ const ProductDetailPage = ({ productId }) => {
 
     const handleAddToCart = async () => {
         if (!selectedSize) {
-            showNotification('Please select a size', 'error');
+            alert('Please select a size');
             return;
         }
 
         if (availableStock < 1) {
-            showNotification('This item is currently out of stock', 'error');
+            alert('This item is currently out of stock');
             return;
         }
 
@@ -150,17 +147,7 @@ const ProductDetailPage = ({ productId }) => {
         if (result.success) {
             const newStock = await getSkuQuantity(product.id, selectedColor, selectedSize);
             setAvailableStock(newStock);
-            showNotification(`Added ${quantity} item(s) to cart successfully!`, 'success');
-        } else {
-            showNotification('Failed to add item to cart', 'error');
         }
-    };
-
-    const showNotification = (message, type) => {
-        setNotification({ show: true, message, type });
-        setTimeout(() => {
-            setNotification({ show: false, message: '', type: '' });
-        }, 3000);
     };
 
     const handleToggleFavorite = async () => {
@@ -177,18 +164,12 @@ const ProductDetailPage = ({ productId }) => {
 
         if (result.requiresLogin) {
             // User is not logged in, redirect to login page
-            showNotification('Please login to add favorites', 'error');
-            setTimeout(() => {
-                window.location.hash = '#login';
-            }, 1000);
+            console.log('Login required, redirecting to login page');
+            window.location.hash = '#login';
         } else if (result.success) {
             // Use the 'added' field from backend to set the correct state
             setIsFavorite(result.added);
-            if (result.added) {
-                showNotification('Added to favorites!', 'success');
-            } else {
-                showNotification('Removed from favorites', 'success');
-            }
+            // No alert - silent toggle
         }
     };
 
@@ -217,28 +198,6 @@ const ProductDetailPage = ({ productId }) => {
     return (
         <div className="product-detail-page">
             <Navbar />
-
-            {/* Notification Toast */}
-            {notification.show && (
-                <div className={`notification-toast ${notification.type}`}>
-                    <div className="notification-content">
-                        {notification.type === 'success' && (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        )}
-                        {notification.type === 'error' && (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        )}
-                        <span>{notification.message}</span>
-                    </div>
-                </div>
-            )}
 
             <div className="detail-container">
                 <div className="breadcrumb">

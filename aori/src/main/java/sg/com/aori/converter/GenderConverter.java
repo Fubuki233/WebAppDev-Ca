@@ -1,3 +1,9 @@
+package sg.com.aori.converter;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import sg.com.aori.model.Customer.Gender;
+
 /**
  * Converter for Gender enum to handle database values with hyphens
  * 
@@ -5,12 +11,6 @@
  * @date 2025-10-15
  * @version 1.0
  */
-
-package sg.com.aori.converter;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import sg.com.aori.model.Customer.Gender;
 
 @Converter(autoApply = true)
 public class GenderConverter implements AttributeConverter<Gender, String> {
@@ -20,7 +20,6 @@ public class GenderConverter implements AttributeConverter<Gender, String> {
         if (gender == null) {
             return null;
         }
-        // Convert Non_binary to Non-binary for database
         return gender.name().replace("_", "-");
     }
 

@@ -4,9 +4,6 @@
  * @author Yunhe
  * @date 2025-10-09
  * @version 1.0
- * 
- * @version 1.1 - debug updateProfile function to better handle network errors
- * @date 2025-10-15
  */
 
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
@@ -64,22 +61,14 @@ export const updateProfile = async (profileData) => {
         } else {
             return {
                 success: false,
-                message: data.message || 'Failed to update profile',
-                status: data.status
+                message: data.message || 'Failed to update profile'
             };
         }
     } catch (error) {
         console.error('Update profile error:', error);
-        // Check if it's a network error or server error
-        if (error.message && error.message.includes('Failed to fetch')) {
-            return {
-                success: false,
-                message: 'Network error. Please check your connection and try again.'
-            };
-        }
         return {
             success: false,
-            message: error.message || 'An unexpected error occurred. Please try again.'
+            message: 'Network error. Please try again.'
         };
     }
 };

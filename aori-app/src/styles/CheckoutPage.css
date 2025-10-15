@@ -174,30 +174,6 @@
     color: #999;
 }
 
-.form-input.error {
-    border-color: #dc3545;
-    background: #fff5f5;
-}
-
-.form-input.error:focus {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-}
-
-.form-field {
-    position: relative;
-    width: 100%;
-}
-
-.error-message {
-    display: block;
-    color: #dc3545;
-    font-size: 12px;
-    margin-top: 5px;
-    padding-left: 5px;
-    font-weight: 400;
-}
-
 .form-input.full-width {
     width: 100%;
 }

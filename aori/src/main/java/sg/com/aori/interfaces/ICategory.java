@@ -12,8 +12,8 @@ import sg.com.aori.model.Category;
  * @date 2025-10-07
  * @version 1.0
  */
-public interface ICategory {
 
+public interface ICategory {
     Optional<Category> findCategoryById(String id);
 
     Optional<Category> findCategoryByName(String name);
@@ -29,5 +29,4 @@ public interface ICategory {
     Category updateCategory(String categoryId, Category category);
 
     Category deleteCategory(String categoryId);
-
 }

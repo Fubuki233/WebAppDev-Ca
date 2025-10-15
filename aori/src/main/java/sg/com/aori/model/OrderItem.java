@@ -2,18 +2,20 @@
  * v1.1(Jiang): Modfied variant into product
  * v1.2(Sun Rui): add validation constraint
  * v1.3(Jiang): Added sku
+ * 
+ * @author Jiang, Sun Rui
  * @date: 10-14
+ * @version 1.3
  */
 
 package sg.com.aori.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
 import java.util.UUID;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+
 
 @Entity
 @Table(name = "order_item")
@@ -43,7 +45,6 @@ public class OrderItem {
     @Column(name = "discount_applied", precision = 10, scale = 2)
     private BigDecimal discountApplied = BigDecimal.ZERO;
 
-    // @NotBlank(message = "sku is required")
     @Column(name = "sku", length = 50, nullable = true)
     private String sku;
 
@@ -138,12 +139,13 @@ public class OrderItem {
     }
 
     /**
-     * xiaobo
-     * 2025-10-09
+     * @author Xia Xiaobo
+     * @date 2025-10-09
+     * 
      * Calculates and returns the net total price paid for this line item (used for
      * refund calculation).
      * Calculation: (priceAtPurchase - discountApplied) * quantity
-     * * @return The BigDecimal amount paid for this specific line item.
+     * @return The BigDecimal amount paid for this specific line item.
      */
     public BigDecimal getPrice() {
         // 1. Calculate the final price per unit: (priceAtPurchase - discountApplied)

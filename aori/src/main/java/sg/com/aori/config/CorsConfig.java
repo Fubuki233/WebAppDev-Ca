@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/* To add CorsConfig for ReactJS aori-app
+/**
+ * To add CorsConfig for ReactJS aori-app
+ * 
  * @author Ying Chun
  * @date 2025-10-07
  * @version 1.0

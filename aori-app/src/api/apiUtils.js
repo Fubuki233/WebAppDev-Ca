@@ -10,9 +10,6 @@
  * 
  * @date 2025-10-11
  * @version 1.2 - Improved authentication error handling with stayAsGuest option
- * 
- * @date 2025-10-14
- * @version 1.3 - Refactored apiRequest to return structured error info instead of throwing
  */
 
 /**
@@ -82,29 +79,7 @@ export const apiRequest = async (url, options = {}) => {
         const response = await authenticatedFetch(url, options);
 
         if (!response.ok) {
-            // Try to parse error response body
-            let errorMessage = `HTTP error! status: ${response.status}`;
-            try {
-                const errorData = await response.json();
-                if (errorData.message) {
-                    errorMessage = errorData.message;
-                } else if (errorData.error) {
-                    errorMessage = errorData.error;
-                }
-                // Return error data with success: false
-                return {
-                    success: false,
-                    message: errorMessage,
-                    status: response.status
-                };
-            } catch (parseError) {
-                // If response is not JSON, return generic error
-                return {
-                    success: false,
-                    message: errorMessage,
-                    status: response.status
-                };
-            }
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         return await response.json();

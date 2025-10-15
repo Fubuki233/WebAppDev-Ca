@@ -1,10 +1,3 @@
-package sg.com.aori.repository;
-
-import org.springframework.data.jpa.repository.*;
-import org.springframework.stereotype.Repository;
-
-import sg.com.aori.model.Category;
-
 /**
  * Repository interface for Category entity.
  *
@@ -16,6 +9,14 @@ import sg.com.aori.model.Category;
  * @date 2025-10-09
  * @version 1.1
  */
+
+package sg.com.aori.repository;
+
+import org.springframework.data.jpa.repository.*;
+import org.springframework.stereotype.Repository;
+
+import sg.com.aori.model.Category;
+
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, String> {
 
@@ -24,4 +25,5 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
     Category findByCategoryCode(String categoryCode);
 
     Category findBySlug(String slug);
+
 }

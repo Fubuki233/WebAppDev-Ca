@@ -1,22 +1,22 @@
 package sg.com.aori.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-/**
- * Service for Permission entity.
- *
- * @author xiaobo
- * @date 2025-10-07
- * @version 1.0
- */
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import sg.com.aori.interfaces.IPermission;
 import sg.com.aori.model.Permission;
 import sg.com.aori.repository.PermissionRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.NoSuchElementException;
+import java.util.*;
+
+/**
+ * Service for Permission entity.
+ *
+ * @author Xiaobo
+ * @date 2025-10-07
+ * @version 1.0
+ */
 
 @Service
 public class PermissionService implements IPermission {
