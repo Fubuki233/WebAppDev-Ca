@@ -9,7 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { submitReview, getOwnReview } from '../api/reviewApi';
 import '../styles/ReviewModal.css';
 
-const ReviewModal = ({ isOpen, onClose, orderItem, orderId, customerId }) => {
+const ReviewModal = ({ isOpen, onClose, orderItem, orderId, customerId, onReviewSubmitted }) => {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
     const [title, setTitle] = useState('');
@@ -60,6 +60,12 @@ const ReviewModal = ({ isOpen, onClose, orderItem, orderId, customerId }) => {
 
             if (result.success) {
                 setSuccess(existingReview ? 'Review updated successfully!' : 'Review submitted successfully!');
+
+                // Notify parent component about successful review submission
+                if (onReviewSubmitted) {
+                    onReviewSubmitted(orderItem.productId, orderId);
+                }
+
                 setTimeout(() => {
                     onClose();
                     // Reset form

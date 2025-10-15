@@ -51,7 +51,6 @@ public class Customer {
     @Column(name = "email", nullable = false, length = 255, unique = true)
     private String email;
 
-    @NotBlank
     @Length(min = 8, max = 255)
     @Column(name = "password", nullable = false, length = 255)
     private String password;

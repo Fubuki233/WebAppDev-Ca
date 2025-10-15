@@ -22,9 +22,12 @@ public class AuthFilter {
     public static boolean isAuthorized(Map<String, String> requestMap) {
         List<Map<String, String>> byPassMap = List.of(
                 Map.of("path", "/api/auth/login", "method", "POST"),
+                Map.of("path", "/api/auth/uuid", "method", "GET"),
                 Map.of("path", "/api/products", "method", "GET"),
                 Map.of("path", "/api/categories", "method", "GET"),
                 Map.of("path", "/api/products/search", "method", "GET"),
+                Map.of("path", "/api/products/recommendations", "method", "GET"),
+                Map.of("path", "/api/products/recommendations/history", "method", "GET"),
                 Map.of("path", "/api/wishlist/exists", "method", "GET"),
                 Map.of("path", "/api/customers", "method", "POST"),
                 Map.of("path", "/admin/login", "method", "GET"),

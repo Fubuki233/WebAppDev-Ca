@@ -23,6 +23,10 @@ public interface IOrder {
 
     void cancelOrder(String orderId);
 
+    void confirmDelivery(String orderId);
+
+    void returnOrder(String orderId);
+
     void updateOrderStatus(String orderId, Orders.OrderStatus status);
 
     boolean validateOrderData(Orders order);

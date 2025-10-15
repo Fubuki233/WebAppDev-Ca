@@ -38,7 +38,7 @@ public class Orders {
         Shipped,
         Delivered,
         Returned,
-        Cancelled
+        Cancelled,
     }
 
     public enum PaymentStatus {

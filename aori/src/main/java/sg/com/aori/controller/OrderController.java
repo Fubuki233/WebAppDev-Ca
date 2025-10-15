@@ -44,7 +44,7 @@ public class OrderController {
                 // response.put("success", false);
                 // response.put("message", "User not logged in");
                 // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-                System.out.println("customerId = "+customerId);
+                System.out.println("customerId = " + customerId);
             }
 
             List<Orders> orders = orderService.findOrdersByCustomerId(customerId);
@@ -172,6 +172,53 @@ public class OrderController {
             response.put("success", true);
             response.put("message", "Order cancelled successfully");
             response.put("orderStatus", "Cancelled");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // Confirm delivery
+    /**
+     * Confirm order delivery (customer confirms receipt)
+     * POST /api/order/{orderId}/delivery
+     * Returns: Success response with updated order status
+     * {
+     * "success": true,
+     * "orderStatus": "Delivered",
+     * "message": "Delivery confirmed successfully"
+     * }
+     */
+    @PostMapping("/{orderId}/delivery")
+    public ResponseEntity<Map<String, Object>> confirmDelivery(@PathVariable String orderId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            orderService.confirmDelivery(orderId);
+
+            response.put("success", true);
+            response.put("message", "Delivery confirmed successfully");
+            response.put("orderStatus", "Delivered");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/{orderId}/return")
+    public ResponseEntity<Map<String, Object>> returnOrder(@PathVariable String orderId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            orderService.returnOrder(orderId);
+
+            response.put("success", true);
+            response.put("message", "Order returned successfully");
+            response.put("orderStatus", "Returned");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {

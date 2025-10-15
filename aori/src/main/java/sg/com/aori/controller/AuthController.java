@@ -208,9 +208,8 @@ public class AuthController {
             System.out.println("[AuthController] session UUID: " + uuid);
             return ResponseEntity.ok().body(new UuidResponse(uuid));
         } else {
-            System.out.println("[AuthController] no valid session");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new UuidResponse(null));
+            System.out.println("[AuthController] no valid session - returning null uuid for guest user");
+            return ResponseEntity.ok().body(new UuidResponse(null));
         }
     }
 

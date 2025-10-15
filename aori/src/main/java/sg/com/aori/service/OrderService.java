@@ -120,6 +120,24 @@ public class OrderService implements IOrder {
         }
     }
 
+    @Override
+    public void returnOrder(String orderId) {
+        Orders order = findOrderById(orderId);
+        if (order == null) {
+            throw new RuntimeException("Order not found");
+        }
+
+        if (!order.getOrderStatus().equals(Orders.OrderStatus.Shipped)
+                && !order.getOrderStatus().equals(Orders.OrderStatus.Delivered)) {
+            throw new RuntimeException("Only shipped or delivered orders can be returned");
+        }
+
+        order.setOrderStatus(Orders.OrderStatus.Returned);
+        order.setPaymentStatus(Orders.PaymentStatus.Refunded);
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepository.save(order);
+    }
+
     // Cancel order
     public void cancelOrder(String orderId) {
         Orders order = findOrderById(orderId);
@@ -127,16 +145,39 @@ public class OrderService implements IOrder {
             throw new RuntimeException("Order not found");
         }
 
-        if (!order.getOrderStatus().equals(Orders.OrderStatus.Pending)) {
-            throw new RuntimeException("Order cannot be cancelled");
+        if (!order.getOrderStatus().equals(Orders.OrderStatus.Pending)
+                && !order.getOrderStatus().equals(Orders.OrderStatus.Paid)) {
+            throw new RuntimeException("Only pending or paid orders can be cancelled");
         }
 
         order.setOrderStatus(Orders.OrderStatus.Cancelled);
+        if (order.getPaymentStatus().equals(Orders.PaymentStatus.Paid)) {
+            order.setPaymentStatus(Orders.PaymentStatus.Refunded);
+        } else {
+            order.setPaymentStatus(Orders.PaymentStatus.Failed);
+        }
         order.setUpdatedAt(LocalDateTime.now());
         orderRepository.save(order);
 
         // Restore inventory
         restoreInventory(orderId);
+    }
+
+    // Confirm delivery
+    @Override
+    public void confirmDelivery(String orderId) {
+        Orders order = findOrderById(orderId);
+        if (order == null) {
+            throw new RuntimeException("Order not found");
+        }
+
+        if (!order.getOrderStatus().equals(Orders.OrderStatus.Shipped)) {
+            throw new RuntimeException("Only shipped orders can be confirmed for delivery");
+        }
+
+        order.setOrderStatus(Orders.OrderStatus.Delivered);
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepository.save(order);
     }
 
     // Restore inventory when order is cancelled or payment fails
@@ -167,4 +208,5 @@ public class OrderService implements IOrder {
                 order.getTotalAmount().compareTo(BigDecimal.ZERO) > 0 &&
                 order.getCustomer() != null;
     }
+
 }

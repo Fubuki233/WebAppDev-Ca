@@ -59,6 +59,10 @@ public class CustomerController {
      */
     @PostMapping
     public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
+        // Validate password is not blank for customer creation
+        if (customer.getPassword() == null || customer.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password is required for customer registration");
+        }
         if (customer.getCustomerId() == null || customer.getCustomerId().isBlank()) {
             customer.setCustomerId(java.util.UUID.randomUUID().toString());
         }

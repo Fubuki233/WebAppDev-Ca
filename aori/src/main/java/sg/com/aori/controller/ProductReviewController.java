@@ -127,15 +127,15 @@ public class ProductReviewController {
             reviewData.put("title", review.getTitle());
             reviewData.put("comment", review.getComment());
             reviewData.put("createdAt", review.getCreatedAt());
-            
+
             // Get customer name
             String customerName = "Anonymous";
             if (review.getUserId() != null) {
                 Optional<Customer> customer = customerRepository.findById(review.getUserId());
                 if (customer.isPresent()) {
                     Customer c = customer.get();
-                    customerName = (c.getFirstName() != null ? c.getFirstName() : "") + 
-                                 (c.getLastName() != null ? " " + c.getLastName() : "");
+                    customerName = (c.getFirstName() != null ? c.getFirstName() : "") +
+                            (c.getLastName() != null ? " " + c.getLastName() : "");
                     customerName = customerName.trim();
                     if (customerName.isEmpty()) {
                         customerName = "Anonymous";
@@ -143,7 +143,7 @@ public class ProductReviewController {
                 }
             }
             reviewData.put("customerName", customerName);
-            
+
             result.add(reviewData);
         }
 

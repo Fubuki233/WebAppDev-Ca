@@ -138,7 +138,7 @@ public class CustomerAccountController {
 	 */
 
 	@PutMapping("/profile/edit")
-	public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody Customer profileData,
+	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Customer profileData,
 			HttpSession session) {
 		System.out.println("[CustomerAccountController] Data received from frontend: " + profileData.toString());
 		Map<String, Object> response = new HashMap<>();
@@ -156,7 +156,7 @@ public class CustomerAccountController {
 
 		} catch (Exception e) {
 			response.put("success", false);
-			response.put("message", "Unable to update profile due to error: " + e.getMessage());
+			response.put("message", "Unable to update profile: " + e.getMessage());
 			return ResponseEntity.badRequest().body(response);
 		}
 	}
