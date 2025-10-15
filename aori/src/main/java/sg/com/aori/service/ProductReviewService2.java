@@ -98,11 +98,6 @@ public class ProductReviewService2 implements IProductReview {
         @Override
         @Transactional(readOnly = true)
         public Map<String, Object> getOrderReviewStatus(String customerId, String orderId) {
-                Orders order = ordersRepository.findByOrderIdAndCustomerId(orderId, customerId)
-                                .orElseThrow(() -> new ResponseStatusException(
-                                                HttpStatus.NOT_FOUND,
-                                                "Order not found or does not belong to customer"));
-
                 java.util.List<sg.com.aori.model.OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
 
                 java.util.List<Map<String, Object>> itemsStatus = new java.util.ArrayList<>();

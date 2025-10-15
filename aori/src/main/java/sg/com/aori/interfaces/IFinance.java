@@ -1,7 +1,5 @@
 package sg.com.aori.interfaces;
 
-import sg.com.aori.service.FinanceService;
-
 /**
  * @author Jiang
  * @date 2025-10-10
@@ -11,10 +9,4 @@ import sg.com.aori.service.FinanceService;
 
 public interface IFinance {
     Boolean verifyPayment(String orderId);
-
-    Boolean getPaymentStatus(String orderId);
-
-    Boolean isPaymentGatewayAvailable();
-
-    FinanceService.PaymentStatusDetail getPaymentStatusDetail(String orderId);
 }

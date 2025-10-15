@@ -43,9 +43,6 @@ public class CRUDProductService implements IProduct {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
-    @Autowired
-    private ProductReviewService productReviewService;
-
     @Override
     public Product createProduct(Product product) {
         return productRepository.save(product);
