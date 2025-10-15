@@ -112,31 +112,21 @@ public class CRUDProductService implements IProduct {
         return Optional.ofNullable(productRepository.findAll());
     }
 
+    // Method used by frontend website using Rest API
     @Override
     public Product updateProduct(String productId, Product product) {
         product.setProductId(productId);
         return productRepository.save(product);
     }
 
-    // New method to handle both create and update
+    // Methods used by admin portal to handle product creation and updates
+    // Uses Spring Data JPA and Thymeleaf 
     @Override
     public void saveProduct(Product product) {
         productRepository.save(product);
     }
-    /*
-     * Commented out old delete method
-     * 
-     * @Override
-     * public Product deleteProduct(String productId) {
-     * Product product = productRepository.findById(productId).orElse(null);
-     * if (product != null) {
-     * productRepository.deleteById(productId);
-     * }
-     * return product;
-     * }
-     */
 
-    // Revised method to prevent deletion of products that have orders
+    // Improved method to prevent deletion of products that have orders
     @Override
     public Product deleteProduct(String productId) {
         Product productToDelete = productRepository.findById(productId)
