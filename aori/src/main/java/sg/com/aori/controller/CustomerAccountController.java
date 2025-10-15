@@ -1,29 +1,36 @@
-package sg.com.aori.controller;
-
-import java.util.*;
-import jakarta.validation.Valid;
-import jakarta.servlet.http.HttpSession;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import sg.com.aori.interfaces.ICustomerAccount;
-import sg.com.aori.model.Customer;
-import sg.com.aori.model.CustomerAddress;
-
 /**
  * REST Controller for Managing Customer Account
  * 
  * @author Ying Chun, Sun Rui
  * @date 2025-10-08
- * @version 1.0 - previously known as CustomerProfileController; renamed to
- *          cover different sub-services
- * @version 2.0 - Renamed to CustomerAccountController. Introduce Http Session
- *          to authenticate users before they can perform actions.
+ * @version 1.0 - previously known as CustomerProfileController; renamed to cover different sub-services
+ * @version 2.0 - Renamed to CustomerAccountController. Introduce Http Session to authenticate users before they can perform actions.
  * @version 2.1 - Added validation
  * @version 2.2 - Added Javadoc comments
  */
+
+package sg.com.aori.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.servlet.http.HttpSession;
+import sg.com.aori.interfaces.ICustomerAccount;
+import sg.com.aori.model.Customer;
+import sg.com.aori.model.CustomerAddress;
 
 @CrossOrigin
 @RestController
@@ -32,24 +39,22 @@ public class CustomerAccountController {
 
 	private final ICustomerAccount manageCustAccount;
 
+	// dependency injection; no need to use @Autowired as it is not needed in this
+	// version
 	public CustomerAccountController(ICustomerAccount manageCustAccount) {
 		this.manageCustAccount = manageCustAccount;
 	}
 
-	/**
-	 * Helper method to get customer_id from current session
-	 * 
-	 * @param session
-	 * @return customer_id
-	 */
+	// Helper method to get customer_id (PK) from current session
+	// Even though customer will login via email, the more efficient method is still
+	// to authenticate session via customer_id
+
 	private String getCustomerIdFromSession(HttpSession session) {
 		return (String) session.getAttribute("id");
 	}
 
 	/**
 	 * View profile details. Retrieves profile details for a logged in customer.
-	 * Example response:
-	 * 
 	 * {
 	 * "success": true,
 	 * "profile": {
@@ -99,7 +104,6 @@ public class CustomerAccountController {
 
 	/**
 	 * Update profile details. Allow logged-in customer to edit profile details.
-	 * Example input and response:
 	 * 
 	 * [Postman] Data required to be passed in JSON format in the request body:
 	 * {
@@ -134,7 +138,7 @@ public class CustomerAccountController {
 	 */
 
 	@PutMapping("/profile/edit")
-	public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody Customer profileData,
+	public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Customer profileData,
 			HttpSession session) {
 		System.out.println("[CustomerAccountController] Data received from frontend: " + profileData.toString());
 		Map<String, Object> response = new HashMap<>();
@@ -152,7 +156,7 @@ public class CustomerAccountController {
 
 		} catch (Exception e) {
 			response.put("success", false);
-			response.put("message", "Unable to update profile due to error: " + e.getMessage());
+			response.put("message", "Unable to update profile: " + e.getMessage());
 			return ResponseEntity.badRequest().body(response);
 		}
 	}
@@ -160,7 +164,6 @@ public class CustomerAccountController {
 	/**
 	 * View Customer Address. Retrieves address details for a logged in customer
 	 * Example of successful response:
-	 * 
 	 * {
 	 * "addresses": [
 	 * {
@@ -198,6 +201,7 @@ public class CustomerAccountController {
 	 * @param session    HTTP session for storing user information
 	 * @return ResponseEntity with address details or error message
 	 */
+
 	@GetMapping("/addresses")
 	public ResponseEntity<Map<String, Object>> getAddresses(HttpSession session) {
 		Map<String, Object> response = new HashMap<>();
@@ -223,7 +227,6 @@ public class CustomerAccountController {
 	/**
 	 * Update addresses. Allow logged-in customer to edit address details.
 	 * Example of response to post to a specific addressId:
-	 * 
 	 * {
 	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
 	 * "recipientName": "Johnny Depp",
@@ -275,6 +278,7 @@ public class CustomerAccountController {
 	 * @param session
 	 * @return ResponseEntity with updated address details or error message
 	 */
+
 	@PutMapping("/addresses/{addressId}")
 	public ResponseEntity<Map<String, Object>> updateAddress(
 			@PathVariable String addressId, @Valid @RequestBody CustomerAddress addressData,
@@ -298,5 +302,6 @@ public class CustomerAccountController {
 			response.put("message", "Unable to update addresses: " + e.getMessage());
 			return ResponseEntity.badRequest().body(response);
 		}
+
 	}
 }

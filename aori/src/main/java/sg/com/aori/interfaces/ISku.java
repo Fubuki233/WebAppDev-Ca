@@ -14,4 +14,6 @@ public interface ISku {
     int getQuantity(String sku);
 
     int checkoutSku(String sku);
+
+    int decreaseQuantity(String sku, int quantity);
 }

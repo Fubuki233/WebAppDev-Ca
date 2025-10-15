@@ -119,4 +119,31 @@ public class SkuService implements ISku {
         return existingSku.getQuantity();
     }
 
+    @Override
+    public int decreaseQuantity(String sku, int quantity) {
+        sku = SkuTool.convertUUIDSkutoProductCodeSku(sku, productService);
+        Sku existingSku = skuRepository.findById(sku).orElse(null);
+        if (existingSku == null) {
+            System.out.println("[SkuService] SKU not found: " + sku);
+            return -1;
+        }
+
+        if (existingSku.getQuantity() < quantity) {
+            System.out.println("[SkuService] Insufficient quantity for SKU: " + sku +
+                    ", available: " + existingSku.getQuantity() + ", requested: " + quantity);
+            return -1;
+        }
+
+        existingSku.setQuantity(existingSku.getQuantity() - quantity);
+        skuRepository.save(existingSku);
+
+        System.out.println("[SkuService] Decreased SKU " + sku + " quantity by " + quantity +
+                ", new quantity: " + existingSku.getQuantity());
+
+        // Update product stock quantity after decrease
+        updateProductStockQuantity(sku);
+
+        return existingSku.getQuantity();
+    }
+
 }

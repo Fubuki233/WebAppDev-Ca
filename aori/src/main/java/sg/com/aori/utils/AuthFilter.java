@@ -1,31 +1,33 @@
-package sg.com.aori.utils;
-
-import java.util.List;
-import java.util.Map;
-
 /**
  * Check if the request (path + method) is authorized/bypassed.
  * 
  * @param requestMap should contain "path" and "method" keys
  * @return true if the request is in the bypass list
+ * @Author Yunhe
+ * @Date 2025-10-09
+ * @Version 1.0
  * 
- * @author Yunhe
- * @date 2025-10-09
- * @version 1.0
- * 
- * @author Yunhe
+ * @Author Yunhe
  * @date 2025-10-12
- * @version 1.1 - Added more bypass rules
+ * @version 1.1 - added more bypass rules
+ * 
  */
+package sg.com.aori.utils;
+
+import java.util.List;
+import java.util.Map;
 
 public class AuthFilter {
 
     public static boolean isAuthorized(Map<String, String> requestMap) {
         List<Map<String, String>> byPassMap = List.of(
                 Map.of("path", "/api/auth/login", "method", "POST"),
+                Map.of("path", "/api/auth/uuid", "method", "GET"),
                 Map.of("path", "/api/products", "method", "GET"),
                 Map.of("path", "/api/categories", "method", "GET"),
                 Map.of("path", "/api/products/search", "method", "GET"),
+                Map.of("path", "/api/products/recommendations", "method", "GET"),
+                Map.of("path", "/api/products/recommendations/history", "method", "GET"),
                 Map.of("path", "/api/wishlist/exists", "method", "GET"),
                 Map.of("path", "/api/customers", "method", "POST"),
                 Map.of("path", "/admin/login", "method", "GET"),

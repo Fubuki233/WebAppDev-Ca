@@ -385,7 +385,7 @@ const ProductsPage = ({ initialBroadCategory, initialSearch, initialPage = 1, in
                                         </div>
 
                                         <label className="page-size-selector">
-                                            每页显示
+                                            Display items
                                             <select value={pageSize} onChange={handlePageSizeChange}>
                                                 {PAGE_SIZE_OPTIONS.map(option => (
                                                     <option key={option} value={option}>
