@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 2025-10-07
  * @version 1.0
  */
+
 @Service
 @Transactional(readOnly = true)
 public class LoginService implements ILogin {

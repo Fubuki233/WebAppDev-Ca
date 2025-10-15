@@ -1,16 +1,16 @@
 package sg.com.aori.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import sg.com.aori.interfaces.IRole;
 import sg.com.aori.model.Role;
 import sg.com.aori.model.Permission;
 import sg.com.aori.repository.RoleRepository;
 import sg.com.aori.repository.PermissionRepository;
-
-import java.util.*;
 
 /**
  * Service for role entity.

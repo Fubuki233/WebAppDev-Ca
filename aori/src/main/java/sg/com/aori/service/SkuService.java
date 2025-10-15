@@ -1,7 +1,18 @@
 package sg.com.aori.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import sg.com.aori.interfaces.ISku;
+import sg.com.aori.model.Product;
+import sg.com.aori.model.Sku;
+import sg.com.aori.repository.SkuRepository;
+import sg.com.aori.utils.SkuTool;
+
 /**
  * SKU Service for managing stock keeping units (SKUs).
+ * 
  * @author Yunhe
  * @date 2025-10-13
  * @version 1.0
@@ -12,17 +23,9 @@ package sg.com.aori.service;
  * 
  * @author Yunhe
  * @date 2025-10-15
- * @version 1.2 - Added automatic product stock quantity calculation after SKU operations
+ * @version 1.2 - Added automatic product stock quantity calculation after SKU
+ *          operations
  */
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import sg.com.aori.interfaces.ISku;
-import sg.com.aori.model.Product;
-import sg.com.aori.model.Sku;
-import sg.com.aori.repository.SkuRepository;
-import sg.com.aori.utils.SkuTool;
 
 @Service
 @Transactional
@@ -43,7 +46,6 @@ public class SkuService implements ISku {
         skuRepository.save(newSku);
         System.out.println("Created SKU: " + sku + " with quantity: " + quantity);
 
-        // Update product stock quantity after creating SKU
         updateProductStockQuantity(sku);
 
         return sku;
@@ -56,7 +58,6 @@ public class SkuService implements ISku {
      */
     private void updateProductStockQuantity(String sku) {
         try {
-            // Extract product code from SKU
             String[] parts = sku.split("&");
             if (parts.length < 3) {
                 System.out.println("[SkuService] Invalid SKU format, cannot update product stock: " + sku);
@@ -65,17 +66,14 @@ public class SkuService implements ISku {
 
             String productCode = parts[0];
 
-            // Get product ID from product code
             String productId = productService.findProductIdByProductCode(productCode);
             if (productId == null) {
                 System.out.println("[SkuService] Product not found for code: " + productCode);
                 return;
             }
 
-            // Calculate total quantity of all SKUs for this product
             Integer totalQuantity = skuRepository.getTotalQuantityByProductCode(productCode);
 
-            // Update product stock quantity
             Product product = productService.getProductById(productId).orElse(null);
             if (product != null) {
                 product.setStockQuantity(totalQuantity);
@@ -113,7 +111,6 @@ public class SkuService implements ISku {
         existingSku.setQuantity(existingSku.getQuantity() - 1);
         skuRepository.save(existingSku);
 
-        // Update product stock quantity after checkout
         updateProductStockQuantity(sku);
 
         return existingSku.getQuantity();
@@ -140,7 +137,6 @@ public class SkuService implements ISku {
         System.out.println("[SkuService] Decreased SKU " + sku + " quantity by " + quantity +
                 ", new quantity: " + existingSku.getQuantity());
 
-        // Update product stock quantity after decrease
         updateProductStockQuantity(sku);
 
         return existingSku.getQuantity();

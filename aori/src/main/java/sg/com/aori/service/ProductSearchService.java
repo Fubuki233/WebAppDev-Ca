@@ -1,16 +1,15 @@
 package sg.com.aori.service;
 
-import jakarta.persistence.*;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import sg.com.aori.model.Product;
-import sg.com.aori.repository.CategoryRepository;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import jakarta.persistence.*;
 
-import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import sg.com.aori.model.Product;
+import sg.com.aori.repository.CategoryRepository;
 
 /**
  * Service for searching products with pagination and sorting.
@@ -30,20 +29,20 @@ public class ProductSearchService {
     private final CategoryRepository categoryRepository;
 
     private static final Set<String> COLOR_SET = Set.of(
-            "red","blue","green","black","white","yellow","pink","purple","grey","gray","brown","beige","navy","orange"
-    );
-    private static final Set<String> SIZE_SET = Set.of("xs","s","m","l","xl","2xl","2x","xxl");
+            "red", "blue", "green", "black", "white", "yellow", "pink", "purple", "grey", "gray", "brown", "beige",
+            "navy", "orange");
+    private static final Set<String> SIZE_SET = Set.of("xs", "s", "m", "l", "xl", "2xl", "2x", "xxl");
 
     public ProductSearchService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
     public List<Product> search(String q,
-                                String categoryParam,
-                                String colorParam,
-                                String sizeParam,
-                                BigDecimal priceMin,
-                                BigDecimal priceMax) {
+            String categoryParam,
+            String colorParam,
+            String sizeParam,
+            BigDecimal priceMin,
+            BigDecimal priceMax) {
 
         String query = (q == null) ? "" : q.trim();
 
@@ -74,9 +73,12 @@ public class ProductSearchService {
             }
         }
 
-        if (StringUtils.hasText(categoryParam)) detectedCategory = categoryParam.toLowerCase(Locale.ROOT);
-        if (StringUtils.hasText(colorParam)) detectedColor = colorParam.toLowerCase(Locale.ROOT);
-        if (StringUtils.hasText(sizeParam)) detectedSize = sizeParam.toLowerCase(Locale.ROOT);
+        if (StringUtils.hasText(categoryParam))
+            detectedCategory = categoryParam.toLowerCase(Locale.ROOT);
+        if (StringUtils.hasText(colorParam))
+            detectedColor = colorParam.toLowerCase(Locale.ROOT);
+        if (StringUtils.hasText(sizeParam))
+            detectedSize = sizeParam.toLowerCase(Locale.ROOT);
 
         StringBuilder jpql = new StringBuilder(
                 "select p from Product p left join fetch p.category c where 1=1 ");
@@ -86,7 +88,7 @@ public class ProductSearchService {
         for (int i = 0; i < likeTokens.size(); i++) {
             String name = "t" + i;
             jpql.append(" and ( lower(p.productName) like concat('%', :").append(name).append(", '%') ")
-                .append(" or  lower(c.categoryName) like concat('%', :").append(name).append(", '%') ) ");
+                    .append(" or  lower(c.categoryName) like concat('%', :").append(name).append(", '%') ) ");
             params.put(name, likeTokens.get(i));
         }
 
@@ -119,4 +121,3 @@ public class ProductSearchService {
         return tq.getResultList();
     }
 }
-

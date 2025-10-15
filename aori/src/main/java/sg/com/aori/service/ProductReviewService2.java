@@ -1,13 +1,6 @@
-/* @author Derek
- * @date 2025-10-15
- * @version 1.2 - Allow reviews for Shipped orders, added getOrderReviewStatus method
- **/
-
 package sg.com.aori.service;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,9 +11,14 @@ import sg.com.aori.interfaces.IProductReview;
 import sg.com.aori.model.Orders;
 import sg.com.aori.model.ProductReview;
 import sg.com.aori.model.ProductReview.ReviewStatus;
-import sg.com.aori.repository.OrderRepository;
-import sg.com.aori.repository.OrderItemRepository;
-import sg.com.aori.repository.ProductReviewRepository;
+import sg.com.aori.repository.*;
+
+/**
+ * @author Derek
+ * @date 2025-10-15
+ * @version 1.2 - Allow reviews for Shipped orders, added getOrderReviewStatus
+ *          method
+ */
 
 @Service
 @Transactional
@@ -105,7 +103,6 @@ public class ProductReviewService2 implements IProductReview {
                                                 HttpStatus.NOT_FOUND,
                                                 "Order not found or does not belong to customer"));
 
-                // Get all order items for this order
                 java.util.List<sg.com.aori.model.OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
 
                 java.util.List<Map<String, Object>> itemsStatus = new java.util.ArrayList<>();
@@ -116,7 +113,6 @@ public class ProductReviewService2 implements IProductReview {
                         itemStatus.put("productId", item.getProductId());
                         itemStatus.put("orderItemId", item.getOrderItemId());
 
-                        // Check if this product has been reviewed by this customer
                         Optional<ProductReview> review = productReviewRepository
                                         .findByProductIdAndUserId(item.getProductId(), customerId);
 

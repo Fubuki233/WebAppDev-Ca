@@ -2,12 +2,12 @@ package sg.com.aori.service;
 
 import java.util.List;
 import java.util.Optional;
+import jakarta.annotation.Resource;
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-import jakarta.persistence.EntityNotFoundException;
 import sg.com.aori.model.Customer;
 import sg.com.aori.model.CustomerAddress;
 import sg.com.aori.repository.CustomerAddressRepository;
@@ -20,7 +20,8 @@ import sg.com.aori.interfaces.ICustomerAccount;
  * @author Ying Chun
  * @date 2025-10-08
  * @version 1.0 - Previously named CustomerProfileService
- * @version 2.0 - Renamed as CustomerAccountService. Introduce Http Session to authenticate users before they can perform actions.
+ * @version 2.0 - Renamed as CustomerAccountService. Introduce Http Session to
+ *          authenticate users before they can perform actions.
  */
 
 @Service
@@ -31,13 +32,11 @@ public class CustomerAccountService implements ICustomerAccount {
 	private final CustomerRepository customerRepository;
 	private final CustomerAddressRepository addressRepository;
 
-	// Constructor-based Dependency Injection
 	public CustomerAccountService(CustomerRepository customerRepository, CustomerAddressRepository addressRepository) {
 		this.customerRepository = customerRepository;
 		this.addressRepository = addressRepository;
 	}
 
-	// Locate customer by ID
 	@Override
 	public Optional<Customer> getCustomerById(String customerId) {
 		return customerRepository.findById(customerId);
@@ -56,20 +55,15 @@ public class CustomerAccountService implements ICustomerAccount {
 	@Override
 	@Transactional(readOnly = false)
 	public Customer updateCustProfile(String customerId, Customer profileData) {
-		// Retrieve customer by ID
 		Optional<Customer> optCustomer = customerRepository.findById(customerId);
 
-		// Check if the customer exists
 		Customer existingCustomer;
 		if (optCustomer.isPresent()) {
 			existingCustomer = optCustomer.get();
 		} else {
-			// throws exception if customer cannot be found
 			throw new EntityNotFoundException("Customer not found with ID: " + customerId);
 		}
 
-		// Update customer's profile details for each field, encapsulated by
-		// 'profileData' object
 		existingCustomer.setFirstName(profileData.getFirstName());
 		existingCustomer.setLastName(profileData.getLastName());
 		existingCustomer.setPhoneNumber(profileData.getPhoneNumber());
@@ -81,29 +75,23 @@ public class CustomerAccountService implements ICustomerAccount {
 		return updatedCustomer;
 	}
 
-	// Locate customer address list by customer ID
 	@Override
 	public List<CustomerAddress> getCustomerAddresses(String customerId) {
 		return addressRepository.findByCustomerId(customerId);
 	}
 
-	// Update customer addresses
 	@Override
 	@Transactional(readOnly = false)
 	public CustomerAddress updateCustomerAddress(String customerId, String addressId, CustomerAddress addressData) {
-		// Retrieve customer address by customer ID and address ID
 		Optional<CustomerAddress> optAddress = addressRepository.findByAddressIdAndCustomerId(addressId, customerId);
 
-		// Check if address exists and belongs to the customer
 		CustomerAddress existingAddress;
 		if (optAddress.isPresent()) {
 			existingAddress = optAddress.get();
 		} else {
-			// exception if address cannot be found or does not match the customer
 			throw new EntityNotFoundException("Address cannot be found or cannot be matched to your account.");
 		}
 
-		// Update fields of the existing address entity with new data
 		existingAddress.setRecipientName(addressData.getRecipientName());
 		existingAddress.setPhoneNumber(addressData.getPhoneNumber());
 		existingAddress.setAddressLine1(addressData.getAddressLine1());
@@ -112,10 +100,8 @@ public class CustomerAccountService implements ICustomerAccount {
 		existingAddress.setPostalCode(addressData.getPostalCode());
 		existingAddress.setCountry(addressData.getCountry());
 
-		// Save updated address to the database
 		CustomerAddress updatedAddress = addressRepository.save(existingAddress);
 
-		// Return the updated address
 		return updatedAddress;
 	}
 

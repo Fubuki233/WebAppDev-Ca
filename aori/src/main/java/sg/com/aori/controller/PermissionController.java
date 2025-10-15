@@ -16,7 +16,7 @@ import sg.com.aori.model.Permission;
 /**
  * Controller for Permission entity.
  *
- * @author Xiaobo，Sun Rui
+ * @author Xiaobo
  * @date 2025-10-07
  * @version 1.0
  * @version 1.1 - ATTENTION: Need to change some paths

@@ -1,15 +1,10 @@
 package sg.com.aori.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +22,17 @@ import sg.com.aori.model.Product;
  * @version 1.0
  * 
  * @author Ying Chun
- * @date 2025-10-10 (v2.0)
+ * @date 2025-10-10
  * @version 2.0 - Refactored to use OrderItemRepository to prevent deletion of
  *          products that have orders.
  * 
  * @author Yunhe
- * @date 2025-10-13 (v2.1)
+ * @date 2025-10-13
  * @version 2.1 - Added recalculateAverageRating method
+ * 
+ * @author Jiang
+ * @date 2025-10-16
+ * @version 2.2 - Added findProductIdByProductCode method
  */
 
 @Service
@@ -81,52 +80,27 @@ public class CRUDProductService implements IProduct {
         return Optional.ofNullable(products);
     }
 
-    /*
-     * @Override
-     * public Optional<List<Product>> getProductsByPriceRange(double minPrice,
-     * double maxPrice) {
-     * return Optional.ofNullable(productRepository.findByPriceBetween(minPrice,
-     * maxPrice));
-     * }
-     * 
-     * @Override
-     * public Optional<List<Product>> findByRatingBetween(double minRating, double
-     * maxRating) {
-     * return Optional.ofNullable(productRepository.findByRatingBetween(minRating,
-     * maxRating));
-     */
-
     @Override
     public Optional<List<Product>> getProductsByCollection(String collection) {
         return Optional.ofNullable(productRepository.findByCollection(collection));
     }
 
-    /*
-     * @Override
-     * public Optional<List<Product>> getProductsBySupplier(String supplier) {
-     * return Optional.ofNullable(productRepository.findBySupplier(supplier));
-     * }
-     */
     @Override
     public Optional<List<Product>> getAllProducts() {
         return Optional.ofNullable(productRepository.findAll());
     }
 
-    // Method used by frontend website using Rest API
     @Override
     public Product updateProduct(String productId, Product product) {
         product.setProductId(productId);
         return productRepository.save(product);
     }
 
-    // Methods used by admin portal to handle product creation and updates
-    // Uses Spring Data JPA and Thymeleaf 
     @Override
     public void saveProduct(Product product) {
         productRepository.save(product);
     }
 
-    // Improved method to prevent deletion of products that have orders
     @Override
     public Product deleteProduct(String productId) {
         Product productToDelete = productRepository.findById(productId)
@@ -146,7 +120,6 @@ public class CRUDProductService implements IProduct {
     /*
      * New pagination method with dynamic filtering
      */
-
     @Override
     public Page<Product> findPaginated(int page, int size, String keyword, String category, String season,
             String collection) {
@@ -186,11 +159,6 @@ public class CRUDProductService implements IProduct {
         return productRepository.findAll(spec, pageable);
     }
 
-    /*
-     * @author Jiang
-     * 
-     * @date 10-13
-     */
     @Override
     public String findProductIdByProductCode(String productCode) {
         String productId = productRepository.findProductIdByProductCode(productCode);
