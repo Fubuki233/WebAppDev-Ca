@@ -3,6 +3,7 @@ package sg.com.aori.controller;
 import java.util.*;
 import java.util.stream.Collectors;
 import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -111,12 +112,25 @@ public class AdminProductController {
 	 * Create new product (Processes Form)
 	 */
 	@PostMapping("/save")
-	public String saveProduct(@Valid @ModelAttribute("product") Product product,
+	public String saveProduct(@Valid @ModelAttribute("product") Product product, BindingResult bindingResult,
 			@RequestParam("sizeJson") String sizeJson,
 			@RequestParam("colorJson") String colorJson, @RequestParam("skuQuantitiesJson") String skuQuantitiesJson,
 			RedirectAttributes redirectAttributes, Model model) { // Add Model
 
 		try {
+
+			if (bindingResult.hasErrors()) {
+						// Re-populate model attributes needed for the form
+						model.addAttribute("categories", categoryRepository.findAll());
+						model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
+						model.addAttribute("allSeasons", Product.Season.values());
+						model.addAttribute("sizeJson", sizeJson);
+						model.addAttribute("colorJson", colorJson);
+						model.addAttribute("skuQuantitiesJson", skuQuantitiesJson);
+
+						return "admin/products/product-form";
+					}
+
 			product.setSize(sizeJson);
 			product.setColors(colorJson);
 
@@ -164,6 +178,7 @@ public class AdminProductController {
 			model.addAttribute("categories", categoryRepository.findAll());
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 			model.addAttribute("sizeJson", sizeJson);
+			model.addAttribute("allSeasons", Product.Season.values());
 			model.addAttribute("colorJson", colorJson);
 			model.addAttribute("skuQuantitiesJson", skuQuantitiesJson);
 
@@ -176,6 +191,7 @@ public class AdminProductController {
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 			model.addAttribute("allSeasons", Product.Season.values());
 			model.addAttribute("sizeJson", sizeJson);
+			model.addAttribute("allSeasons", Product.Season.values());
 			model.addAttribute("colorJson", colorJson);
 			model.addAttribute("skuQuantitiesJson", skuQuantitiesJson);
 

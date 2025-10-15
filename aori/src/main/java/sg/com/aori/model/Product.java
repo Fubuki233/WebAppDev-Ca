@@ -6,10 +6,16 @@ import java.util.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
@@ -55,18 +61,25 @@ public class Product {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String productId;
 
+    @NotEmpty(message = "Product code is required.")
+    @Pattern(regexp = "^[A-Za-z0-9\\-]+$", message = "Product code can only contain letters, numbers, and hyphens.")
     @Column(name = "product_code", length = 20, nullable = false, unique = true)
     private String productCode;
 
+    @NotEmpty(message = "Product name is required.")
+    @Size(min = 3, max = 150, message = "Product name must be between 3 and 150 characters.")
     @Column(name = "product_name", length = 150, nullable = false)
     private String productName;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @NotEmpty(message = "Category is required.")
     @Column(name = "category_id", length = 36, nullable = false)
     private String categoryId;
 
+    @NotEmpty(message = "Collection is required.")
+    @Size(min = 3, max = 100, message = "Collection must be between 3 and 100 characters.")
     @Column(name = "collection", length = 100, nullable = false)
     private String collection;
 
@@ -92,11 +105,14 @@ public class Product {
     private String colors; // JSON array: ["#000000", "#FFFFFF"]
 
     @Column(name = "image", length = 255)
+    @org.hibernate.validator.constraints.URL(message = "Image must be a valid URL.")
     private String image;
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
+    @NotNull(message = "Stock quantity is required.")
+    @Min(value = 0, message = "Stock quantity cannot be negative.")
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity = 0;
 
