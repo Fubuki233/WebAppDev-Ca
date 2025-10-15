@@ -43,7 +43,7 @@ public class AdminOrderController {
     /**
      * Display all orders with pagination and filtering
      */
-    @GetMapping
+    @GetMapping(value = { "", "/" })
     public String listAllOrders(Model model,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
