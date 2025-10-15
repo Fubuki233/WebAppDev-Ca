@@ -1,9 +1,9 @@
 <!-- 
  * Aori Admin Portal Login Page
  * 
- * @author Xiaobo, Ying Chun
- * @date 2025-10-11
- * @version 1.0 (Xiaobo), 1.1 (Ying Chun)
+ * @author Xia Xiaobo, Tang Ying Chun
+ * @date 2025-10-10 (v1.0), 2025-10-11 (v1.1)
+ * @version 1.0 - initial form (Xiaobo), 1.1 - updated CSS to align with Aori branding (Ying Chun)
  */
  -->
 
@@ -80,34 +80,3 @@
 </body>
 
 </html>
-
-<!--
-<body>
-    <h1>Employee Login</h1>
-
-    <div th:if="${success}" style="color: green; border: 1px solid green; padding: 10px;">
-        <p th:text="${success}"></p>
-    </div>
-    <div th:if="${error}" style="color: red; border: 1px solid red; padding: 10px;">
-        <p th:text="${error}"></p>
-    </div>
-
-    <form th:action="@{/admin/login}" th:object="${employee}" method="post">
-        
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" th:field="*{email}" required>
-        </div>
-        
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" th:field="*{password}" required>
-        </div>
-        
-        <div>
-            <button type="submit">Log In</button>
-        </div>
-    </form>
-    <p><a th:href="@{/admin/logout}">Logout (Test Link)</a></p>
-    </body>
--->

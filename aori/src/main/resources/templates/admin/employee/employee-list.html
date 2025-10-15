@@ -1,10 +1,9 @@
-
 <!-- 
- * Aori Admin Portal employee list page
+ * Aori Admin Portal Employee List page
  * 
- * @author Xiaobo
+ * @author Xia Xiao Bo (v1.0, v2.0), Tang Ying Chun (v2.1)
  * @date 2025-10-12
- * @version 1.0 
+ * @version 1.0 -Initial list page; 2.0 - Added role display, 2.1 - Improved status badge colors, debugged edit and delete functions
  */
  -->
 
@@ -27,6 +26,7 @@
         </div>
     </div>
 
+    <!-- Container for Success/Error Messages -->
     <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
         <span th:text="${success}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
