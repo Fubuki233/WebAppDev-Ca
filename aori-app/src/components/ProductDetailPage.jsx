@@ -2,8 +2,8 @@
  * ProductDetailPage.jsx 
  * 
  * @author Yunhe
- * @date 2025-10-08
- * @version 1.2 - Added product reviews display
+ * @date 2025-10-15
+ * @version 1.3 - Added SKU stock checking and inventory validation
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
@@ -11,8 +11,9 @@ import { fetchProductById } from '../api/productApi';
 import { addToCart } from '../api/cartApi';
 import { toggleFavourite, isInFavourites } from '../api/favouritesApi';
 import { addViewHistory } from '../api/viewHistoryApi';
-import { getReviewStats, getProductReviews } from '../api/reviewApi';
+import { getProductReviews } from '../api/reviewApi';
 import { getUserUuid } from '../api/apiUtils';
+import { getSkuQuantity } from '../api/skuApi';
 import '../styles/ProductDetailPage.css';
 
 const ProductDetailPage = ({ productId }) => {
@@ -24,12 +25,13 @@ const ProductDetailPage = ({ productId }) => {
     const [quantity, setQuantity] = useState(1);
     const [isFavorite, setIsFavorite] = useState(false);
 
+    // Stock states
+    const [availableStock, setAvailableStock] = useState(-1);
+    const [checkingStock, setCheckingStock] = useState(false);
+
     // Review states
-    const [reviewStats, setReviewStats] = useState(null);
     const [reviews, setReviews] = useState([]);
-    const [reviewsPage, setReviewsPage] = useState(0);
     const [loadingReviews, setLoadingReviews] = useState(false);
-    const [hasMoreReviews, setHasMoreReviews] = useState(true);
 
     useEffect(() => {
         const loadProduct = async () => {
@@ -73,41 +75,59 @@ const ProductDetailPage = ({ productId }) => {
         checkFavorite();
     }, [product]); // Only check when product changes, not size/color
 
+    // Check stock availability when color or size changes
+    useEffect(() => {
+        const checkStock = async () => {
+            if (product && selectedColor && selectedSize) {
+                setCheckingStock(true);
+                try {
+                    const stock = await getSkuQuantity(product.id, selectedColor, selectedSize);
+                    setAvailableStock(stock);
+                    console.log('[ProductDetailPage] Available stock for', {
+                        color: selectedColor,
+                        size: selectedSize,
+                        stock
+                    });
+                } catch (error) {
+                    console.error('[ProductDetailPage] Error checking stock:', error);
+                    setAvailableStock(-1);
+                } finally {
+                    setCheckingStock(false);
+                }
+            } else {
+                setAvailableStock(-1);
+            }
+        };
+        checkStock();
+    }, [product, selectedColor, selectedSize]);
+
     useEffect(() => {
         const loadReviews = async () => {
             if (productId) {
-                // Load review statistics
-                const stats = await getReviewStats(productId);
-                setReviewStats(stats);
-
-                // Load first page of reviews
-                await loadMoreReviews(0);
+                setLoadingReviews(true);
+                try {
+                    console.log('[ProductDetailPage] Loading reviews for product:', productId);
+                    const reviewsData = await getProductReviews(productId);
+                    console.log('[ProductDetailPage] Reviews data received:', reviewsData);
+                    setReviews(reviewsData.content || []);
+                } catch (error) {
+                    console.error('[ProductDetailPage] Error loading reviews:', error);
+                } finally {
+                    setLoadingReviews(false);
+                }
             }
         };
         loadReviews();
     }, [productId]);
 
-    const loadMoreReviews = async (page) => {
-        setLoadingReviews(true);
-        try {
-            const reviewsData = await getProductReviews(productId, page, 5);
-            if (page === 0) {
-                setReviews(reviewsData.content || []);
-            } else {
-                setReviews(prev => [...prev, ...(reviewsData.content || [])]);
-            }
-            setReviewsPage(page);
-            setHasMoreReviews(reviewsData.content && reviewsData.content.length > 0 && !reviewsData.last);
-        } catch (error) {
-            console.error('Error loading reviews:', error);
-        } finally {
-            setLoadingReviews(false);
-        }
-    };
-
     const handleAddToCart = async () => {
         if (!selectedSize) {
             alert('Please select a size');
+            return;
+        }
+
+        if (availableStock < 1) {
+            alert('This item is currently out of stock');
             return;
         }
 
@@ -123,12 +143,10 @@ const ProductDetailPage = ({ productId }) => {
 
         const result = await addToCart(cartItem);
 
+        // Refresh stock after adding to cart
         if (result.success) {
-            alert(`✓ Added to cart!\n\n${product.name}\nSize: ${selectedSize}\nQuantity: ${quantity}`);
-
-            window.dispatchEvent(new Event('cartUpdated'));
-        } else {
-            alert('Failed to add to cart. Please try again.');
+            const newStock = await getSkuQuantity(product.id, selectedColor, selectedSize);
+            setAvailableStock(newStock);
         }
     };
 
@@ -285,12 +303,29 @@ const ProductDetailPage = ({ productId }) => {
                             </div>
                         </div>
 
+                        {/* Stock availability indicator */}
+                        {selectedColor && selectedSize && (
+                            <div className={`stock-status ${availableStock > 0 ? 'in-stock' : 'out-of-stock'}`}>
+                                {checkingStock ? (
+                                    <span className="checking">Checking availability...</span>
+                                ) : availableStock > 0 ? (
+                                    <span className="available">
+                                        In Stock
+                                    </span>
+                                ) : availableStock === 0 ? (
+                                    <span className="unavailable">Out of Stock</span>
+                                ) : (
+                                    <span className="unavailable">Not Available</span>
+                                )}
+                            </div>
+                        )}
+
                         <button
                             className="add-to-cart-button"
                             onClick={handleAddToCart}
-                            disabled={!selectedSize}
+                            disabled={!selectedSize || availableStock < 1 || checkingStock}
                         >
-                            ADD
+                            {checkingStock ? 'Checking Stock...' : availableStock < 1 && selectedSize ? 'OUT OF STOCK' : 'ADD'}
                         </button>
 
                         {product.details && (
@@ -310,56 +345,24 @@ const ProductDetailPage = ({ productId }) => {
                 <div className="reviews-section">
                     <h2 className="reviews-title">Customer Reviews</h2>
 
-                    {/* Review Statistics */}
-                    {reviewStats && reviewStats.totalReviews > 0 && (
-                        <div className="review-stats">
-                            <div className="stats-overview">
-                                <div className="average-rating">
-                                    <span className="rating-number">{reviewStats.averageRating.toFixed(1)}</span>
-                                    <div className="stars-large">
-                                        {[...Array(5)].map((_, i) => (
-                                            <span key={i} className={i < Math.floor(reviewStats.averageRating) ? 'star filled' : 'star'}>
-                                                ★
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <span className="total-reviews">Based on {reviewStats.totalReviews} reviews</span>
-                                </div>
-
-                                <div className="rating-distribution">
-                                    {[5, 4, 3, 2, 1].map(rating => {
-                                        const count = reviewStats.distribution[rating] || 0;
-                                        const percentage = reviewStats.totalReviews > 0
-                                            ? (count / reviewStats.totalReviews) * 100
-                                            : 0;
-                                        return (
-                                            <div key={rating} className="distribution-row">
-                                                <span className="rating-label">{rating} ★</span>
-                                                <div className="progress-bar">
-                                                    <div
-                                                        className="progress-fill"
-                                                        style={{ width: `${percentage}%` }}
-                                                    ></div>
-                                                </div>
-                                                <span className="rating-count">{count}</span>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Reviews List */}
                     <div className="reviews-list">
-                        {reviews.length === 0 && !loadingReviews ? (
+                        {loadingReviews ? (
+                            <div className="loading-reviews">
+                                <div className="spinner"></div>
+                                <p>Loading reviews...</p>
+                            </div>
+                        ) : reviews.length === 0 ? (
                             <div className="no-reviews">
                                 <p>No reviews yet. Be the first to review this product!</p>
                             </div>
                         ) : (
                             <>
+                                <div className="reviews-summary">
+                                    <p>{reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}</p>
+                                </div>
                                 {reviews.map((review, index) => (
-                                    <div key={index} className="review-card">
+                                    <div key={review.reviewId || index} className="review-card">
                                         <div className="review-header">
                                             <div className="review-author">
                                                 <div className="author-avatar">
@@ -392,32 +395,8 @@ const ProductDetailPage = ({ productId }) => {
                                         {review.comment && (
                                             <p className="review-comment">{review.comment}</p>
                                         )}
-
-                                        {review.images && review.images.length > 0 && (
-                                            <div className="review-images">
-                                                {review.images.map((img, idx) => (
-                                                    <img key={idx} src={img} alt={`Review ${idx + 1}`} className="review-image" />
-                                                ))}
-                                            </div>
-                                        )}
                                     </div>
                                 ))}
-
-                                {loadingReviews && (
-                                    <div className="loading-reviews">
-                                        <div className="spinner"></div>
-                                        <p>Loading reviews...</p>
-                                    </div>
-                                )}
-
-                                {hasMoreReviews && !loadingReviews && (
-                                    <button
-                                        className="load-more-reviews"
-                                        onClick={() => loadMoreReviews(reviewsPage + 1)}
-                                    >
-                                        Load More Reviews
-                                    </button>
-                                )}
                             </>
                         )}
                     </div>

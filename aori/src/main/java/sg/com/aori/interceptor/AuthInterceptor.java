@@ -68,7 +68,8 @@ public class AuthInterceptor implements HandlerInterceptor {
         Map<String, String> requestMap = Map.of("path", path, "method", method);
         System.out.println("[LoggingInterceptor] Request map: " + requestMap);
 
-        if (AuthFilter.isAuthorized(requestMap)) {
+        // Allow public API endpoints
+        if (AuthFilter.isAuthorized(requestMap) || path.contains("/api/public")) {
             System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
             return true;
         }

@@ -2,8 +2,8 @@
  * Product Detail Page Styles
  * 
  * @author Yunhe
- * @date 2025-10-08
- * @version 1.0
+ * @date 2025-10-15
+ * @version 1.1 - Added stock status indicator styles
  */
 .product-detail-page {
     min-height: 100vh;
@@ -327,6 +327,47 @@
 
 .size-links .separator {
     color: #ccc;
+}
+
+/* Stock Status Indicator */
+.stock-status {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stock-status.in-stock {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.stock-status.out-of-stock {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.stock-status .checking {
+    color: #666;
+    font-style: italic;
+}
+
+.stock-status .available {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stock-status .unavailable {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* Add to Cart Button */

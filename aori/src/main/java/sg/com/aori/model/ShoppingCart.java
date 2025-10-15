@@ -1,12 +1,12 @@
 
- /**
- *  Modified variant related code, Add constraints to entities
- * v1.4: Added sku
- * @author Jiang, Sun Rui
- * @date 2025-10-09
- * @version 1.3
- */
-
+/**
+*  Modified variant related code, Add constraints to entities
+* v1.4: Added sku
+* v1.5: Added unique constraint on customer_id + product_id + sku
+* @author Jiang, Sun Rui
+* @date 2025-10-15
+* @version 1.5
+*/
 
 package sg.com.aori.model;
 
@@ -17,7 +17,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "shopping_cart")
+@Table(name = "shopping_cart", uniqueConstraints = @UniqueConstraint(columnNames = { "customer_id", "product_id",
+        "sku" }))
 public class ShoppingCart {
 
     @Id
@@ -122,11 +123,11 @@ public class ShoppingCart {
         this.product = product;
     }
 
-    public String getSku(){
+    public String getSku() {
         return sku;
     }
 
-    public void setSku(String sku){
+    public void setSku(String sku) {
         this.sku = sku;
     }
 

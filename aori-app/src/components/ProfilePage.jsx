@@ -2,15 +2,17 @@
  * ProfilePage.jsx - User Profile & Order Management
  * 
  * @author Yunhe
- * @date 2025-10-09
- * @version 2.1 - Added review functionality
+ * @date 2025-10-15
+ * @version 2.4 - Dynamic button text based on review completion status, loads review status on mount
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
+import ReviewModal from './ReviewModal';
 import { getProfile, updateProfile } from '../api/profileApi';
 import { getUserOrders, getOrderDetails, cancelOrder } from '../api/orderApi';
 import { getViewHistory } from '../api/viewHistoryApi';
 import { fetchProductById } from '../api/productApi';
+import { getOrderReviewStatus } from '../api/reviewApi';
 import '../styles/ProfilePage.css';
 
 const ProfilePage = () => {
@@ -53,6 +55,14 @@ const ProfilePage = () => {
         comment: ''
     });
     const [submittingReview, setSubmittingReview] = useState(false);
+
+    // Review modal states
+    const [showReviewSelection, setShowReviewSelection] = useState(false);
+    const [reviewOrderId, setReviewOrderId] = useState(null);
+    const [reviewOrderItems, setReviewOrderItems] = useState([]);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [selectedOrderItem, setSelectedOrderItem] = useState(null);
+    const [orderReviewStatus, setOrderReviewStatus] = useState({}); // Track review status per order
 
     // Load data on mount
     useEffect(() => {
@@ -111,12 +121,33 @@ const ProfilePage = () => {
             const response = await getUserOrders();
             console.log('Orders response:', response);
 
+            let ordersList = [];
             if (Array.isArray(response)) {
-                setOrders(response);
+                ordersList = response;
             } else if (response.orders && Array.isArray(response.orders)) {
-                setOrders(response.orders);
-            } else {
-                setOrders([]);
+                ordersList = response.orders;
+            }
+
+            setOrders(ordersList);
+
+            // Load review status for all shipped/delivered orders
+            if (profile?.customerId && ordersList.length > 0) {
+                const statusMap = {};
+                const reviewStatusPromises = ordersList
+                    .filter(order => order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered')
+                    .map(async (order) => {
+                        try {
+                            const statusResponse = await getOrderReviewStatus(profile.customerId, order.orderId);
+                            if (statusResponse.success) {
+                                statusMap[order.orderId] = statusResponse.data;
+                            }
+                        } catch (err) {
+                            console.error(`Failed to load review status for order ${order.orderId}:`, err);
+                        }
+                    });
+
+                await Promise.all(reviewStatusPromises);
+                setOrderReviewStatus(statusMap);
             }
         } catch (err) {
             console.error('Load orders error:', err);
@@ -208,6 +239,54 @@ const ProfilePage = () => {
             console.error('Cancel order error:', err);
             setError('Failed to cancel order. Please try again.');
         }
+    };
+
+    const handleOpenReviewSelection = async (orderId) => {
+        try {
+            // Check review status first
+            const statusResponse = await getOrderReviewStatus(profile?.customerId, orderId);
+
+            // Load order details to get items with review status
+            const response = await getOrderDetails(orderId);
+            if (response.success && response.orderItems && statusResponse.success) {
+                // Merge review status with order items
+                const itemsWithStatus = response.orderItems.map(item => {
+                    const statusItem = statusResponse.data.items.find(
+                        s => s.productId === item.productId
+                    );
+                    return {
+                        ...item,
+                        reviewed: statusItem?.reviewed || false,
+                        existingReview: statusItem?.review || null
+                    };
+                });
+
+                setReviewOrderId(orderId);
+                setReviewOrderItems(itemsWithStatus);
+                setOrderReviewStatus(prev => ({ ...prev, [orderId]: statusResponse.data }));
+                setShowReviewSelection(true);
+            }
+        } catch (err) {
+            console.error('Error loading order items for review:', err);
+            setError('Failed to load order items.');
+        }
+    };
+
+    const handleSelectProductToReview = (orderItem) => {
+        console.log('[ProfilePage] Selected order item for review:', orderItem);
+        console.log('[ProfilePage] Review order ID:', reviewOrderId);
+        console.log('[ProfilePage] Customer ID:', profile?.customerId);
+        setSelectedOrderItem(orderItem);
+        setShowReviewSelection(false);
+        setShowReviewModal(true);
+    };
+
+    const handleCloseReviewModal = () => {
+        setShowReviewModal(false);
+        setSelectedOrderItem(null);
+        setReviewOrderId(null);
+        // Optionally reload orders to refresh review status
+        loadOrders();
     };
 
     const handleChange = (e) => {
@@ -489,14 +568,21 @@ const ProfilePage = () => {
                                                     >
                                                         View Details
                                                     </button>
-                                                    {(order.orderStatus === 'Pending' || order.orderStatus === 'Paid') && (
+                                                    {(order.orderStatus === 'Pending' || order.orderStatus === 'Paid') ? (
                                                         <button
                                                             className="btn-cancel"
                                                             onClick={() => handleCancelOrder(order.orderId)}
                                                         >
                                                             Cancel Order
                                                         </button>
-                                                    )}
+                                                    ) : (order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered') ? (
+                                                        <button
+                                                            className={orderReviewStatus[order.orderId]?.allReviewed ? "btn-view-review" : "btn-review"}
+                                                            onClick={() => handleOpenReviewSelection(order.orderId)}
+                                                        >
+                                                            {orderReviewStatus[order.orderId]?.allReviewed ? 'View Reviews' : 'Write Review'}
+                                                        </button>
+                                                    ) : null}
                                                 </div>
                                             </div>
                                         ))}
@@ -667,6 +753,81 @@ const ProfilePage = () => {
                                                             ${orderDetails.order?.totalAmount?.toFixed(2)}
                                                         </span>
                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Review Selection Modal */}
+                                {showReviewSelection && (
+                                    <div className="modal-overlay" onClick={() => setShowReviewSelection(false)}>
+                                        <div className="modal-content review-selection-modal" onClick={(e) => e.stopPropagation()}>
+                                            <div className="modal-header">
+                                                <h3>Select Product to Review</h3>
+                                                <button className="modal-close" onClick={() => setShowReviewSelection(false)}>×</button>
+                                            </div>
+                                            <div className="modal-body">
+                                                <p className="review-instruction">
+                                                    {reviewOrderItems.some(item => !item.reviewed)
+                                                        ? 'Choose a product from your order to write a review:'
+                                                        : 'All products in this order have been reviewed:'}
+                                                </p>
+                                                <div className="review-products-list">
+                                                    {reviewOrderItems.map((item, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className={`review-product-item ${item.reviewed ? 'reviewed' : ''}`}
+                                                        >
+                                                            <div className="review-product-image">
+                                                                <img
+                                                                    src={item.product?.image || '/placeholder.png'}
+                                                                    alt={item.product?.productName || 'Product'}
+                                                                    onError={(e) => { e.target.src = '/placeholder.png'; }}
+                                                                />
+                                                                {item.reviewed && (
+                                                                    <div className="reviewed-badge">
+                                                                        <span>✓ Reviewed</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="review-product-info">
+                                                                <h4>{item.product?.productName || 'Product'}</h4>
+                                                                <p className="review-product-price">${item.priceAtPurchase?.toFixed(2)}</p>
+                                                                <p className="review-product-quantity">Quantity: {item.quantity}</p>
+                                                                {item.sku && (
+                                                                    <p className="review-product-sku">SKU: {item.sku}</p>
+                                                                )}
+                                                                {item.reviewed && item.existingReview && (
+                                                                    <div className="existing-review-summary">
+                                                                        <span className="review-rating">
+                                                                            {'★'.repeat(item.existingReview.rating)}
+                                                                            {'☆'.repeat(5 - item.existingReview.rating)}
+                                                                        </span>
+                                                                        <p className="review-comment-preview">
+                                                                            {item.existingReview.comment?.substring(0, 60)}
+                                                                            {item.existingReview.comment?.length > 60 ? '...' : ''}
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            {item.reviewed ? (
+                                                                <button
+                                                                    className="btn-view-review"
+                                                                    onClick={() => handleSelectProductToReview(item)}
+                                                                >
+                                                                    View Review
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    className="btn-review-this"
+                                                                    onClick={() => handleSelectProductToReview(item)}
+                                                                >
+                                                                    Review This
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         </div>
@@ -926,6 +1087,17 @@ const ProfilePage = () => {
                     </main>
                 </div>
             </div>
+
+            {/* Review Modal */}
+            {showReviewModal && selectedOrderItem && (
+                <ReviewModal
+                    isOpen={showReviewModal}
+                    onClose={handleCloseReviewModal}
+                    orderItem={selectedOrderItem}
+                    orderId={reviewOrderId}
+                    customerId={profile?.customerId}
+                />
+            )}
         </div>
     );
 };

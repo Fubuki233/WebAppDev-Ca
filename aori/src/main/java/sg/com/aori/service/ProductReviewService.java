@@ -48,20 +48,19 @@ public class ProductReviewService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductReview> listApprovedReviews(String productId, int page, int size) {
-        return reviewRepo.findByProductIdAndStatusOrderByCreatedAtDesc(
-                productId, ReviewStatus.Approved, PageRequest.of(page, size));
+    public List<ProductReview> listApprovedReviews(String productId) {
+        return reviewRepo.findByProductIdByCreatedAtDesc(productId);
     }
 
     @Transactional(readOnly = true)
     public double getAverageRating(String productId) {
-        return reviewRepo.avgRating(productId, ReviewStatus.Approved);
+        return reviewRepo.avgRating(productId);
     }
 
     @Transactional(readOnly = true)
     public Map<Integer, Long> getRatingBuckets(String productId) {
         Map<Integer, Long> buckets = new HashMap<>();
-        reviewRepo.ratingBuckets(productId, ReviewStatus.Approved)
+        reviewRepo.ratingBuckets(productId)
                 .forEach(obj -> buckets.put((Integer) obj[0], (Long) obj[1]));
         for (int i = 1; i <= 5; i++)
             buckets.putIfAbsent(i, 0L);

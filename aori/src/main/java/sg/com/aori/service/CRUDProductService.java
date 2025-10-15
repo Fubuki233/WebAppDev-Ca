@@ -72,10 +72,8 @@ public class CRUDProductService implements IProduct {
      * First tries to find by slug, then by categoryId
      */
     public Optional<List<Product>> getProductsByCategorySlugOrId(String categoryIdentifier) {
-        // Try to find by slug first
         List<Product> products = productRepository.findProductsByCategorySlug(categoryIdentifier);
 
-        // If not found by slug, try by categoryId
         if (products == null || products.isEmpty()) {
             products = productRepository.findByCategoryId(categoryIdentifier);
         }
@@ -141,22 +139,17 @@ public class CRUDProductService implements IProduct {
     // Revised method to prevent deletion of products that have orders
     @Override
     public Product deleteProduct(String productId) {
-        // 1. Find the product first. This also handles the "not found" case.
         Product productToDelete = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Delete failed: Product not found with id: " + productId));
 
-        // 2. Check if there are any orders for this product.
         long orderCount = orderItemRepository.countByProductId(productId);
         if (orderCount > 0) {
-            // 3. If orders exist, throw a specific error.
             throw new IllegalStateException(
                     "Product cannot be deleted because it is part of " + orderCount + " existing order(s).");
         }
 
-        // 4. If all checks pass, delete the product.
         productRepository.delete(productToDelete);
 
-        // 5. Return the full object that was just deleted.
         return productToDelete;
     }
 
@@ -168,16 +161,11 @@ public class CRUDProductService implements IProduct {
     public Page<Product> findPaginated(int page, int size, String keyword, String category, String season,
             String collection) {
 
-        // 1. Create a Pageable object with default sorting by product name.
         Pageable pageable = PageRequest.of(page, size, Sort.by("productName").ascending());
 
-        // 2. Create a Specification to build the dynamic query.
         Specification<Product> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 3. Add predicates only if the filter criteria are provided.
-
-            // Keyword filter (searches product name and code)
             if (StringUtils.hasText(keyword)) {
                 Predicate nameLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")),
                         "%" + keyword.toLowerCase() + "%");
@@ -186,22 +174,18 @@ public class CRUDProductService implements IProduct {
                 predicates.add(criteriaBuilder.or(nameLike, codeLike));
             }
 
-            // Category filter (by category name, requires a join)
             if (StringUtils.hasText(category)) {
                 predicates.add(criteriaBuilder.equal(root.join("category").get("categoryName"), category));
             }
 
-            // Season filter (converts String to Enum)
             if (StringUtils.hasText(season)) {
                 try {
                     Product.Season seasonEnum = Product.Season.valueOf(season);
                     predicates.add(criteriaBuilder.equal(root.get("season"), seasonEnum));
                 } catch (IllegalArgumentException e) {
-                    // Ignore if the season string is invalid
                 }
             }
 
-            // Collection filter
             if (StringUtils.hasText(collection)) {
                 predicates.add(criteriaBuilder.equal(root.get("collection"), collection));
             }
@@ -209,7 +193,6 @@ public class CRUDProductService implements IProduct {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
-        // 4. Execute the query using the repository.
         return productRepository.findAll(spec, pageable);
     }
 
