@@ -4,35 +4,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.constraints.*;
-
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import sg.com.aori.model.Customer;
 import sg.com.aori.service.LoginService;
 
 /**
  * Controller class for handling authentication-related requests.
  * 
+ * 
  * @author Yunhe
  * @date 2025-10-07
- * @version 1.0 - ATTENTION: Not fully tested
+ * @version 1.0 -not fully tested*
+ * 
+ *          ------------------------------------------------------------------------
  * 
  * @author Yunhe
  * @date 2025-10-09
- * @version 2.0 - Now, all the methods had been tested,they will return the
+ * @version 2.0 -now, all the methods had been tested,they will return the
  *          correct response to the frontend
+ * 
+ *          ------------------------------------------------------------------------
  * 
  * @author Sun Rui
  * @date 2025-10-10
- * @version 2.1 - Add validation
+ * @version 2.1 -add validation
  */
-
 @CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
 @Validated
+
 public class AuthController {
     @Autowired
     LoginService loginService;
@@ -76,11 +87,12 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new LoginResponse(false, "User not found", null, null));
         } else if (customer.getPassword().equals(passwd)) {
-            System.out.println("[LoginController] User Valid");
+            System.out.println("[LoginController] User Valid");// better store customer in redis for session management
 
             session.setAttribute("email", email);
             session.setAttribute("id", customer.getCustomerId());
 
+            // Create user data object (without sensitive info)
             UserData userData = new UserData(
                     customer.getCustomerId(),
                     customer.getEmail(),
@@ -95,6 +107,7 @@ public class AuthController {
         }
     }
 
+    // Inner class for login response
     static class LoginResponse {
         private boolean success;
         private String message;
@@ -125,6 +138,7 @@ public class AuthController {
         }
     }
 
+    // Inner class for user data (without sensitive information)
     static class UserData {
         private String customerId;
         private String email;
@@ -164,6 +178,7 @@ public class AuthController {
      * }
      *
      * @return ResponseEntity containing logout result.
+     * 
      */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
@@ -193,12 +208,12 @@ public class AuthController {
             System.out.println("[AuthController] session UUID: " + uuid);
             return ResponseEntity.ok().body(new UuidResponse(uuid));
         } else {
-            System.out.println("[AuthController] no valid session");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new UuidResponse(null));
+            System.out.println("[AuthController] no valid session - returning null uuid for guest user");
+            return ResponseEntity.ok().body(new UuidResponse(null));
         }
     }
 
+    // Inner class for UUID response
     static class UuidResponse {
         private String uuid;
 
@@ -211,6 +226,7 @@ public class AuthController {
         }
     }
 
+    // Inner class for logout response
     static class LogoutResponse {
         private boolean success;
         private String message;

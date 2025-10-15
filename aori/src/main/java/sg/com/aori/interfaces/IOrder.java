@@ -1,15 +1,14 @@
-package sg.com.aori.interfaces;
-
-import sg.com.aori.model.OrderItem;
-import sg.com.aori.model.Orders;
-
-import java.util.List;
-
 /**
  * @author Jiang
  * @date 2025-10-07
  * @version 1.0
  */
+
+package sg.com.aori.interfaces;
+
+import sg.com.aori.model.OrderItem;
+import sg.com.aori.model.Orders;
+import java.util.List;
 
 public interface IOrder {
     Orders findOrderById(String orderId);
@@ -23,6 +22,10 @@ public interface IOrder {
     boolean processPayment(String orderId);
 
     void cancelOrder(String orderId);
+
+    void confirmDelivery(String orderId);
+
+    void returnOrder(String orderId);
 
     void updateOrderStatus(String orderId, Orders.OrderStatus status);
 
