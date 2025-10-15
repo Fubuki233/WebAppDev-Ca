@@ -1,19 +1,21 @@
-/**
- * v1.0(Yunhe)
- * v1.1(Jiang): Added method getProductIdBySku
- * 
- * @author Yunhe
- * @date 10-13
- * @version 1.1
- */
-
 package sg.com.aori.utils;
 
 import java.util.Optional;
 
 import org.json.JSONObject;
+
 import sg.com.aori.service.CRUDProductService;
 import sg.com.aori.model.Product;
+
+/**
+ * @author Yunhe
+ * @date 10-13
+ * @version 1.0
+ * 
+ * @author Jiang
+ * @date 10-13
+ * @version 1.1 - Added method getProductIdBySku
+ */
 
 public class SkuTool {
 
@@ -58,10 +60,10 @@ public class SkuTool {
         if (parts.length < 3) {
             return null;
         }
+
         String productId = "";
         if (parts[0].length() == 36) {
             productId = parts[0];
-
         } else {
             productId = productService.findProductIdByProductCode(parts[0]);
         }
@@ -76,14 +78,11 @@ public class SkuTool {
         }
         String productId;
         if (parts[0].length() == 36) {
-
             System.out.println("[SkuTool] Converting UUID SKU to ProductCode SKU: " + sku);
             productId = parts[0];
             String productCode = productService.getProductById(productId).get().getProductCode();
             return productCode + "&" + parts[1] + "&" + parts[2];
-
         }
         return sku;
-
     }
 }

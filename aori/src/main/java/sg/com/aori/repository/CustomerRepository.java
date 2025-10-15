@@ -1,3 +1,11 @@
+/**
+ * Repository interface for Customer entity.
+ *
+ * @author Sun Rui & Yunhe
+ * @date 2025-10-07
+ * @version 1.1
+ */
+
 package sg.com.aori.repository;
 
 import java.util.Optional;
@@ -8,13 +16,6 @@ import org.springframework.data.repository.query.Param;
 
 import sg.com.aori.model.Customer;
 
-/**
- * Repository interface for Customer entity.
- *
- * @author SunRui&Yunhe
- * @date 2025-10-07
- * @version 1.1
- */
 public interface CustomerRepository extends JpaRepository<Customer, String> {
 
     @Query("SELECT c FROM Customer c WHERE c.email = :email")

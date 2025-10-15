@@ -11,7 +11,7 @@ import sg.com.aori.model.Role;
 /**
  * Repository interface for Role entity.
  *
- * @author xiaobo
+ * @author Xiaobo
  * @date 2025-10-07
  * @version 1.0
  */
@@ -32,13 +32,4 @@ public interface RoleRepository extends JpaRepository<Role, String> {
      * This uses a Spring Data JPA keyword query method.
      */
     List<Role> findByDescriptionContainingIgnoreCase(String keyword);
-
-    // Custom Query Example: Get Role by its ID and fetch Permissions eagerly (if
-    // needed)
-    // NOTE: In this bidirectional setup, the default fetch type is LAZY.
-    /*
-     * @Query("SELECT r FROM Role r LEFT JOIN FETCH r.permissions WHERE r.roleId = :roleId"
-     * )
-     * Optional<Role> findByIdWithPermissions(@Param("roleId") String roleId);
-     */
 }

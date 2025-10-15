@@ -7,7 +7,7 @@ import java.util.Optional;
 /**
  * Interface for Employee entity.
  *
- * @author xiaobo
+ * @author Xiaobo
  * @date 2025-10-07
  * @version 1.0
  */

@@ -1,25 +1,20 @@
-/**
- * v1.1: Provide check before processing payment / refund
- * @author Jiang
- * @date 2025-10-10
- * @version 1.1
- */
-
-// ***** AI generated a method with random result of validation
-// ***** But maybe we just need a very simple one?
-// ***** Most statements are annotated for demo purpose
-
 package sg.com.aori.service;
 
 import sg.com.aori.interfaces.IFinance;
 import sg.com.aori.model.Orders;
 import sg.com.aori.repository.OrderRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-// import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-// import java.util.concurrent.TimeUnit;
+
+/**
+ * @author Jiang
+ * @date 2025-10-10
+ * @version 1.0
+ * @version 1.1 - Attached check before processing payment
+ */
 
 @Service
 public class FinanceService implements IFinance {
@@ -99,49 +94,6 @@ public class FinanceService implements IFinance {
             return false;
         }
     }
-
-    // @Override
-    // public boolean processRefund(String orderId, Double amount) {
-    //     // Check order first
-    //     if (!isOrderValidForRefund(orderId)) {
-    //         System.out.println("Order not valid for refund: " + orderId);
-    //         return false;
-    //     }
-        
-    //     try {
-    //         // Simulate refund
-    //         TimeUnit.MILLISECONDS.sleep(1000);
-            
-    //         // 95% refund rate
-    //         boolean success = random.nextDouble() < 0.95;
-    //         System.out.println("Refund processing result for order " + orderId + ": " + success);
-    //         return success;
-            
-    //     } catch (InterruptedException e) {
-    //         Thread.currentThread().interrupt();
-    //         return false;
-    //     }
-    // }
-
-    // /**
-    //  * Check if the order can get refund
-    //  */
-    // private boolean isOrderValidForRefund(String orderId) {
-    //     try {
-    //         Orders order = orderRepository.findById(orderId).orElse(null);
-            
-    //         if (order == null) {
-    //             return false;
-    //         }
-            
-    //         // Only paid order can get refund
-    //         return Orders.PaymentStatus.Paid.equals(order.getPaymentStatus());
-            
-    //     } catch (Exception e) {
-    //         System.out.println("Error validating order for refund: " + orderId);
-    //         return false;
-    //     }
-    // }
 
     @Override
     public Boolean getPaymentStatus(String orderId) {

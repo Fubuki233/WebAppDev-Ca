@@ -8,7 +8,7 @@ import sg.com.aori.model.Permission;
 /**
  * Interface for Permission entity.
  *
- * @author xiaobo
+ * @author Xiaobo
  * @date 2025-10-07
  * @version 1.0
  */

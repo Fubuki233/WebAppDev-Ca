@@ -3,13 +3,7 @@ package sg.com.aori.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Permission")
@@ -42,7 +36,6 @@ public class Permission {
     }
 
     public Permission() {
-
     }
 
     public Permission(String permissionName, String description) {
@@ -82,5 +75,4 @@ public class Permission {
                 ", description='" + getDescription() + "'" +
                 "}";
     }
-
 }

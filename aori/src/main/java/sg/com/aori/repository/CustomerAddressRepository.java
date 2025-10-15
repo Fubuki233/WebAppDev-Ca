@@ -1,3 +1,12 @@
+package sg.com.aori.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import sg.com.aori.model.CustomerAddress;
+
 /**
  * Repository Interface for CustomerAddress Entity
  *
@@ -7,21 +16,12 @@
  * 
  * @author Ying Chun
  * @date 2025-10-08
- * @version 1.1 - added two more methods
+ * @version 1.1 - Added two more methods
  * 
  * @author Jiayi
  * @date 2025-10-09
  * @version 1.2
  */
-
-package sg.com.aori.repository;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import sg.com.aori.model.CustomerAddress;
 
 public interface CustomerAddressRepository extends JpaRepository<CustomerAddress, String> {
 
@@ -33,16 +33,10 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 
     // for use when updating customer address in customer account
     // find all addresses for a given customer
-    /**
-     * 
-     * @param customerId
-     * @return
-     */
     List<CustomerAddress> findByCustomerId(String customerId);
 
     // for use when updating customer address in customer account
     // to find a specific address by its ID and match to the correct customer
-
     Optional<CustomerAddress> findByAddressIdAndCustomerId(String addressId, String customerId);
 
 }

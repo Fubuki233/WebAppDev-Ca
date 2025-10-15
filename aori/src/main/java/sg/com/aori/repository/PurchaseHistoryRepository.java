@@ -10,8 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import sg.com.aori.model.Orders;
 
 /**
- * purchasehistory
- *
  * @author Jiayi
  * @date 2025-10-08
  * @version 1.0

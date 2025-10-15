@@ -10,11 +10,17 @@ import org.springframework.data.repository.query.Param;
 import sg.com.aori.model.OrderItem;
 
 /**
- * purchasehistory
- *
- * @author Jiayi
- * @date 2025-10-08
+ * @author Jiayi, Derek, Jiang
+ * @date 2025-10-8
  * @version 1.0
+ * 
+ * @author Derek
+ * @date 2025-10-8
+ * @version 1.1 - Added findByOrderItemIdAndOrderId
+ * 
+ * @author Jiang
+ * @date 2025-10-10
+ * @version 1.2 - Aded findByOrderId
  */
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
@@ -42,21 +48,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, String> {
      */
     long countByProductId(String productId);
 
-    /*
-     * @author Derek
-     * 
-     * @date 2025-10-08
-     * 
-     * @version 1.0
-     */
-
     // for product review
     Optional<OrderItem> findByOrderItemIdAndOrderId(String orderItemId, String orderId);
-
-    /**
-     * @author Jiang
-     * @date 10-10
-     */
 
     List<OrderItem> findByOrderId(String orderId);
 

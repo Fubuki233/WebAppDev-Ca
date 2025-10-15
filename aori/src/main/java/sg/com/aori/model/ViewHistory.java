@@ -1,13 +1,12 @@
 package sg.com.aori.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
 @Table(name = "view_history")
 public class ViewHistory {
+    
     @Id
     private String id;
     private String userId;

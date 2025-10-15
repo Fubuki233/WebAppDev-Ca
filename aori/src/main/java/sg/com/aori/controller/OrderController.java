@@ -1,25 +1,22 @@
-/**
- * v1.1: REST API applied
- * v1.2: Test completed
- * v1.3: Test result updated
- * @author Jiang
- * @date 2025-10-10
- * @version 1.2
- */
-
 package sg.com.aori.controller;
 
 import sg.com.aori.interfaces.IOrder;
 import sg.com.aori.model.OrderItem;
 import sg.com.aori.model.Orders;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.*;
 import jakarta.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+/**
+ * @author Jiang
+ * @date 2025-10-10
+ * @version 2.0 - REST API applied
+ * @version 2.1 - Test completed
+ */
 
 @RestController
 @RequestMapping("/api/order")
@@ -29,24 +26,13 @@ public class OrderController {
     private IOrder orderService;
 
     /**
-     * ATTENTION: Test result attached at the end of the file,including 6 orders
      * Get all orders for a customer
-     * GET /api/orders
-     * Returns: List of orders for the logged-in customer
+     * ATTENTION: Test result attached at the end of the file,including 6 orders
      */
     @GetMapping("")
     public ResponseEntity<List<Orders>> getUserOrders(jakarta.servlet.http.HttpSession session) {
         try {
             String customerId = (String) session.getAttribute("id");
-            if (customerId == null) {
-                // ***** Check this part
-                // customerId = "07532ea4-8954-5e60-86da-c1b7844e0a7f";
-                // response.put("success", false);
-                // response.put("message", "User not logged in");
-                // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-                System.out.println("customerId = "+customerId);
-            }
-
             List<Orders> orders = orderService.findOrdersByCustomerId(customerId);
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
@@ -54,8 +40,10 @@ public class OrderController {
         }
     }
 
-    // Display order details page
-    /*
+    /**
+     * Display order details page
+     * Example response:
+     * 
      * {
      * "success": true,
      * "orderItems": [],
@@ -96,6 +84,7 @@ public class OrderController {
             response.put("success", true);
             response.put("order", order);
             response.put("orderItems", orderItems);
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -105,9 +94,11 @@ public class OrderController {
         }
     }
 
-    // Process payment
-    // Be aware: timeout counter starts here
     /**
+     * Process payment
+     * ATTENTION : Payment timeout counter starts here
+     * Example response:
+     * 
      * When payment success:
      * {
      * "success": true,
@@ -154,9 +145,9 @@ public class OrderController {
         }
     }
 
-    // Cancel order
-    // Be aware: only changes order_status, doesn't change payment_status
-    /*
+    /**
+     * Cancel order
+     * 
      * {
      * "success": true,
      * "orderStatus": "Cancelled",
@@ -172,6 +163,7 @@ public class OrderController {
             response.put("success", true);
             response.put("message", "Order cancelled successfully");
             response.put("orderStatus", "Cancelled");
+
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -181,8 +173,10 @@ public class OrderController {
         }
     }
 
-    // Get order status
-    /*
+    /**
+     * Get order status
+     * Example output:
+     * 
      * {
      * "orderId": "be5e8714-d0bc-4ef4-ad7a-a9b3cc5c2b64",
      * "orderNumber": null,
@@ -215,7 +209,9 @@ public class OrderController {
 
 }
 
-/*
+/**
+ * Example response of getUserOrders
+ * 
  * [
  * {
  * "orderId": "7e5bd44e-c12a-4ee7-a150-c87aba96c483",

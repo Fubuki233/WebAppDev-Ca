@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import sg.com.aori.model.Wishlist;
 import sg.com.aori.service.WishlistService;
@@ -20,11 +16,9 @@ import sg.com.aori.service.WishlistService;
  * @date 2025-10-08
  * @version 1.0
  * 
- *          Improved the get method when user not logged in .
- * 
  * @author Yunhe
  * @date 2025-10-11
- * @version 1.1
+ * @version 1.1 - Improved the get method when user not logged in .
  */
 
 @RestController
@@ -37,8 +31,13 @@ public class WishlistController {
 		this.wishlistService = wishlistService;
 	}
 
-	// toggles customer's wishlist. returns added:true if newly added, added:false
-	// if removed
+	/**
+	 * Toggles customer's wishlist.
+	 * 
+	 * @param customerId
+	 * @param productId
+	 * @return added:true if newly added, added:false if removed
+	 */
 	@PostMapping("")
 	public ResponseEntity<Map<String, Boolean>> toggle(
 			@RequestParam String customerId,
@@ -47,8 +46,13 @@ public class WishlistController {
 		return ResponseEntity.ok(Map.of("added", added));
 	}
 
-	// checks if a product is already in a customer's wishlist. returns
-	// exists:true/false
+	/**
+	 * Checks if a product is already in a customer's wishlist.
+	 * 
+	 * @param customerId
+	 * @param productId
+	 * @return exists:true/false
+	 */
 	@GetMapping("/exists")
 	public ResponseEntity<Map<String, Boolean>> exists(
 			@RequestParam String customerId,
@@ -57,13 +61,14 @@ public class WishlistController {
 		return ResponseEntity.ok(Map.of("exists", exists));
 	}
 
-	// Lists all items in customer's wishlist
+	/**
+	 * Lists all items in customer's wishlist
+	 */
 	@GetMapping
 	public ResponseEntity<List<Wishlist>> list(
 			@RequestParam String customerId) {
 		if (customerId == null) {
 			return ResponseEntity.ok(List.of());
-
 		}
 		return ResponseEntity.ok(wishlistService.list(customerId));
 	}

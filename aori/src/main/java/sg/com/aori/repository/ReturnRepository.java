@@ -15,6 +15,5 @@ import sg.com.aori.model.Returns;
 
 @Repository
 public interface ReturnRepository extends JpaRepository<Returns, String> {
-
     List<Returns> findByOrderItemIdIn(List<String> orderItemIds);
 }
