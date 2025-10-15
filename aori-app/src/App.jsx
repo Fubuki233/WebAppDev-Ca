@@ -23,6 +23,7 @@ import ProductDetailPage from "./components/ProductDetailPage";
 import FavouritesPage from "./components/FavouritesPage";
 import CartPage from "./components/CartPage";
 import CheckoutPage from "./components/CheckoutPage";
+import PaymentPage from "./components/PaymentPage";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import ProfilePage from "./components/ProfilePage";
@@ -59,6 +60,10 @@ function App() {
     if (hash.startsWith('#product/')) {
       const productId = hash.replace('#product/', '');
       return { page: 'product-detail', productId: productId };
+    }
+    if (hash.startsWith('#payment/')) {
+      const orderId = hash.replace('#payment/', '');
+      return { page: 'payment', orderId: orderId };
     }
     if (hash.startsWith('#products')) {
       return parseProductsRoute(hash);
@@ -100,6 +105,7 @@ function App() {
         />
       )}
       {currentRoute.page === 'product-detail' && <ProductDetailPage productId={currentRoute.productId} />}
+      {currentRoute.page === 'payment' && <PaymentPage orderId={currentRoute.orderId} />}
       {currentRoute.page === 'favourites' && <FavouritesPage />}
       {currentRoute.page === 'cart' && <CartPage />}
       {currentRoute.page === 'checkout' && <CheckoutPage />}

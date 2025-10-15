@@ -4,6 +4,12 @@
  * @author Yunhe
  * @date 2025-10-11
  * @version 1.0
+ * 
+ * @version 1.1 - Added createOrderFromCart function to handle checkout process
+ * @date 2025-10-12
+ * 
+ * @version 2.0 - finished confirmDelivery and requestReturn functions, now, all the functions are done
+ * @date 2025-10-15
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 import { authenticatedFetch } from './apiUtils';
@@ -124,6 +130,53 @@ export const getOrderStatus = async (orderId) => {
         throw error;
     }
 };
+
+/**
+ * Confirm delivery (customer confirms receipt)
+ */
+export const confirmDelivery = async (orderId) => {
+    try {
+        const response = await authenticatedFetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.ORDERS}/${orderId}/delivery`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Confirm delivery response:', data);
+        return data;
+    } catch (error) {
+        console.error('Error confirming delivery:', error);
+        throw error;
+    }
+};
+
+/**
+ * Request order return
+ */
+export const requestReturn = async (orderId) => {
+    try {
+        const response = await authenticatedFetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.ORDERS}/${orderId}/return`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Return request response:', data);
+        return data;
+    } catch (error) {
+        console.error('Error requesting return:', error);
+        throw error;
+    }
+};
+
+/**
+ * Create order from cart (checkout)
 
 /**
  * Create order from cart (checkout)

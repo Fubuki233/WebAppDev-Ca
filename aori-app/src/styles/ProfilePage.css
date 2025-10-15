@@ -160,15 +160,28 @@
 
 .order-status-group {
     display: flex;
-    gap: 8px;
+    gap: 15px;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
 }
 
 .status-badge {
     padding: 4px 12px;
     border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -240,8 +253,10 @@
     flex-wrap: wrap;
 }
 
-.btn-view,
-.btn-cancel {
+.order-actions .btn-view,
+.order-actions .btn-cancel,
+.order-actions .btn-pay,
+.order-actions .btn-confirm {
     padding: 8px 16px;
     border: 1px solid #2d2d2d;
     background: transparent;
@@ -254,22 +269,98 @@
     border-radius: 4px;
 }
 
-.btn-view:hover {
+.order-actions .btn-view:hover {
     background: #2d2d2d;
     color: white;
 }
 
-.btn-cancel {
+.order-actions .btn-pay {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.order-actions .btn-pay:hover {
+    background: #007bff;
+    color: white;
+}
+
+.order-actions .btn-cancel {
     border-color: #dc3545;
     color: #dc3545;
 }
 
-.btn-cancel:hover {
+.order-actions .btn-cancel:hover {
     background: #dc3545;
     color: white;
 }
 
-.btn-review {
+/* Pay Now Button - Independent Style */
+.btn-pay-order {
+    padding: 8px 16px !important;
+    border: 1px solid #007bff !important;
+    background: transparent !important;
+    color: #007bff !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    border-radius: 4px !important;
+}
+
+.btn-pay-order:hover {
+    background: #007bff !important;
+    color: white !important;
+}
+
+/* Cancel Order Button - Independent Style */
+.btn-cancel-order {
+    padding: 8px 16px !important;
+    border: 1px solid #dc3545 !important;
+    background: transparent !important;
+    color: #dc3545 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    border-radius: 4px !important;
+}
+
+.btn-cancel-order:hover {
+    background: #dc3545 !important;
+    color: white !important;
+}
+
+.order-actions .btn-confirm {
+    border-color: #17a2b8;
+    color: #17a2b8;
+}
+
+.order-actions .btn-confirm:hover {
+    background: #17a2b8;
+    color: white;
+}
+
+.order-actions .btn-return {
+    padding: 8px 16px;
+    border: 1px solid #ff9800;
+    background: transparent;
+    color: #ff9800;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 4px;
+}
+
+.order-actions .btn-return:hover {
+    background: #ff9800;
+    color: white;
+}
+
+.order-actions .btn-review {
     padding: 8px 16px;
     border: 1px solid #28a745;
     background: transparent;
@@ -282,7 +373,7 @@
     border-radius: 4px;
 }
 
-.btn-review:hover {
+.order-actions .btn-review:hover {
     background: #28a745;
     color: white;
 }
@@ -761,6 +852,23 @@
     letter-spacing: 0.3px;
 }
 
+.field-error {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #d32f2f;
+    letter-spacing: 0.3px;
+}
+
+.input-error {
+    border-color: #d32f2f !important;
+}
+
+.input-error:focus {
+    outline-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+}
+
 /* Action Buttons */
 .form-actions {
     display: flex;
@@ -770,9 +878,9 @@
     border-top: 1px solid #e8e8e8;
 }
 
-.btn-edit,
-.btn-save,
-.btn-cancel {
+.form-actions .btn-edit,
+.form-actions .btn-save,
+.form-actions .btn-cancel {
     padding: 14px 35px;
     border-radius: 4px;
     font-size: 13px;
@@ -784,40 +892,40 @@
     border: none;
 }
 
-.btn-edit {
+.form-actions .btn-edit {
     background-color: #2d2d2d;
     color: white;
 }
 
-.btn-edit:hover {
+.form-actions .btn-edit:hover {
     background-color: #1a1a1a;
 }
 
-.btn-save {
+.form-actions .btn-save {
     background-color: #2d2d2d;
     color: white;
 }
 
-.btn-save:hover:not(:disabled) {
+.form-actions .btn-save:hover:not(:disabled) {
     background-color: #1a1a1a;
 }
 
-.btn-save:disabled {
+.form-actions .btn-save:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.btn-cancel {
+.form-actions .btn-cancel {
     background-color: white;
     color: #2d2d2d;
     border: 1px solid #2d2d2d;
 }
 
-.btn-cancel:hover:not(:disabled) {
+.form-actions .btn-cancel:hover:not(:disabled) {
     background-color: #f5f5f5;
 }
 
-.btn-cancel:disabled {
+.form-actions .btn-cancel:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }

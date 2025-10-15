@@ -9,7 +9,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import ReviewModal from './ReviewModal';
 import { getProfile, updateProfile } from '../api/profileApi';
-import { getUserOrders, getOrderDetails, cancelOrder } from '../api/orderApi';
+import { getUserOrders, getOrderDetails, cancelOrder, confirmDelivery, requestReturn } from '../api/orderApi';
 import { getViewHistory } from '../api/viewHistoryApi';
 import { fetchProductById } from '../api/productApi';
 import { getOrderReviewStatus } from '../api/reviewApi';
@@ -29,6 +29,7 @@ const ProfilePage = () => {
         dateOfBirth: '',
         gender: ''
     });
+    const [fieldErrors, setFieldErrors] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -101,7 +102,7 @@ const ProfilePage = () => {
                     firstName: response.profile.firstName || '',
                     lastName: response.profile.lastName || '',
                     email: response.profile.email || '',
-                    phone: response.profile.phone || '',
+                    phone: response.profile.phoneNumber || '', // Map 'phoneNumber' to 'phone'
                     dateOfBirth: response.profile.dateOfBirth || '',
                     gender: response.profile.gender || ''
                 });
@@ -241,6 +242,57 @@ const ProfilePage = () => {
         }
     };
 
+    const handlePayOrder = (orderId) => {
+        // Navigate to payment page with orderId
+        window.location.hash = `#payment/${orderId}`;
+    };
+
+    const handleConfirmDelivery = async (orderId) => {
+        if (!window.confirm('Confirm that you have received your order?')) {
+            return;
+        }
+
+        try {
+            const response = await confirmDelivery(orderId);
+            if (response.success) {
+                setSuccess('Order delivery confirmed!');
+                loadOrders(); // Reload orders
+                if (selectedOrder === orderId) {
+                    setSelectedOrder(null);
+                    setOrderDetails(null);
+                }
+            } else {
+                setError(response.message || 'Failed to confirm delivery');
+            }
+        } catch (err) {
+            console.error('Confirm delivery error:', err);
+            setError('Failed to confirm delivery. Please try again.');
+        }
+    };
+
+    const handleRequestReturn = async (orderId) => {
+        if (!window.confirm('Request a return for this order? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await requestReturn(orderId);
+            if (response.success) {
+                setSuccess('Return request submitted successfully!');
+                loadOrders(); // Reload orders
+                if (selectedOrder === orderId) {
+                    setSelectedOrder(null);
+                    setOrderDetails(null);
+                }
+            } else {
+                setError(response.message || 'Failed to request return');
+            }
+        } catch (err) {
+            console.error('Request return error:', err);
+            setError('Failed to request return. Please try again.');
+        }
+    };
+
     const handleOpenReviewSelection = async (orderId) => {
         try {
             // Check review status first
@@ -289,15 +341,116 @@ const ProfilePage = () => {
         loadOrders();
     };
 
+    const handleReviewSubmitted = async (productId, orderId) => {
+        console.log('[ProfilePage] Review submitted for product:', productId, 'order:', orderId);
+
+        // Immediately refresh the review status for this order
+        try {
+            const statusResponse = await getOrderReviewStatus(profile?.customerId, orderId);
+            if (statusResponse.success) {
+                setOrderReviewStatus(prev => ({
+                    ...prev,
+                    [orderId]: statusResponse.data
+                }));
+
+                // Also update the review order items if the modal is still open
+                if (reviewOrderId === orderId) {
+                    const response = await getOrderDetails(orderId);
+                    if (response.success && response.orderItems) {
+                        const itemsWithStatus = response.orderItems.map(item => {
+                            const statusItem = statusResponse.data.items.find(
+                                s => s.productId === item.productId
+                            );
+                            return {
+                                ...item,
+                                reviewed: statusItem?.reviewed || false,
+                                existingReview: statusItem?.review || null
+                            };
+                        });
+                        setReviewOrderItems(itemsWithStatus);
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Error refreshing review status:', err);
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
             [name]: value
         }));
+
+        // Validate field on change
+        validateField(name, value);
+
         // Clear messages when user types
         if (error) setError('');
         if (success) setSuccess('');
+    };
+
+    const validateField = (name, value) => {
+        let error = '';
+
+        switch (name) {
+            case 'firstName':
+                if (!value || value.trim() === '') {
+                    error = 'First name is required';
+                } else if (!/^[A-Za-z]+$/.test(value)) {
+                    error = 'First name must contain alphabets only';
+                } else if (value.length > 50) {
+                    error = 'First name must not exceed 50 characters';
+                }
+                break;
+
+            case 'lastName':
+                if (!value || value.trim() === '') {
+                    error = 'Last name is required';
+                } else if (!/^[A-Za-z]+$/.test(value)) {
+                    error = 'Last name must contain alphabets only';
+                } else if (value.length > 50) {
+                    error = 'Last name must not exceed 50 characters';
+                }
+                break;
+
+            case 'email':
+                if (!value || value.trim() === '') {
+                    error = 'Email is required';
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                    error = 'Email format is invalid';
+                }
+                break;
+
+            case 'phone':
+                if (value && value.trim() !== '') {
+                    if (!/^\+?[1-9]\d{1,14}$/.test(value.replace(/\s/g, ''))) {
+                        error = 'Phone must follow E.164 format (e.g., +6512345678)';
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        setFieldErrors(prev => ({
+            ...prev,
+            [name]: error
+        }));
+    };
+
+    const validateForm = () => {
+        // Validate all fields
+        validateField('firstName', formData.firstName);
+        validateField('lastName', formData.lastName);
+        validateField('email', formData.email);
+        validateField('phone', formData.phone);
+
+        // Check if there are any errors
+        const hasErrors = Object.values(fieldErrors).some(error => error !== '');
+        return !hasErrors;
     };
 
     const handleStartReview = (productId) => {
@@ -347,7 +500,7 @@ const ProfilePage = () => {
                 setReviewForm({ rating: 0, title: '', comment: '' });
                 // Reload order details to show updated review status
                 if (selectedOrder) {
-                    loadOrderDetails(selectedOrder);
+                    handleViewOrderDetails(selectedOrder);
                 }
             } else {
                 alert('Failed to submit review: ' + (result.error || 'Unknown error'));
@@ -372,39 +525,63 @@ const ProfilePage = () => {
             firstName: profile.firstName || '',
             lastName: profile.lastName || '',
             email: profile.email || '',
-            phone: profile.phone || '',
+            phone: profile.phoneNumber || '', // Map 'phoneNumber' to 'phone'
             dateOfBirth: profile.dateOfBirth || '',
             gender: profile.gender || ''
         });
         setIsEditing(false);
         setError('');
         setSuccess('');
+        setFieldErrors({});
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
+
+        // Client-side validation
+        const isValid = validateForm();
+        if (!isValid) {
+            const errorMessages = Object.entries(fieldErrors)
+                .filter(([_, error]) => error !== '')
+                .map(([field, error]) => error);
+            setError(errorMessages.join('. '));
+            return;
+        }
+
         setSaving(true);
 
         try {
-            const response = await updateProfile(formData);
+            // Map frontend field names to backend field names
+            const profileData = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phoneNumber: formData.phone, // Map 'phone' to 'phoneNumber'
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender
+            };
+
+            const response = await updateProfile(profileData);
             console.log('Update response:', response);
 
             if (response.success) {
                 setProfile(response.profile);
                 setSuccess('Profile updated successfully!');
                 setIsEditing(false);
+                setFieldErrors({});
                 // Reload to get latest data
                 setTimeout(() => {
                     loadProfile();
                 }, 1000);
             } else {
+                // Display server error message
                 setError(response.message || 'Failed to update profile');
             }
         } catch (err) {
             console.error('Update profile error:', err);
-            setError('Failed to update profile. Please try again.');
+            setError(err.message || 'Failed to update profile. Please try again.');
         } finally {
             setSaving(false);
         }
@@ -545,12 +722,18 @@ const ProfilePage = () => {
                                                         </span>
                                                     </div>
                                                     <div className="order-status-group">
-                                                        <span className={`status-badge ${getStatusBadgeClass(order.orderStatus)}`}>
-                                                            {order.orderStatus}
-                                                        </span>
-                                                        <span className={`status-badge ${getStatusBadgeClass(order.paymentStatus)}`}>
-                                                            {order.paymentStatus}
-                                                        </span>
+                                                        <div className="status-item">
+                                                            <span className="status-label">Order Status:</span>
+                                                            <span className={`status-badge ${getStatusBadgeClass(order.orderStatus)}`}>
+                                                                {order.orderStatus}
+                                                            </span>
+                                                        </div>
+                                                        <div className="status-item">
+                                                            <span className="status-label">Payment:</span>
+                                                            <span className={`status-badge ${getStatusBadgeClass(order.paymentStatus)}`}>
+                                                                {order.paymentStatus}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -568,21 +751,62 @@ const ProfilePage = () => {
                                                     >
                                                         View Details
                                                     </button>
-                                                    {(order.orderStatus === 'Pending' || order.orderStatus === 'Paid') ? (
+
+                                                    {/* Show Pay button for Pending orders */}
+                                                    {order.orderStatus === 'Pending' && order.paymentStatus === 'Pending' && (
                                                         <button
-                                                            className="btn-cancel"
+                                                            className="btn-pay-order"
+                                                            onClick={() => handlePayOrder(order.orderId)}
+                                                        >
+                                                            Pay Now
+                                                        </button>
+                                                    )}
+
+                                                    {/* Show Cancel button for Pending or Paid orders */}
+                                                    {(order.orderStatus === 'Pending' || order.orderStatus === 'Paid') && (
+                                                        <button
+                                                            className="btn-cancel-order"
                                                             onClick={() => handleCancelOrder(order.orderId)}
                                                         >
                                                             Cancel Order
                                                         </button>
-                                                    ) : (order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered') ? (
-                                                        <button
-                                                            className={orderReviewStatus[order.orderId]?.allReviewed ? "btn-view-review" : "btn-review"}
-                                                            onClick={() => handleOpenReviewSelection(order.orderId)}
-                                                        >
-                                                            {orderReviewStatus[order.orderId]?.allReviewed ? 'View Reviews' : 'Write Review'}
-                                                        </button>
-                                                    ) : null}
+                                                    )}
+
+                                                    {/* Show Confirm Delivery and Return buttons for Shipped orders */}
+                                                    {order.orderStatus === 'Shipped' && (
+                                                        <>
+                                                            <button
+                                                                className="btn-confirm"
+                                                                onClick={() => handleConfirmDelivery(order.orderId)}
+                                                            >
+                                                                Confirm Delivery
+                                                            </button>
+                                                            <button
+                                                                className="btn-return"
+                                                                onClick={() => handleRequestReturn(order.orderId)}
+                                                            >
+                                                                Request Return
+                                                            </button>
+                                                        </>
+                                                    )}
+
+                                                    {/* Show Review and Return buttons for Delivered orders */}
+                                                    {order.orderStatus === 'Delivered' && (
+                                                        <>
+                                                            <button
+                                                                className="btn-review"
+                                                                onClick={() => handleOpenReviewSelection(order.orderId)}
+                                                            >
+                                                                Review
+                                                            </button>
+                                                            <button
+                                                                className="btn-return"
+                                                                onClick={() => handleRequestReturn(order.orderId)}
+                                                            >
+                                                                Request Return
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
@@ -804,21 +1028,19 @@ const ProfilePage = () => {
                                                                             {'★'.repeat(item.existingReview.rating)}
                                                                             {'☆'.repeat(5 - item.existingReview.rating)}
                                                                         </span>
+                                                                        {item.existingReview.title && (
+                                                                            <p className="review-title-preview">
+                                                                                <strong>{item.existingReview.title}</strong>
+                                                                            </p>
+                                                                        )}
                                                                         <p className="review-comment-preview">
-                                                                            {item.existingReview.comment?.substring(0, 60)}
-                                                                            {item.existingReview.comment?.length > 60 ? '...' : ''}
+                                                                            {item.existingReview.comment?.substring(0, 100)}
+                                                                            {item.existingReview.comment?.length > 100 ? '...' : ''}
                                                                         </p>
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                            {item.reviewed ? (
-                                                                <button
-                                                                    className="btn-view-review"
-                                                                    onClick={() => handleSelectProductToReview(item)}
-                                                                >
-                                                                    View Review
-                                                                </button>
-                                                            ) : (
+                                                            {!item.reviewed && (
                                                                 <button
                                                                     className="btn-review-this"
                                                                     onClick={() => handleSelectProductToReview(item)}
@@ -843,18 +1065,6 @@ const ProfilePage = () => {
 
                                 {/* Profile Card */}
                                 <div className="profile-card">
-                                    {/* Messages */}
-                                    {error && (
-                                        <div className="message error-message">
-                                            {error}
-                                        </div>
-                                    )}
-                                    {success && (
-                                        <div className="message success-message">
-                                            {success}
-                                        </div>
-                                    )}
-
                                     {/* Profile Form */}
                                     <form onSubmit={handleSubmit} className="profile-form">
                                         <div className="form-section">
@@ -871,7 +1081,11 @@ const ProfilePage = () => {
                                                         onChange={handleChange}
                                                         disabled={!isEditing}
                                                         required
+                                                        className={fieldErrors.firstName ? 'input-error' : ''}
                                                     />
+                                                    {fieldErrors.firstName && (
+                                                        <span className="field-error">{fieldErrors.firstName}</span>
+                                                    )}
                                                 </div>
 
                                                 <div className="form-group">
@@ -884,7 +1098,11 @@ const ProfilePage = () => {
                                                         onChange={handleChange}
                                                         disabled={!isEditing}
                                                         required
+                                                        className={fieldErrors.lastName ? 'input-error' : ''}
                                                     />
+                                                    {fieldErrors.lastName && (
+                                                        <span className="field-error">{fieldErrors.lastName}</span>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -913,7 +1131,11 @@ const ProfilePage = () => {
                                                         onChange={handleChange}
                                                         disabled={!isEditing}
                                                         placeholder="Enter phone number"
+                                                        className={fieldErrors.phone ? 'input-error' : ''}
                                                     />
+                                                    {fieldErrors.phone && (
+                                                        <span className="field-error">{fieldErrors.phone}</span>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -1096,6 +1318,7 @@ const ProfilePage = () => {
                     orderItem={selectedOrderItem}
                     orderId={reviewOrderId}
                     customerId={profile?.customerId}
+                    onReviewSubmitted={handleReviewSubmitted}
                 />
             )}
         </div>
