@@ -49,39 +49,26 @@ public class ReturnService implements IReturn {
     @Transactional
     public String processReturnRequest(@Valid Returns returns, String userId) {
 
-        // --- 1. Find OrderItem and Check Eligibility ---
-
-        // NOTE: You need a method in OrderRepository to find the OrderItem by its ID
-        // AND the User ID
         OrderItem itemToReturn = orderRepository.findOrderItemByItemIdAndUserId(
-                returns.getOrderItemId(), // Uses the field from the Returns entity
+                returns.getOrderItemId(),
                 userId)
                 .orElseThrow(() -> new IllegalArgumentException("Order item not found or unauthorized access."));
 
         Orders order = itemToReturn.getOrder();
 
-        // Example Eligibility Check (30-day policy)
         if (order.getCreatedAt().isBefore(java.time.LocalDateTime.now().minusDays(30))) {
 
-            // Set final rejected status and save for tracking
-            returns.setReturnStatus(Returns.ReturnStatus.Denied); // Use Returns's enum
+            returns.setReturnStatus(Returns.ReturnStatus.Denied);
             returnRepository.save(returns);
             return "Return ineligible: Past 30-day window.";
         }
 
-        // --- 2. Finalize Entity Data and Save ---
-
-        // Set status to the initial state (Pervious: Requested)
         returns.setReturnStatus(Returns.ReturnStatus.Requested);
 
-        // Step 8: Creates the record in the database
-        returnRepository.save(returns); // 👈 Correctly saves the Returns entity
-
-        // --- 3. Update Order Status ---
+        returnRepository.save(returns);
         order.setOrderStatus(Orders.OrderStatus.Returned);
         orderRepository.save(order);
 
-        // --- 4. Return Confirmation ---
         return "Return Confirmed. Instructions and Refund Processed.";
     }
 
