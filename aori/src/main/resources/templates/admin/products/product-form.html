@@ -43,8 +43,8 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="category" class="form-label">Category</label>
-                    <!-- The th:field attribute correctly binds to product.category.categoryId -->
-                    <select class="form-select" id="category" name="category" th:field="*{category.categoryId}" required>
+                    <!-- The th:field attribute binds directly to the categoryId field -->
+                    <select class="form-select" id="category" th:field="*{categoryId}" required>
                         <option value="">-- Select a Category --</option>
                         <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.categoryName}"></option>
                     </select>
@@ -54,6 +54,44 @@
                     <label for="collection" class="form-label">Collection</label>
                     <input type="text" class="form-control" id="collection" th:field="*{collection}" required>
                     <div class="invalid-feedback">Collection is required.</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="material" class="form-label">Material</label>
+                    <input type="text" class="form-control" id="material" th:field="*{material}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="season" class="form-label">Season</label>
+                    <select class="form-select" id="season" th:field="*{season}">
+                        <option value="">-- Select a Season --</option>
+                        <option th:each="s : ${allSeasons}" th:value="${s}" th:text="${s}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="careInstructions" class="form-label">Care Instructions</label>
+                <textarea class="form-control" id="careInstructions" th:field="*{careInstructions}" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="image" class="form-label">Image URL</label>
+                <input type="url" class="form-control" id="image" th:field="*{image}" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="rating" class="form-label">Rating (0.0 - 5.0)</label>
+                    <input type="number" step="0.1" min="0" max="5" class="form-control" id="rating" th:field="*{rating}">
+                    <div class="form-text">If left blank, this will indicate a null value.</div>
+                    <div class="invalid-feedback">Please enter a rating between 0.0 and 5.0.</div>
+                    </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tags" class="form-label">Tags</label>
+                    <input type="text" class="form-control" id="tags" th:field="*{tags}" placeholder="e.g., best-seller, new-arrival">
+                    <div class="form-text">Enter comma-separated tags.</div>
                 </div>
             </div>
 

@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Collections;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import java.util.List;
 
 /**
@@ -113,6 +115,8 @@ public class Product {
     private String size; // JSON array: ["XS", "S", "M", "L", "XL"]
 
     @Column(name = "rating")
+    @DecimalMin(value = "0.0", message = "Rating must be at least 0.0.")
+    @DecimalMax(value = "5.0", message = "Rating must not exceed 5.0.")
     private Float rating = 5.0f;
 
     @Column(name = "tags", length = 255)

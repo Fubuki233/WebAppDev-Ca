@@ -49,12 +49,26 @@
 
                         <dt class="col-sm-3">Care Instructions</dt>
                         <dd class="col-sm-9" th:text="${product.careInstructions}"></dd>
+
+                        <dt class="col-sm-3">Rating</dt>
+                        <dd class="col-sm-9" th:text="${product.rating} + ' / 5.0'"></dd>
+
+                        <dt class="col-sm-3">Tags</dt>
+                        <dd class="col-sm-9" th:text="${product.tags}"></dd>
                     </dl>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
+             <div class="card mb-4">
+                <div class="card-header">Product Image</div>
+                <div class="card-body text-center">
+                    <img th:if="${product.image}" th:src="${product.image}" th:alt="${product.productName}" class="img-fluid rounded" style="max-height: 300px;">
+                    <p th:unless="${product.image}" class="text-muted">No image available.</p>
+                </div>
+             </div>
+
              <div class="card mb-4">
                  <div class="card-header">Pricing & Inventory</div>
                  <div class="card-body">
