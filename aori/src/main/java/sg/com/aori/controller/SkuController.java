@@ -17,6 +17,11 @@ import sg.com.aori.utils.SkuTool;
  * @author Yunhe
  * @date 2025-10-13
  * @version 1.0
+ * 
+ * @author Ying Chun
+ * @date 2025-10-15
+ * @version 1.1 - SKU operations now automatically update product stock quantity
+ *          by calculating the sum of all SKU quantities for that product
  */
 
 @RestController
@@ -29,6 +34,16 @@ public class SkuController {
     @Autowired
     CRUDProductService productService;
 
+    /**
+     * Create or update a SKU with the specified quantity.
+     * Automatically updates the product's total stock quantity after operation.
+     * 
+     * @param id       product UUID
+     * @param colour   hex color code (without #)
+     * @param size     product size
+     * @param quantity quantity for this specific SKU
+     * @return the created/updated SKU string
+     */
     @PostMapping("admin/sku")
     public String setSku(@RequestParam String id, @RequestParam String colour, @RequestParam String size,
             @RequestParam int quantity) {
@@ -48,6 +63,16 @@ public class SkuController {
         return skuService.getQuantity(sku);
     }
 
+    /**
+     * Checkout (decrease by 1) the quantity of a specific SKU.
+     * Automatically updates the product's total stock quantity after operation.
+     * 
+     * @param id     product UUID
+     * @param colour hex color code (without #)
+     * @param size   product size
+     * @return the remaining quantity of the SKU, or -1 if SKU not found or out of
+     *         stock
+     */
     @PostMapping("sku/checkout")
     public int checkoutSku(@RequestParam String id, @RequestParam String colour, @RequestParam String size) {
         if (productService.getProductById(id) == null) {

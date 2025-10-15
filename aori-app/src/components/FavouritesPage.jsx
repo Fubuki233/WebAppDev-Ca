@@ -2,13 +2,12 @@
  * FavouritesPage.jsx
  * 
  * @author Yunhe
- * @date 2025-10-08
- * @version 1.2 - Using favouritesApi for backend integration
+ * @date 2025-10-15
+ * @version 1.3 - Removed add to cart and size/color display features
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import { getFavourites, removeFromFavourites as removeFromFavouritesApi } from '../api/favouritesApi';
-import { addToCart as addToCartApi } from '../api/cartApi';
 import '../styles/FavouritesPage.css';
 
 const FavouritesPage = () => {
@@ -48,24 +47,6 @@ const FavouritesPage = () => {
             }
         } catch (error) {
             console.error('Failed to remove from favourites:', error);
-        }
-    };
-
-    const addToCart = async (item) => {
-        try {
-            const result = await addToCartApi({
-                productId: item.productId || item.id,
-                quantity: 1
-            });
-
-            if (result.success) {
-                alert('Added to cart!');
-            } else {
-                alert('Failed to add to cart');
-            }
-        } catch (error) {
-            console.error('Failed to add to cart:', error);
-            alert('Failed to add to cart');
         }
     };
 
@@ -135,35 +116,12 @@ const FavouritesPage = () => {
                                             {item.name}
                                         </h3>
                                         <p className="favourite-category">Cotton T-Shirt</p>
-
-                                        {item.size && (
-                                            <div className="favourite-variant">
-                                                <span className="variant-label">Size:</span>
-                                                <span className="variant-value">{item.size}</span>
-                                            </div>
-                                        )}
-
-                                        {item.color && (
-                                            <div className="favourite-variant">
-                                                <span className="variant-label">Color:</span>
-                                                <div
-                                                    className="color-preview"
-                                                    style={{ backgroundColor: item.color }}
-                                                ></div>
-                                            </div>
-                                        )}
                                     </div>
 
                                     <div className="favourite-actions">
                                         <div className="favourite-price">
                                             ${item.price || '99'}
                                         </div>
-                                        <button
-                                            className="add-to-cart-btn"
-                                            onClick={() => addToCart(item)}
-                                        >
-                                            Add to Cart
-                                        </button>
                                     </div>
                                 </div>
                             </div>

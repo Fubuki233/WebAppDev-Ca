@@ -2,8 +2,8 @@
  * Review API module for managing product reviews
  * 
  * @author Yunhe
- * @date 2025-10-14
- * @version 1.0
+ * @date 2025-10-15
+ * @version 1.1 - Added getOrderReviewStatus API
  */
 import API_CONFIG, { API_ENDPOINTS } from '../config/apiConfig';
 import { apiRequest } from './apiUtils';
@@ -41,11 +41,12 @@ export const getReviewStats = async (productId) => {
 
 /**
  * Get approved reviews for a product (public)
+ * Returns a simple array of review objects
  */
 export const getProductReviews = async (productId, page = 0, size = 10) => {
     try {
         const response = await fetch(
-            `${API_CONFIG.BASE_URL}/public/products/${productId}/reviews?page=${page}&size=${size}`,
+            `${API_CONFIG.BASE_URL}/public/products/${productId}/reviews`,
             {
                 method: 'GET',
                 headers: {
@@ -59,14 +60,22 @@ export const getProductReviews = async (productId, page = 0, size = 10) => {
         }
 
         const data = await response.json();
-        return data;
+        // Backend now returns a simple array, wrap it in pagination-like structure for compatibility
+        return {
+            content: data || [],
+            totalElements: data ? data.length : 0,
+            totalPages: 1,
+            number: 0,
+            last: true
+        };
     } catch (error) {
         console.error('Error fetching product reviews:', error);
         return {
             content: [],
             totalElements: 0,
             totalPages: 0,
-            number: 0
+            number: 0,
+            last: true
         };
     }
 };
@@ -102,6 +111,47 @@ export const getOwnReview = async (customerId, orderId, productId) => {
     } catch (error) {
         console.error('Error fetching own review:', error);
         return null;
+    }
+};
+
+/**
+ * Get review status for all items in an order
+ * Returns which items have been reviewed and which haven't
+ */
+export const getOrderReviewStatus = async (customerId, orderId) => {
+    try {
+        const params = new URLSearchParams({
+            customerId,
+            orderId
+        });
+
+        const response = await fetch(
+            `${API_CONFIG.BASE_URL}/review/order-status?${params.toString()}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            success: true,
+            data
+        };
+    } catch (error) {
+        console.error('Error fetching order review status:', error);
+        return {
+            success: false,
+            reviewedProducts: [],
+            allReviewed: false
+        };
     }
 };
 

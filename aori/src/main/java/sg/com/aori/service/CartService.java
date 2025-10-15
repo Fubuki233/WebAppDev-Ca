@@ -3,9 +3,11 @@
  * v1.2: Repaired the problem that orderItem cannot be added correctly.
  * v1.3: Added the function of auto generating order_number
  * v1.4: Added sku
+ * v1.5: Fixed duplicate cart item issue - now checks SKU in addition to productId
+ * v1.6: Changed default order status to Shipped and payment status to Paid
  * @author Jiang
- * @date 2025-10-14
- * @version 1.4
+ * @date 2025-10-15
+ * @version 1.6
  */
 
 package sg.com.aori.service;
@@ -53,7 +55,7 @@ public class CartService implements ICart {
     // Check inventory for all items in cart
     public boolean checkInventory(String customerId) {
         List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
-        
+
         for (ShoppingCart item : cartItems) {
             Product product = item.getProduct();
             if (product.getStockQuantity() < item.getQuantity()) {
@@ -68,45 +70,45 @@ public class CartService implements ICart {
 
         try {
             System.out.println("Starting createOrder for customer: " + customerId);
-            
+
             List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
             System.out.println("Found " + cartItems.size() + " cart items");
-            
+
             if (cartItems == null || cartItems.isEmpty()) {
                 throw new RuntimeException("Cannot create order: Shopping cart is empty");
             }
-            
+
             // Check Inventory
             boolean inventoryAvailable = checkInventory(customerId);
             if (!inventoryAvailable) {
                 throw new RuntimeException("Insufficient inventory for some items");
             }
-            
+
             // Create order
             Orders order = new Orders();
             String orderId = java.util.UUID.randomUUID().toString();
             order.setOrderId(orderId);
             System.out.println("Creating order with ID: " + orderId);
-            
+
             Customer customer = new Customer();
             customer.setCustomerId(customerId);
             order.setCustomer(customer);
             order.setCustomerId(customerId);
-            
-            order.setOrderStatus(Orders.OrderStatus.Pending);
-            order.setPaymentStatus(Orders.PaymentStatus.Pending);
-            
+
+            order.setOrderStatus(Orders.OrderStatus.Shipped);
+            order.setPaymentStatus(Orders.PaymentStatus.Paid);
+
             BigDecimal totalAmount = calculateTotal(cartItems);
             order.setTotalAmount(totalAmount);
             order.setCreatedAt(LocalDateTime.now());
 
             String orderNumber = generateOrderNumber(orderId, LocalDateTime.now());
             order.setOrderNumber(orderNumber);
-            
+
             System.out.println("Saving order to database...");
             Orders savedOrder = orderRepository.save(order);
             System.out.println("Order saved successfully");
-            
+
             // Create order items
             System.out.println("Creating order items...");
             for (ShoppingCart cartItem : cartItems) {
@@ -117,26 +119,26 @@ public class CartService implements ICart {
                 orderItem.setPriceAtPurchase(cartItem.getProduct().getPrice());
                 orderItem.setDiscountApplied(BigDecimal.ZERO);
                 orderItem.setSku(cartItem.getSku());
-                
+
                 System.out.println("Saving order item: " + orderItem);
                 orderItemRepository.save(orderItem);
-                
+
                 // Update inventory
                 Product product = cartItem.getProduct();
                 int newStock = product.getStockQuantity() - cartItem.getQuantity();
-                System.out.println("Updating product " + product.getProductId() + " stock from " + 
-                                product.getStockQuantity() + " to " + newStock);
+                System.out.println("Updating product " + product.getProductId() + " stock from " +
+                        product.getStockQuantity() + " to " + newStock);
                 product.setStockQuantity(newStock);
                 inventoryRepository.save(product);
             }
-            
+
             // Delete cart
             System.out.println("Clearing cart for customer: " + customerId);
             cartRepository.deleteByCustomerId(customerId);
-            
+
             System.out.println("Order creation completed successfully");
             return savedOrder.getOrderId();
-            
+
         } catch (Exception e) {
             System.err.println("Error in createOrder: " + e.getMessage());
             e.printStackTrace();
@@ -156,25 +158,31 @@ public class CartService implements ICart {
         if (productOpt.isEmpty()) {
             throw new RuntimeException("Product not found");
         }
-        
+
         Product product = productOpt.get();
         if (product.getStockQuantity() < quantity) {
             throw new RuntimeException("Insufficient inventory");
         }
-        
-        // Check if item already in cart
-        Optional<ShoppingCart> existingCartItem = cartRepository.findByCustomerIdAndProductId(customerId, productId);
-        
+
+        // Check if item with same SKU already in cart
+        Optional<ShoppingCart> existingCartItem = cartRepository.findByCustomerIdAndProductIdAndSku(customerId,
+                productId, sku);
+
         if (existingCartItem.isPresent()) {
-            // Update quantity
+            // Update quantity if same product with same SKU exists
             ShoppingCart cartItem = existingCartItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+            int newQuantity = cartItem.getQuantity() + quantity;
+
+            // Check if new quantity exceeds stock
+            if (product.getStockQuantity() < newQuantity) {
+                throw new RuntimeException("Insufficient inventory for requested quantity");
+            }
+
+            cartItem.setQuantity(newQuantity);
             cartRepository.save(cartItem);
         } else {
-            // Create new cart item
+            // Create new cart item for different SKU
             ShoppingCart cartItem = new ShoppingCart();
-            // ***** Check if we need this UUID
-            // ***** It is more likely needed?
             cartItem.setCartId(java.util.UUID.randomUUID().toString());
 
             Customer customer = new Customer();
@@ -188,7 +196,7 @@ public class CartService implements ICart {
             cartItem.setProduct(product);
             cartItem.setQuantity(quantity);
             cartItem.setAddedAt(LocalDateTime.now());
-            
+
             cartRepository.save(cartItem);
         }
     }

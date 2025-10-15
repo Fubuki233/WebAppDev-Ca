@@ -184,6 +184,10 @@ export const addToCart = async (item, useMock = false) => {
             }
 
             localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+
+            // Trigger cart update event
+            window.dispatchEvent(new Event('cartUpdated'));
+
             return { success: true, cart };
         } catch (error) {
             console.error('Error adding to cart:', error);
@@ -227,6 +231,10 @@ export const addToCart = async (item, useMock = false) => {
 
         const data = await response.json();
         console.log('Added to cart:', data);
+
+        // Trigger cart update event
+        window.dispatchEvent(new Event('cartUpdated'));
+
         return { success: true, data };
     } catch (error) {
         console.error('Error adding to cart via API:', error);
@@ -243,6 +251,10 @@ export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_M
             if (cart[index]) {
                 cart[index].quantity = quantity;
                 localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+
+                // Trigger cart update event
+                window.dispatchEvent(new Event('cartUpdated'));
+
                 return { success: true, cart };
             }
             return { success: false, error: 'Item not found' };
@@ -275,6 +287,10 @@ export const updateCartItem = async (index, quantity, useMock = API_CONFIG.USE_M
         }
 
         const data = await response.json();
+
+        // Trigger cart update event
+        window.dispatchEvent(new Event('cartUpdated'));
+
         return data;
     } catch (error) {
         console.error('Error updating cart via API:', error);
@@ -288,6 +304,10 @@ export const removeFromCart = async (index, useMock = API_CONFIG.USE_MOCK) => {
             const cart = await getCart(null, true);
             cart.splice(index, 1);
             localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+
+            // Trigger cart update event
+            window.dispatchEvent(new Event('cartUpdated'));
+
             return { success: true, cart };
         } catch (error) {
             console.error('Error removing from cart:', error);
@@ -317,6 +337,10 @@ export const removeFromCart = async (index, useMock = API_CONFIG.USE_MOCK) => {
         }
 
         const data = await response.json();
+
+        // Trigger cart update event
+        window.dispatchEvent(new Event('cartUpdated'));
+
         return data;
     } catch (error) {
         console.error('Error removing from cart via API:', error);

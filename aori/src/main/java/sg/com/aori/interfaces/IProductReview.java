@@ -1,6 +1,6 @@
 /* @author Derek
- * @date 2025-10-08
- * @version 1.0
+ * @date 2025-10-15
+ * @version 1.1 - Added getOrderReviewStatus method
  **/
 
 package sg.com.aori.interfaces;
@@ -22,9 +22,7 @@ public interface IProductReview {
                         String productId,
                         Integer rating,
                         String title,
-                        String comment,
-                        String imagesJson,
-                        String variantId);
+                        String comment);
 
         /**
          * Get the existing review for this customer & the product (if any).
@@ -33,4 +31,12 @@ public interface IProductReview {
                         String customerId,
                         String orderId,
                         String productId);
+
+        /**
+         * Get review status for all items in an order.
+         * Returns which products have been reviewed and whether all items are reviewed.
+         */
+        Map<String, Object> getOrderReviewStatus(
+                        String customerId,
+                        String orderId);
 }

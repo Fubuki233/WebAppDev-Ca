@@ -11,8 +11,6 @@ package sg.com.aori.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,18 +19,17 @@ import sg.com.aori.model.ProductReview;
 
 public interface ProductReviewRepository extends JpaRepository<ProductReview, String> {
 
-  Page<ProductReview> findByProductIdAndStatusOrderByCreatedAtDesc(
-      String productId, ProductReview.ReviewStatus status, Pageable pageable);
+        @Query("SELECT r FROM ProductReview r LEFT JOIN FETCH r.user WHERE r.productId = :productId ORDER BY r.createdAt DESC")
+        List<ProductReview> findByProductIdByCreatedAtDesc(
+                        @Param("productId") String productId);
 
-  long countByProductIdAndStatus(String productId, ProductReview.ReviewStatus status);
+        long countByProductId(String productId);
 
-  @Query("select coalesce(avg(r.rating), 0) from ProductReview r where r.productId = :productId and r.status = :status")
-  double avgRating(@Param("productId") String productId, @Param("status") ProductReview.ReviewStatus status);
+        @Query("select coalesce(avg(r.rating), 0) from ProductReview r where r.productId = :productId")
+        double avgRating(@Param("productId") String productId);
 
-  @Query("select r.rating as rating, count(r) as cnt from ProductReview r " +
-         "where r.productId = :productId and r.status = :status group by r.rating")
-  List<Object[]> ratingBuckets(@Param("productId") String productId, @Param("status") ProductReview.ReviewStatus status);
+        @Query("select r.rating as rating, count(r) as cnt from ProductReview r where r.productId = :productId group by r.rating")
+        List<Object[]> ratingBuckets(@Param("productId") String productId);
 
-  Optional<ProductReview> findByProductIdAndUserId(String productId, String userId);
+        Optional<ProductReview> findByProductIdAndUserId(String productId, String userId);
 }
-

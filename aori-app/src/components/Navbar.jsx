@@ -7,16 +7,53 @@
  * 
  * @version 1.2 - Added hamburger menu with categories and search
  * @date 2025-10-11
+ * 
+ * @version 1.3 - Added cart item count badge
+ * @date 2025-10-15
+ * @author Ying Chun
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Navbar.css';
 import aoriLogo from '../aori.png';
+import { getCartCount } from '../api/cartApi';
 
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [cartItemCount, setCartItemCount] = useState(0);
 
     const categories = ['UNISEX', 'MEN', 'WOMEN'];
+
+    // Fetch cart count on component mount and set up periodic refresh
+    useEffect(() => {
+        const fetchCartCount = async () => {
+            try {
+                const count = await getCartCount();
+                setCartItemCount(count);
+            } catch (error) {
+                console.error('Error fetching cart count:', error);
+                setCartItemCount(0);
+            }
+        };
+
+        // Initial fetch
+        fetchCartCount();
+
+        // Refresh cart count every 30 seconds
+        const intervalId = setInterval(fetchCartCount, 30000);
+
+        // Listen for custom cart update events
+        const handleCartUpdate = () => {
+            fetchCartCount();
+        };
+        window.addEventListener('cartUpdated', handleCartUpdate);
+
+        // Cleanup
+        return () => {
+            clearInterval(intervalId);
+            window.removeEventListener('cartUpdated', handleCartUpdate);
+        };
+    }, []);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -73,11 +110,16 @@ const Navbar = () => {
 
                     <button className="icon-button cart-button" onClick={() => window.location.hash = '#cart'} title="Cart">
                         <span className="cart-text">Cart</span>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="9" cy="21" r="1"></circle>
-                            <circle cx="20" cy="21" r="1"></circle>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                        </svg>
+                        <div className="cart-icon-wrapper">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            {cartItemCount > 0 && (
+                                <span className="cart-badge">{cartItemCount}</span>
+                            )}
+                        </div>
                     </button>
 
                     <button className="icon-button" onClick={() => window.location.hash = '#profile'} title="My Profile">
