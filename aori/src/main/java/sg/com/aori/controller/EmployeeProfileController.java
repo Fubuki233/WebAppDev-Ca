@@ -44,7 +44,7 @@ public class EmployeeProfileController {
      * Displays the employee profile page.
      * Fetches currently logged-in employee's details.
      */
-    @GetMapping
+    @GetMapping(value = { "", "/" })
     public String viewProfilePage(Model model, HttpSession session) {
         // 1. Check the session for logged-in employee's ID (primary key)
         String loggedInEmployeeId = (String) session.getAttribute("employeeId"); // changed this on 11 Oct
