@@ -282,6 +282,10 @@ public class AdminProductController {
 	// --- DELETE EXISTING PRODUCT ---
 	@PostMapping("/delete")
 	public String deleteProduct(@RequestParam("productId") String id, RedirectAttributes redirectAttributes) {
+	
+		// Console line for debugging
+		System.out.println("Attempting to delete product with ID: " + id); 
+	
 		try {
 			// Try to delete the product
 			productService.deleteProduct(id);

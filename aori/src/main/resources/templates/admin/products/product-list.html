@@ -172,7 +172,10 @@
                 const button = event.relatedTarget;
                 const productId = button.getAttribute('data-product-id');
                 const productName = button.getAttribute('data-product-name');
-                
+               
+                // For Debugging Purpose
+                console.log('Product ID captured by JavaScript:', productId);
+
                 deleteModal.querySelector('#productNameInModal').textContent = productName;
                 deleteModal.querySelector('#productIdToDelete').value = productId;
                 // Dynamically set the form action to ensure it's always correct
