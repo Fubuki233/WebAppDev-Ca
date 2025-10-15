@@ -1,0 +1,302 @@
+package sg.com.aori.controller;
+
+import java.util.*;
+import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpSession;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import sg.com.aori.interfaces.ICustomerAccount;
+import sg.com.aori.model.Customer;
+import sg.com.aori.model.CustomerAddress;
+
+/**
+ * REST Controller for Managing Customer Account
+ * 
+ * @author Ying Chun, Sun Rui
+ * @date 2025-10-08
+ * @version 1.0 - previously known as CustomerProfileController; renamed to
+ *          cover different sub-services
+ * @version 2.0 - Renamed to CustomerAccountController. Introduce Http Session
+ *          to authenticate users before they can perform actions.
+ * @version 2.1 - Added validation
+ * @version 2.2 - Added Javadoc comments
+ */
+
+@CrossOrigin
+@RestController
+@RequestMapping("/api/account")
+public class CustomerAccountController {
+
+	private final ICustomerAccount manageCustAccount;
+
+	public CustomerAccountController(ICustomerAccount manageCustAccount) {
+		this.manageCustAccount = manageCustAccount;
+	}
+
+	/**
+	 * Helper method to get customer_id from current session
+	 * 
+	 * @param session
+	 * @return customer_id
+	 */
+	private String getCustomerIdFromSession(HttpSession session) {
+		return (String) session.getAttribute("id");
+	}
+
+	/**
+	 * View profile details. Retrieves profile details for a logged in customer.
+	 * Example response:
+	 * 
+	 * {
+	 * "success": true,
+	 * "profile": {
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "firstName": "John",
+	 * "lastName": "Tang",
+	 * "email": "john@example.com",
+	 * "password": "SecurePass123!",
+	 * "phoneNumber": "+6588112233",
+	 * "gender": "Undisclosed",
+	 * "dateOfBirth": "1991-02-24",
+	 * "createdAt": "2025-05-21T17:22:33",
+	 * "updatedAt": "2025-10-11T07:56:05"
+	 * }
+	 * 
+	 * @param customerId Customer ID tagged to email used during login
+	 * @param session    HTTP session for storing user information
+	 * @return ResponseEntity with profile details or error message
+	 */
+
+	@GetMapping("/profile")
+	public ResponseEntity<Map<String, Object>> getProfile(HttpSession session) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String customerId = getCustomerIdFromSession(session);
+			if (customerId == null) {
+				response.put("message", "User not logged in.");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+			}
+
+			Optional<Customer> optCustomer = manageCustAccount.getCustomerById(customerId);
+			if (optCustomer.isPresent()) {
+				response.put("success", true);
+				response.put("profile", optCustomer.get());
+				return ResponseEntity.ok(response);
+			} else {
+				response.put("success", false);
+				response.put("message", "Profile not found for logged-in user.");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+			}
+		} catch (Exception e) {
+			response.put("success", false);
+			response.put("message", "An error has occurred: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+	}
+
+	/**
+	 * Update profile details. Allow logged-in customer to edit profile details.
+	 * Example input and response:
+	 * 
+	 * [Postman] Data required to be passed in JSON format in the request body:
+	 * {
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "firstName": "John",
+	 * "lastName": "Tang",
+	 * "email": "john@example.com",
+	 * "password": "SecurePass123!",
+	 * "phoneNumber": "+6586671234",
+	 * "gender": "Male",
+	 * "dateOfBirth": "1993-01-24"
+	 * }
+	 * [Postman] Message received if successful:
+	 * {
+	 * "success": true,
+	 * "profile": {
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "firstName": "John",
+	 * "lastName": "Tang",
+	 * "email": "john@example.com",
+	 * "password": "SecurePass123!",
+	 * "phoneNumber": "+6586671234",
+	 * "gender": "Male",
+	 * "dateOfBirth": "1993-01-24",
+	 * "createdAt": "2025-05-21T17:22:33",
+	 * "updatedAt": "2025-10-12T22:11:49.180996"
+	 * }
+	 * 
+	 * @param profileData
+	 * @param session
+	 * @return ResponseEntity with updated profile details or error message
+	 */
+
+	@PutMapping("/profile/edit")
+	public ResponseEntity<Map<String, Object>> updateProfile(@Valid @RequestBody Customer profileData,
+			HttpSession session) {
+		System.out.println("[CustomerAccountController] Data received from frontend: " + profileData.toString());
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String customerId = getCustomerIdFromSession(session);
+			if (customerId == null) {
+				response.put("message", "User not logged in.");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+			}
+
+			Customer updatedCustomer = manageCustAccount.updateCustProfile(customerId, profileData);
+			response.put("success", true);
+			response.put("profile", updatedCustomer);
+			return ResponseEntity.ok(response);
+
+		} catch (Exception e) {
+			response.put("success", false);
+			response.put("message", "Unable to update profile due to error: " + e.getMessage());
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
+
+	/**
+	 * View Customer Address. Retrieves address details for a logged in customer
+	 * Example of successful response:
+	 * 
+	 * {
+	 * "addresses": [
+	 * {
+	 * "addressId": "b7f782c1-ca4c-5909-ad02-9155dad466e3",
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "recipientName": "John Doe",
+	 * "phoneNumber": "+65 84318855",
+	 * "addressLine1": "931 Orchard Rd",
+	 * "addressLine2": "Unit #35-847",
+	 * "city": "Singapore",
+	 * "postalCode": "249145",
+	 * "country": "Singapore",
+	 * "isBilling": true,
+	 * "isDefault": true,
+	 * "createdAt": "2025-10-10T05:16:59",
+	 * "customer": {
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "firstName": "John",
+	 * "lastName": "Tang",
+	 * "email": "john@example.com",
+	 * "password": "SecurePass123!",
+	 * "phoneNumber": "+6586671234",
+	 * "gender": "Male",
+	 * "dateOfBirth": "1993-01-24",
+	 * "createdAt": "2025-05-21T17:22:33",
+	 * "updatedAt": "2025-10-12T22:11:49",
+	 * "hibernateLazyInitializer": {}
+	 * }
+	 * }
+	 * ],
+	 * "success": true
+	 * }
+	 * 
+	 * @param customerId Customer ID tagged to email used during login
+	 * @param session    HTTP session for storing user information
+	 * @return ResponseEntity with address details or error message
+	 */
+	@GetMapping("/addresses")
+	public ResponseEntity<Map<String, Object>> getAddresses(HttpSession session) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String customerId = getCustomerIdFromSession(session);
+			if (customerId == null) {
+				response.put("message", "User not logged in.");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+			}
+			List<CustomerAddress> addresses = manageCustAccount.getCustomerAddresses(customerId);
+			response.put("success", true);
+			response.put("addresses", addresses);
+			return ResponseEntity.ok(response);
+
+		} catch (Exception e) {
+			response.put("success", false);
+			response.put("message", "Unable to view addresses: " + e.getMessage());
+			return ResponseEntity.badRequest().body(response);
+		}
+
+	}
+
+	/**
+	 * Update addresses. Allow logged-in customer to edit address details.
+	 * Example of response to post to a specific addressId:
+	 * 
+	 * {
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "recipientName": "Johnny Depp",
+	 * "phoneNumber": "+65 84318855",
+	 * "addressLine1": "931 Swensen Rd",
+	 * "addressLine2": "Unit #35-847",
+	 * "city": "Singapore",
+	 * "postalCode": "249145",
+	 * "country": "Singapore",
+	 * "isBilling": true,
+	 * "isDefault": true
+	 * }
+	 * Response if successfully updated:
+	 * {
+	 * "addresses": [
+	 * {
+	 * "addressId": "b7f782c1-ca4c-5909-ad02-9155dad466e3",
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "recipientName": "John Doe",
+	 * "phoneNumber": "+65 84318855",
+	 * "addressLine1": "931 Orchard Rd",
+	 * "addressLine2": "Unit #35-847",
+	 * "city": "Singapore",
+	 * "postalCode": "249145",
+	 * "country": "Singapore",
+	 * "isBilling": true,
+	 * "isDefault": true,
+	 * "createdAt": "2025-10-10T05:16:59",
+	 * "customer": {
+	 * "customerId": "07532ea4-8954-5e60-86da-c1b7844e0a7f",
+	 * "firstName": "John",
+	 * "lastName": "Tang",
+	 * "email": "john@example.com",
+	 * "password": "SecurePass123!",
+	 * "phoneNumber": "+6586671234",
+	 * "gender": "Male",
+	 * "dateOfBirth": "1993-01-24",
+	 * "createdAt": "2025-05-21T17:22:33",
+	 * "updatedAt": "2025-10-12T22:11:49",
+	 * "hibernateLazyInitializer": {}
+	 * }
+	 * }
+	 * ],
+	 * "success": true
+	 * }
+	 * 
+	 * @param addressId
+	 * @param addressData
+	 * @param session
+	 * @return ResponseEntity with updated address details or error message
+	 */
+	@PutMapping("/addresses/{addressId}")
+	public ResponseEntity<Map<String, Object>> updateAddress(
+			@PathVariable String addressId, @Valid @RequestBody CustomerAddress addressData,
+			HttpSession session) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String customerId = getCustomerIdFromSession(session);
+			if (customerId == null) {
+				response.put("message", "User not logged in.");
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+			}
+
+			CustomerAddress updatedAddress = manageCustAccount.updateCustomerAddress(customerId, addressId,
+					addressData);
+			response.put("success", true);
+			response.put("address", updatedAddress);
+			return ResponseEntity.ok(response);
+
+		} catch (Exception e) {
+			response.put("success", false);
+			response.put("message", "Unable to update addresses: " + e.getMessage());
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
+}
