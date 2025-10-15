@@ -2,6 +2,8 @@ package sg.com.aori.controller;
 
 import jakarta.servlet.http.HttpSession;
 import sg.com.aori.repository.EmployeeRepository;
+import sg.com.aori.repository.OrderRepository;
+import sg.com.aori.repository.ProductRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,9 +17,19 @@ public class AdminDashboardController {
 
     @Autowired
     private final EmployeeRepository employeeRepository;
-    
-    public AdminDashboardController(EmployeeRepository employeeRepository) {
+
+    @Autowired
+    private final OrderRepository orderRepository;
+
+    @Autowired
+    private final ProductRepository productRepository;
+
+    public AdminDashboardController(EmployeeRepository employeeRepository,
+            OrderRepository orderRepository,
+            ProductRepository productRepository) {
         this.employeeRepository = employeeRepository;
+        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
     }
 
     @GetMapping("/dashboard")
@@ -33,6 +45,15 @@ public class AdminDashboardController {
         employeeRepository.findById(employeeId).ifPresent(employee -> {
             model.addAttribute("employee", employee);
         });
+
+        // Add statistics for dashboard cards
+        long totalOrders = orderRepository.count();
+        long totalProducts = productRepository.count();
+        long totalEmployees = employeeRepository.count();
+
+        model.addAttribute("totalOrders", totalOrders);
+        model.addAttribute("totalProducts", totalProducts);
+        model.addAttribute("totalEmployees", totalEmployees);
 
         // Set the active page for navigation highlighting
         model.addAttribute("activePage", "dashboard");

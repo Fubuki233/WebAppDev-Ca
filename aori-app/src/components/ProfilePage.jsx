@@ -46,7 +46,7 @@ const ProfilePage = () => {
     const [success, setSuccess] = useState('');
 
     // Review states - inline editing
-    const [reviewingItemId, setReviewingItemId] = useState(null); // orderItemId being reviewed
+    const [reviewingProductId, setReviewingProductId] = useState(null); // productId being reviewed
     const [reviewForm, setReviewForm] = useState({
         rating: 0,
         title: '',
@@ -221,8 +221,8 @@ const ProfilePage = () => {
         if (success) setSuccess('');
     };
 
-    const handleStartReview = (orderItemId) => {
-        setReviewingItemId(orderItemId);
+    const handleStartReview = (productId) => {
+        setReviewingProductId(productId);
         setReviewForm({
             rating: 0,
             title: '',
@@ -231,7 +231,7 @@ const ProfilePage = () => {
     };
 
     const handleCancelReview = () => {
-        setReviewingItemId(null);
+        setReviewingProductId(null);
         setReviewForm({
             rating: 0,
             title: '',
@@ -246,7 +246,7 @@ const ProfilePage = () => {
         }));
     };
 
-    const handleSubmitReview = async (orderItem, orderId) => {
+    const handleSubmitReview = async (productId, orderId) => {
         if (reviewForm.rating === 0) {
             alert('Please select a rating');
             return;
@@ -258,13 +258,13 @@ const ProfilePage = () => {
             const result = await submitReview(
                 profile.customerId,
                 orderId,
-                orderItem.orderItemId,
+                productId,
                 reviewForm
             );
 
             if (result.success) {
                 alert('Review submitted successfully!');
-                setReviewingItemId(null);
+                setReviewingProductId(null);
                 setReviewForm({ rating: 0, title: '', comment: '' });
                 // Reload order details to show updated review status
                 if (selectedOrder) {
@@ -550,6 +550,7 @@ const ProfilePage = () => {
                                                     {orderDetails.orderItems?.map((item, index) => {
                                                         const unitPrice = item.priceAtPurchase || item.unitPrice || 0;
                                                         const isDelivered = orderDetails.order?.orderStatus === 'Delivered';
+                                                        const productId = item.product?.productId || item.productId;
                                                         return (
                                                             <React.Fragment key={index}>
                                                                 <div className="order-item-detail">
@@ -568,10 +569,10 @@ const ProfilePage = () => {
                                                                             <span className="item-quantity">Qty: {item.quantity}</span>
                                                                             <span className="item-price">${unitPrice.toFixed(2)} each</span>
                                                                         </div>
-                                                                        {isDelivered && reviewingItemId !== item.orderItemId && (
+                                                                        {isDelivered && reviewingProductId !== productId && (
                                                                             <button
                                                                                 className="review-item-button"
-                                                                                onClick={() => handleStartReview(item.orderItemId)}
+                                                                                onClick={() => handleStartReview(productId)}
                                                                             >
                                                                                 ✍️ Write Review
                                                                             </button>
@@ -583,7 +584,7 @@ const ProfilePage = () => {
                                                                 </div>
 
                                                                 {/* Inline Review Form */}
-                                                                {reviewingItemId === item.orderItemId && (
+                                                                {reviewingProductId === productId && (
                                                                     <div className="inline-review-form">
                                                                         <h4>Write Your Review</h4>
 
@@ -637,7 +638,7 @@ const ProfilePage = () => {
                                                                             <button
                                                                                 type="button"
                                                                                 className="btn-submit-review"
-                                                                                onClick={() => handleSubmitReview(item, orderDetails.order.orderId)}
+                                                                                onClick={() => handleSubmitReview(productId, orderDetails.order.orderId)}
                                                                                 disabled={submittingReview || reviewForm.rating === 0}
                                                                             >
                                                                                 {submittingReview ? 'Submitting...' : 'Submit Review'}

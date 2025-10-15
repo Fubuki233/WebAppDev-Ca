@@ -72,14 +72,14 @@ export const getProductReviews = async (productId, page = 0, size = 10) => {
 };
 
 /**
- * Get user's own review for a specific order item
+ * Get user's own review for a specific product in an order
  */
-export const getOwnReview = async (customerId, orderId, orderItemId) => {
+export const getOwnReview = async (customerId, orderId, productId) => {
     try {
         const params = new URLSearchParams({
             customerId,
             orderId,
-            orderItemId
+            productId
         });
 
         const response = await fetch(

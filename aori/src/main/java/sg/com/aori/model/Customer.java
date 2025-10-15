@@ -61,7 +61,6 @@ public class Customer {
     @Column(name = "phone_number", length = 15)
     private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
 

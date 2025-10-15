@@ -48,19 +48,15 @@ import sg.com.aori.utils.SkuTool;
 @RequestMapping("/admin/products")
 public class AdminProductController {
 
-	// --- Dependency Injection: SKU Service ---
 	@Autowired
 	private SkuService skuService;
 
-	// --- Dependency Injection: CRUD Product Service ---
 	@Autowired
 	private CRUDProductService productService;
 
-	// --- Dependency Injecgtion: CategoryRepository to populate the category dropdown in the form
 	@Autowired
 	private CategoryRepository categoryRepository;
 
-	// --- SHOW ALL PRODUCTS (Read) ---
 	@GetMapping
 	public String listAllProducts(Model model,
 			@RequestParam(defaultValue = "0") int page,
@@ -73,7 +69,6 @@ public class AdminProductController {
 		Page<Product> productPage = productService.findPaginated(page, size, keyword, category, season, collection);
 		model.addAttribute("products", productPage);
 
-		// For filter dropdowns
 		model.addAttribute("categories", categoryRepository.findAll());
 		List<String> collections = productService.getAllProducts().orElse(List.of()).stream()
 				.map(Product::getCollection)
@@ -82,16 +77,13 @@ public class AdminProductController {
 				.collect(Collectors.toList());
 		model.addAttribute("collections", collections);
 
-		// To retain filter values in the form
 		model.addAttribute("selectedCategory", category);
 		model.addAttribute("selectedSeason", season);
 		model.addAttribute("selectedCollection", collection);
 		model.addAttribute("keyword", keyword);
 
-        // Set active page for navigation highlighting
-        model.addAttribute("activePage", "products");
+		model.addAttribute("activePage", "products");
 
-		// return the view name
 		return "admin/products/product-list";
 	}
 
@@ -99,19 +91,14 @@ public class AdminProductController {
 	@GetMapping("/new")
 	public String showCreateForm(Model model) {
 
-		// Pass a new Product object to the form
 		model.addAttribute("product", new Product());
 
-		// Pass the list of all categories to the form for dropdown menu
 		model.addAttribute("categories", categoryRepository.findAll());
 
-		// Pass the list of all possible sizes for checkboxes
 		model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 
-		// Set active page for navigation highlighting
-        model.addAttribute("activePage", "products");
+		model.addAttribute("activePage", "products");
 
-		// return the view name
 		return "admin/products/product-form";
 	}
 
@@ -119,8 +106,9 @@ public class AdminProductController {
 	@PostMapping("/save")
 	public String saveProduct(@ModelAttribute("product") Product product,
 			@RequestParam("sizeJson") String sizeJson,
-			@RequestParam("colorJson") String colorJson, 
-			@RequestParam(name = "category.categoryId", required = false) String categoryId, // Keep this for category binding
+			@RequestParam("colorJson") String colorJson,
+			@RequestParam(name = "category.categoryId", required = false) String categoryId, // Keep this for category
+																								// binding
 			RedirectAttributes redirectAttributes, Model model) { // Add Model
 
 		try {
@@ -128,27 +116,22 @@ public class AdminProductController {
 			product.setColors(colorJson);
 			product.setCategoryId(categoryId);
 
-			// --- START: Proactive Duplicate Product Code Check ---
-			// Find if another product with the same code already exists.
 			String existingProductId = productService.findProductIdByProductCode(product.getProductCode());
 
 			// Check for duplicates. This is a duplicate if:
 			// 1. A product with this code exists (existingProductId is not null)
 			// 2. We are creating a NEW product (product.getProductId() is empty) OR
-			//    we are editing a product but the found ID is DIFFERENT from the one we are editing.
-			if (existingProductId != null && 
-				(product.getProductId() == null || product.getProductId().isEmpty() || !existingProductId.equals(product.getProductId()))) {
-				
-				// If it's a duplicate, throw an exception to be caught by the catch block.
-				// This is cleaner than duplicating the error handling logic.
+			// we are editing a product but the found ID is DIFFERENT from the one we are
+			// editing.
+			if (existingProductId != null &&
+					(product.getProductId() == null || product.getProductId().isEmpty()
+							|| !existingProductId.equals(product.getProductId()))) {
+
 				throw new org.springframework.dao.DataIntegrityViolationException("Duplicate product code");
 			}
-			// --- END: Proactive Duplicate Product Code Check ---
 
-			// Use ServiceImpl to create or update the product
 			productService.saveProduct(product);
 
-			// Add success message for user on redirect
 			String successMessage = (product.getProductId() != null && !product.getProductId().isEmpty())
 					? "Product updated successfully!"
 					: "Product created successfully!";
@@ -157,45 +140,36 @@ public class AdminProductController {
 			return "redirect:/admin/products";
 
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
-			// This block catches database constraint errors, like duplicate product codes.
 			if (e.getMessage().contains("Duplicate") || e.getMessage().contains("product_code")) {
-				model.addAttribute("error", "Failed to save product. A product with the code '" + product.getProductCode() + "' already exists.");
+				model.addAttribute("error", "Failed to save product. A product with the code '"
+						+ product.getProductCode() + "' already exists.");
 			} else {
 				model.addAttribute("error", "Failed to save product due to a database error.");
 			}
-			
-			// --- START: Re-populate form data for re-rendering ---
-			// We must re-populate the model attributes that the form needs,
-			// otherwise it will fail to render.
+
 			model.addAttribute("categories", categoryRepository.findAll());
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 			model.addAttribute("sizeJson", sizeJson);
 			model.addAttribute("colorJson", colorJson);
-			// --- END: Re-populate form data ---
 
-			return "admin/products/product-form"; // Return to the form view, not a redirect
+			return "admin/products/product-form";
 		}
 	}
 
 	// --- EDIT EXISTING PRODUCT (Display Form) ---
 	@GetMapping("edit/{id}")
 	public String showEditForm(@PathVariable String id, Model model, RedirectAttributes redirectAttributes) {
-		// Retrieve product by its id
 		Optional<Product> oneOptProduct = productService.getProductById(id);
 
 		if (oneOptProduct.isPresent()) {
-			// If product is found, add it and the categories to the model
 			model.addAttribute("product", oneOptProduct.get());
 			List<Category> categories = categoryRepository.findAll();
-			// FIX: Pass the raw JSON strings for sizes and colors to the form
-			// to prevent Thymeleaf from mis-parsing the list.
 			model.addAttribute("sizeJson", oneOptProduct.get().getSize());
 			model.addAttribute("colorJson", oneOptProduct.get().getColors());
 			model.addAttribute("categories", categories);
 			model.addAttribute("allSizes", Arrays.asList("XS", "S", "M", "L", "XL", "XXL"));
 
-			// Set active page for navigation highlighting
-        	model.addAttribute("activePage", "products");
+			model.addAttribute("activePage", "products");
 
 			return "admin/products/product-form";
 		} else {
@@ -205,9 +179,11 @@ public class AdminProductController {
 	}
 
 	// --- UPDATE EXISTING PRODUCT (Processes form) ---
-	// This is now handled by the saveProduct method to unify create and update logic.
+	// This is now handled by the saveProduct method to unify create and update
+	// logic.
 	// This simplifies the controller and form.
-	// The form will submit to POST /admin/products/save for both new and existing products.
+	// The form will submit to POST /admin/products/save for both new and existing
+	// products.
 	// The presence of product.productId will determine if it's a create or update.
 
 	/*
@@ -231,13 +207,9 @@ public class AdminProductController {
 	@PostMapping("/delete")
 	public String deleteProduct(@RequestParam("productId") String id, RedirectAttributes redirectAttributes) {
 		try {
-			// Try to delete the product
 			productService.deleteProduct(id);
-			// If it succeeds, show a success message
 			redirectAttributes.addFlashAttribute("message", "Product deleted successfully!");
 		} catch (RuntimeException ex) {
-			// If the service throws an error (product not found or has orders), catch it
-			// and show the error message to the user.
 			redirectAttributes.addFlashAttribute("error", ex.getMessage());
 		}
 
@@ -252,8 +224,6 @@ public class AdminProductController {
 			Product product = productOpt.get();
 			model.addAttribute("product", product);
 
-			// --- SKU Quantities ---
-			// We use a TreeMap to keep the colors sorted for a consistent display.
 			Map<String, Map<String, Integer>> skuQuantities = new TreeMap<>();
 
 			List<String> colors = product.getColorsAsList();
@@ -262,17 +232,16 @@ public class AdminProductController {
 			for (String color : colors) {
 				Map<String, Integer> sizeQuantityMap = new HashMap<>();
 				for (String size : sizes) {
-					String sku = SkuTool.createSku(product.getProductId(), color.replace("#", ""), size, productService);
+					String sku = SkuTool.createSku(product.getProductId(), color.replace("#", ""), size,
+							productService);
 					int quantity = skuService.getQuantity(sku);
 					sizeQuantityMap.put(size, quantity);
 				}
 				skuQuantities.put(color, sizeQuantityMap);
 			}
 			model.addAttribute("skuQuantities", skuQuantities);
-			// --- END: SKU Quantities ---
 
-			// Set active page for navigation highlighting
-        	model.addAttribute("activePage", "products");
+			model.addAttribute("activePage", "products");
 
 			return "admin/products/product-view";
 		} else {

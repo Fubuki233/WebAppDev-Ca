@@ -83,4 +83,14 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
         // for product review
         Optional<Orders> findByOrderIdAndCustomerId(String orderId, String customerId);
 
+        /**
+         * Find order by ID with customer details eagerly loaded
+         * 
+         * @author Ying Chun
+         * @date 2025-10-15
+         * @version 1.0
+         */
+        @Query("SELECT o FROM Orders o LEFT JOIN FETCH o.customer WHERE o.orderId = :orderId")
+        Optional<Orders> findByIdWithCustomer(@Param("orderId") String orderId);
+
 }
