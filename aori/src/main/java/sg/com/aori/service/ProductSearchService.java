@@ -119,7 +119,7 @@ public class ProductSearchService {
             params.put("priceMax", priceMax);
         }
 
-        jpql.append(" order by p.productId desc "); // 如主键不是 productId，按你的字段改
+        jpql.append(" order by p.productId desc ");
 
         TypedQuery<Product> tq = em.createQuery(jpql.toString(), Product.class);
         params.forEach(tq::setParameter);
