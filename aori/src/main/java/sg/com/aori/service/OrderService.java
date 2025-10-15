@@ -95,8 +95,8 @@ public class OrderService implements IOrder {
             Boolean paymentSuccess = paymentFuture.get(65, TimeUnit.SECONDS);
 
             if (paymentSuccess) {
-                // Update order status
-                order.setOrderStatus(Orders.OrderStatus.Paid);
+                // Update order status to Shipped after payment
+                order.setOrderStatus(Orders.OrderStatus.Shipped);
                 order.setPaymentStatus(Orders.PaymentStatus.Paid);
                 order.setUpdatedAt(LocalDateTime.now());
                 orderRepository.save(order);

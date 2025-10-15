@@ -40,6 +40,9 @@ public class CartService implements ICart {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
+    private SkuService skuService;
+
     // Find cart by customer ID
     public List<ShoppingCart> findCartByCustomerId(String customerId) {
         return cartRepository.findByCustomerId(customerId);
@@ -57,8 +60,10 @@ public class CartService implements ICart {
         List<ShoppingCart> cartItems = findCartByCustomerId(customerId);
 
         for (ShoppingCart item : cartItems) {
-            Product product = item.getProduct();
-            if (product.getStockQuantity() < item.getQuantity()) {
+            // Check SKU-specific inventory instead of product total inventory
+            String sku = item.getSku();
+            int skuStock = skuService.getQuantity(sku);
+            if (skuStock < item.getQuantity()) {
                 return false;
             }
         }
@@ -124,13 +129,17 @@ public class CartService implements ICart {
                 System.out.println("Saving order item: " + orderItem);
                 orderItemRepository.save(orderItem);
 
-                // Update inventory
-                Product product = cartItem.getProduct();
-                int newStock = product.getStockQuantity() - cartItem.getQuantity();
-                System.out.println("Updating product " + product.getProductId() + " stock from " +
-                        product.getStockQuantity() + " to " + newStock);
-                product.setStockQuantity(newStock);
-                inventoryRepository.save(product);
+                // Update SKU-specific inventory
+                String sku = cartItem.getSku();
+                int quantity = cartItem.getQuantity();
+                System.out.println("Decreasing SKU " + sku + " inventory by " + quantity);
+                int newSkuStock = skuService.decreaseQuantity(sku, quantity);
+
+                if (newSkuStock < 0) {
+                    throw new RuntimeException("Failed to update inventory for SKU: " + sku);
+                }
+
+                System.out.println("SKU " + sku + " new stock: " + newSkuStock);
             }
 
             // Delete cart
@@ -161,7 +170,10 @@ public class CartService implements ICart {
         }
 
         Product product = productOpt.get();
-        if (product.getStockQuantity() < quantity) {
+
+        // Check SKU-specific inventory instead of product total inventory
+        int skuStock = skuService.getQuantity(sku);
+        if (skuStock < quantity) {
             throw new RuntimeException("Insufficient inventory");
         }
 
@@ -174,8 +186,8 @@ public class CartService implements ICart {
             ShoppingCart cartItem = existingCartItem.get();
             int newQuantity = cartItem.getQuantity() + quantity;
 
-            // Check if new quantity exceeds stock
-            if (product.getStockQuantity() < newQuantity) {
+            // Check if new quantity exceeds SKU-specific stock
+            if (skuStock < newQuantity) {
                 throw new RuntimeException("Insufficient inventory for requested quantity");
             }
 

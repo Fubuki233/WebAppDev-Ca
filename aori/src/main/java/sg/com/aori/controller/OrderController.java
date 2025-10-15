@@ -136,7 +136,7 @@ public class OrderController {
             if (paymentSuccess) {
                 response.put("success", true);
                 response.put("message", "Payment processed successfully");
-                response.put("orderStatus", "Paid");
+                response.put("orderStatus", "Shipped");
                 response.put("paymentStatus", "Paid");
                 return ResponseEntity.ok(response);
             } else {
@@ -170,6 +170,7 @@ public class OrderController {
             orderService.cancelOrder(orderId);
 
             response.put("success", true);
+
             response.put("message", "Order cancelled successfully");
             response.put("orderStatus", "Cancelled");
             return ResponseEntity.ok(response);
