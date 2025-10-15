@@ -31,12 +31,8 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
 
     long countByCustomerId(String customerId);
 
-    // for use when updating customer address in customer account
-    // find all addresses for a given customer
     List<CustomerAddress> findByCustomerId(String customerId);
 
-    // for use when updating customer address in customer account
-    // to find a specific address by its ID and match to the correct customer
     Optional<CustomerAddress> findByAddressIdAndCustomerId(String addressId, String customerId);
 
 }

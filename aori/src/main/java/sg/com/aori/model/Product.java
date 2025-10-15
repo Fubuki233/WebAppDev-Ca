@@ -1,29 +1,16 @@
- /** 
- * @author Yunhe & Ying Chun
- * @date 2025-10-08 (v1.0, v2.0)
- * @date 2025-10-10 (v2.1, 2.2)
- * @version 1.0 - initial version
- * @version 2.0 - added new fields to map to database changes
- * @version 2.1 - removed inStock field, added stockQuantity field
- * @version 2.2 - added a way to convert colors JSON string and sizes JSON string to List of Maps for easier frontend handling
- */
-
 package sg.com.aori.model;
-
-import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.Collections;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
-import java.util.List;
 
 /**
  * Entity representing a product in the system.
@@ -48,8 +35,17 @@ import java.util.List;
  * "rating": 4.7,
  * "tags": "best-seller"
  * }
-
+ * 
+ * @author Yunhe & Ying Chun
+ * @date 2025-10-08 (v1.0, v2.0)
+ * @date 2025-10-10 (v2.1, v2.2)
+ * @version 1.0 - initial version
+ * @version 2.0 - added new fields to map to database changes
+ * @version 2.1 - removed inStock field, added stockQuantity field
+ * @version 2.2 - added a way to convert colors JSON string and sizes JSON
+ *          string to List of Maps for easier frontend handling
  */
+
 @Entity
 @Table(name = "product")
 public class Product {
@@ -99,20 +95,13 @@ public class Product {
     private String image;
 
     @Column(name = "price", nullable = false)
-    // private Short price;
     private BigDecimal price;
 
-    /* To remove
-    / @Column(name = "inStock", length = 255)
-    / private String inStock = "true"
-    */ 
-
-    // added by YC
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity = 0;
 
     @Column(name = "size", columnDefinition = "JSON")
-    private String size; // JSON array: ["XS", "S", "M", "L", "XL"]
+    private String size;
 
     @Column(name = "rating")
     @DecimalMin(value = "0.0", message = "Rating must be at least 0.0.")
@@ -269,25 +258,13 @@ public class Product {
         this.image = image;
     }
 
-    // public Short getPrice() {
     public BigDecimal getPrice() {
         return price;
     }
 
-    // public void setPrice(Short price) {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-
-    /* remove
-     public String getInStock() {
-        return inStock;
-    }
-
-    public void setInStock(String inStock) {
-        this.inStock = inStock;
-    }
-    */
 
     public Integer getStockQuantity() {
         return stockQuantity;
@@ -322,18 +299,15 @@ public class Product {
     }
 
     @Override
-	public String toString() {
-		return "Product [productId=" + productId + ", productCode=" + productCode + ", productName=" + productName
-				+ ", description=" + description + ", categoryId=" + categoryId + ", collection=" + collection
-				+ ", material=" + material + ", season=" + season + ", careInstructions=" + careInstructions
-				+ ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", colors=" + colors + ", image=" + image
-				+ ", price=" + price + ", stockQuantity=" + stockQuantity + ", size=" + size + ", rating=" + rating
-				+ ", tags=" + tags + ", category=" + category + "]";
-	}
+    public String toString() {
+        return "Product [productId=" + productId + ", productCode=" + productCode + ", productName=" + productName
+                + ", description=" + description + ", categoryId=" + categoryId + ", collection=" + collection
+                + ", material=" + material + ", season=" + season + ", careInstructions=" + careInstructions
+                + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt + ", colors=" + colors + ", image=" + image
+                + ", price=" + price + ", stockQuantity=" + stockQuantity + ", size=" + size + ", rating=" + rating
+                + ", tags=" + tags + ", category=" + category + "]";
+    }
 
-    // UTILITY METHODS TO DEAL WITH JSON FIELDS
-
-    // Utility method to convert colors JSON string to a List of Strings
     @Transient
     @JsonIgnore
     public List<String> getColorsAsList() {
@@ -342,14 +316,13 @@ public class Product {
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
-            // Parse into a simple List of Strings
-            return mapper.readValue(this.colors, new TypeReference<List<String>>() {});
+            return mapper.readValue(this.colors, new TypeReference<List<String>>() {
+            });
         } catch (Exception e) {
             return Collections.emptyList();
         }
     }
 
-    // Utility method to convert size JSON string to a List of Strings
     @Transient
     @JsonIgnore
     public List<String> getSizesAsList() {
@@ -358,8 +331,8 @@ public class Product {
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
-            // Parse into a simple List of Strings
-            return mapper.readValue(this.size, new TypeReference<List<String>>() {});
+            return mapper.readValue(this.size, new TypeReference<List<String>>() {
+            });
         } catch (Exception e) {
             return Collections.emptyList();
         }

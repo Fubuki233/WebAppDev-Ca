@@ -1,13 +1,15 @@
-/*
- * Updated by Ying Chun on 14 Oct 2025. Removed autogeneration of roleId as it is not required, to match what is in the DB.
- */
-
 package sg.com.aori.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import jakarta.persistence.*;
+
+/**
+ * @author Ying Chun
+ * @date 2025-10-14
+ * @version 1.1 - Removed autogeneration of roleId as it is not required, to
+ *          match what is in the DB
+ */
 
 @Entity
 @Table(name = "Role")
@@ -16,23 +18,16 @@ public class Role {
     @Column(name = "role_id", length = 36)
     private String roleId;
 
-    // Maps to role_name VARCHAR(50) UNIQUE NOT NULL
     @Column(name = "role_name", length = 50, unique = true, nullable = false)
     private String roleName;
 
-    // Maps to description TEXT
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    // many-to-many with permission
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "role_permission", // Name of the join table (Role Permission in your SQL)
-            joinColumns = @JoinColumn(name = "role_id"), // Foreign key column for THIS entity (Role)
-            inverseJoinColumns = @JoinColumn(name = "permission_id") // Foreign key column for the TARGET entity
-    )
+    @JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private List<Permission> permissions = new ArrayList<>();
 
-    // --- Constructors ---
     public Role() {
     }
 
@@ -46,14 +41,10 @@ public class Role {
 
     }
 
-    // remove permission
     public void removePermission(Permission permission) {
         this.permissions.remove(permission);
-        // permission.getRoles().remove(this);
-        // requires a setter/remover in Permission
     }
 
-    // setters and getters
     public void setPermissions(List<Permission> permissions) {
         this.permissions = permissions;
     }

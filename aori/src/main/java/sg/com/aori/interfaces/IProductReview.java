@@ -1,13 +1,15 @@
-/* @author Derek
- * @date 2025-10-15
- * @version 1.1 - Added getOrderReviewStatus method
- **/
-
 package sg.com.aori.interfaces;
 
 import java.util.Map;
 
+/**
+ * @author Derek
+ * @date 2025-10-15
+ * @version 1.1 - Added getOrderReviewStatus method
+ */
+
 public interface IProductReview {
+
         /**
          * Create or update a review for the given (customerId, orderId, productId).
          * Business rules:

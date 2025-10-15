@@ -20,14 +20,10 @@ import sg.com.aori.model.Wishlist.WishlistId;
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, WishlistId> {
 
-	// to view list of wishlist items
 	List<Wishlist> findByCustomerIdOrderByCreatedAtDesc(String customerId);
 
-	// true if exists in wishlist, false if doesnt exist
 	boolean existsByCustomerIdAndProductId(String customerId, String productId);
 
-	// returns deleted row count | 0 -> product not in wishlist, 1-> product existed
-	// and was removed from wishlist
 	@Modifying
 	@Query("DELETE FROM Wishlist w WHERE w.customerId = :customerId AND w.productId = :productId")
 	int deleteByCustomerIdAndProductId(@Param("customerId") String customerId, @Param("productId") String productId);

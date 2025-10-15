@@ -1,32 +1,23 @@
-/**
- * Entity of Orders.(add validation constraint)
- *
- * @author YunHe / SunRui
- * @date 2025-10-08
- * @version 1.1
- */
-
 package sg.com.aori.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+/**
+ * Entity of Orders
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ * 
+ * @author Sun Rui
+ * @date 2025-10-0
+ * @version 1.1 - Added validation constraint
+ */
 
 @Entity
 @Table(name = "orders")

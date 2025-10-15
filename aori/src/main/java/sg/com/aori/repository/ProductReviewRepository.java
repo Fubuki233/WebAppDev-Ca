@@ -1,13 +1,5 @@
 package sg.com.aori.repository;
 
-/**
- * Detailed description of the class.
- *
- * @author Simon Lei
- * @date 2025-10-07
- * @version 1.0
- * @version 2.0 removed variant
- */
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import sg.com.aori.model.ProductReview;
+
+/**
+ * Detailed description of the class.
+ *
+ * @author Simon Lei
+ * @date 2025-10-07
+ * @version 1.0
+ * @version 2.0 - Removed variant
+ */
 
 public interface ProductReviewRepository extends JpaRepository<ProductReview, String> {
 

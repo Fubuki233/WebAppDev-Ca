@@ -1,9 +1,9 @@
 package sg.com.aori.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "PromotionDiscount")

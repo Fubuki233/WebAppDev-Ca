@@ -1,8 +1,8 @@
 package sg.com.aori.model;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Wishlist")
@@ -46,9 +46,9 @@ public class Wishlist {
     }
 
     public Wishlist(String customerId, String productId) {
-    	this.customerId = customerId;
+        this.customerId = customerId;
         this.productId = productId;
-        
+
     }
 
     public String getProductId() {
