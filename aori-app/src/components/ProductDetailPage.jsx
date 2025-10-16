@@ -124,6 +124,9 @@ const ProductDetailPage = ({ productId }) => {
     }, [productId]);
 
     const handleAddToCart = async () => {
+        const userUuid = await getUserUuid(true);
+
+
         if (!selectedSize) {
             showNotification('Please select a size', 'error');
             return;
@@ -133,6 +136,11 @@ const ProductDetailPage = ({ productId }) => {
             showNotification('This item is currently out of stock', 'error');
             return;
         }
+        if (!userUuid) {
+            window.location.hash = '#login';
+            return;
+        }
+
 
         const cartItem = {
             productId: product.id,

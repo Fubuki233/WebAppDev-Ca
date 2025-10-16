@@ -38,7 +38,7 @@ export const handleAuthError = async (response, stayAsGuest = false) => {
                 window.location.href = '/#login';
             }
         } catch (e) {
-            console.log('Authentication required, redirecting to login');
+            console.log('error, redirecting to login' + e);
             window.location.href = '/#login';
         }
         return true;

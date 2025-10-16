@@ -52,7 +52,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         if (DebugMode.DEBUG) {
             System.out.println(
-                    "[LoggingInterceptor] Debug mode ON - bypassing all checks, if you wanna turn it off, please set DebugMode.DEBUG to false");
+                    "[AuthInterceptor] Debug mode ON - bypassing all checks, if you wanna turn it off, please set DebugMode.DEBUG to false");
             return true;
         }
 
@@ -60,10 +60,10 @@ public class AuthInterceptor implements HandlerInterceptor {
         String path = request.getRequestURI();
 
         Map<String, String> requestMap = Map.of("path", path, "method", method);
-        System.out.println("[LoggingInterceptor] Request map: " + requestMap);
+        System.out.println("[AuthInterceptor] Request map: " + requestMap);
 
         if (AuthFilter.isAuthorized(requestMap) || path.contains("/api/public")) {
-            System.out.println("[LoggingInterceptor] Request bypass: " + path + ", " + method);
+            System.out.println("[AuthInterceptor] Request bypass: " + path + ", " + method);
             return true;
         }
 
@@ -71,7 +71,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return AuthHandler.handleEmployeeAccess(request, response, handler, employeeService);
         }
 
-        System.out.println("[LoggingInterceptor] Not a bypass request - Validating customer session for path: " + path
+        System.out.println("[AuthInterceptor] Not a bypass request - Validating customer session for path: " + path
                 + ", method: " + method);
 
         return AuthHandler.handleCustomerAccess(request, response, loginService);

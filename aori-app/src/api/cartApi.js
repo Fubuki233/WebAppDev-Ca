@@ -25,8 +25,7 @@ const CART_STORAGE_KEY = 'aori_shopping_cart';
 export const getCart = async (customerId, useMock = false, stayAsGuest = false) => {
     if (useMock) {
         try {
-            const cart = localStorage.getItem(CART_STORAGE_KEY);
-            return cart ? JSON.parse(cart) : [];
+            return [];
         } catch (error) {
             console.error('Error getting cart:', error);
             return [];
@@ -34,11 +33,10 @@ export const getCart = async (customerId, useMock = false, stayAsGuest = false) 
     }
 
     try {
-        const custId = await getUserUuid();
+        const custId = await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, using localStorage');
-            const cart = localStorage.getItem(CART_STORAGE_KEY);
-            return cart ? JSON.parse(cart) : [];
+            return [];
         }
 
         const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.CART}`;
@@ -196,7 +194,7 @@ export const addToCart = async (item, useMock = false) => {
     }
 
     try {
-        const custId = await getUserUuid();
+        const custId = await getUserUuid(true);
         if (!custId) {
             console.warn('No customer UUID available, falling back to localStorage');
             return addToCart(item, true);
