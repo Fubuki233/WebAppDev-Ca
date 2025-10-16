@@ -13,7 +13,7 @@ import sg.com.aori.service.ProductSearchService;
 /**
  * Controller for product search and detail endpoints.
  *
- * @author Simon Lei
+ * @author Lei Nuozhen
  * @date 2025-10-08
  * @version 1.0
  */

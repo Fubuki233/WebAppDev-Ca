@@ -15,13 +15,13 @@ import sg.com.aori.repository.ProductReviewRepository;
  * Detailed description of the class.
  *
  * @author Simon Lei
- * @date 2025-10-07
- * @version 1.0
+ * @date 2025-10-16
+ * @version 2.0
  */
 
 @Service
 @RequiredArgsConstructor
-public class ProductReviewService {
+public class ViewReviewService {
 
     private final ProductReviewRepository reviewRepo;
 

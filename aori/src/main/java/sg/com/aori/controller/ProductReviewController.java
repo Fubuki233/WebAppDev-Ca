@@ -11,7 +11,7 @@ import sg.com.aori.model.*;
 import sg.com.aori.repository.CustomerRepository;
 import sg.com.aori.repository.ProductReviewRepository;
 import sg.com.aori.service.CRUDProductService;
-import sg.com.aori.service.ProductReviewService;
+import sg.com.aori.service.ViewReviewService;
 
 /**
  * Combined controller for:
@@ -22,6 +22,10 @@ import sg.com.aori.service.ProductReviewService;
  * @author Derek
  * @date 2025-10-15
  * @version 1.2 - Added getOrderReviewStatus endpoint
+ * 
+ * @author Lei Nuozhen
+ * @date 2025-10-16
+ * @version 1.3 - Update on the service and interface with controller
  */
 
 @RestController
@@ -33,7 +37,7 @@ public class ProductReviewController {
     @Autowired
     private CRUDProductService productservice;
     @Autowired
-    private ProductReviewService productReviewService_;
+    private ViewReviewService productReviewService_;
     @Autowired
     private CustomerRepository customerRepository;
 
