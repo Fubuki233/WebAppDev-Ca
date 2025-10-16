@@ -94,6 +94,42 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/{orderId}/delivery")
+    public ResponseEntity<Map<String, Object>> confirmDelivery(@PathVariable String orderId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            orderService.confirmDelivery(orderId);
+
+            response.put("success", true);
+            response.put("message", "Delivery confirmed successfully");
+            response.put("orderStatus", "Delivered");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/{orderId}/return")
+    public ResponseEntity<Map<String, Object>> returnOrder(@PathVariable String orderId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            orderService.returnOrder(orderId);
+
+            response.put("success", true);
+            response.put("message", "Order returned successfully");
+            response.put("orderStatus", "Returned");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     /**
      * Process payment
      * ATTENTION : Payment timeout counter starts here

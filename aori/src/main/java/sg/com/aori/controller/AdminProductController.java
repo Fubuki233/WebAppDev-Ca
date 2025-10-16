@@ -214,20 +214,28 @@ public class AdminProductController {
 			model.addAttribute("sizeJson", product.getSize());
 			model.addAttribute("colorJson", product.getColors());
 
-			Map<String, Map<String, Integer>> skuQuantities = new HashMap<>();
+			// Use LinkedHashMap to preserve order
+			Map<String, Map<String, Integer>> skuQuantities = new LinkedHashMap<>();
 			List<String> colors = product.getColorsAsList();
 			List<String> sizes = product.getSizesAsList();
 
+			System.out.println("[AdminProductController] Edit Form - Product ID: " + product.getProductId());
+			System.out.println("[AdminProductController] Edit Form - Colors: " + colors);
+			System.out.println("[AdminProductController] Edit Form - Sizes: " + sizes);
+
 			for (String color : colors) {
-				Map<String, Integer> sizeQuantityMap = new HashMap<>();
+				Map<String, Integer> sizeQuantityMap = new LinkedHashMap<>();
 				for (String size : sizes) {
 					String sku = SkuTool.createSku(product.getProductId(), color.replace("#", ""), size,
 							productService);
 					int quantity = skuService.getQuantity(sku);
+					System.out.println("[AdminProductController] Edit Form - SKU: " + sku + " = " + quantity);
 					sizeQuantityMap.put(size, quantity);
 				}
 				skuQuantities.put(color, sizeQuantityMap);
 			}
+			
+			System.out.println("[AdminProductController] Edit Form - SKU Quantities Map: " + skuQuantities);
 			model.addAttribute("skuQuantities", skuQuantities);
 
 			model.addAttribute("categories", categories);

@@ -151,16 +151,29 @@
     </section>
 
     <th:block layout:fragment="scripts">
-        <script>
+        <script th:inline="javascript">
             // --- START: Data from Controller ---
             const allSizes = /*[[${allSizes}]]*/['XS', 'S', 'M', 'L', 'XL', 'XXL'];
             const initialSizeJson = document.getElementById('sizeJson').value;
             const initialColorJson = document.getElementById('colorJson').value;
-            const initialSkuQuantities = /*[[${skuQuantities}]]*/ null;
+            
+            // Properly parse SKU quantities from Thymeleaf
+            let initialSkuQuantities = null;
+            /*[# th:if="${skuQuantities != null}"]*/
+                const skuQuantitiesData = /*[[${skuQuantities}]]*/ {};
+                console.log('SKU Quantities from server:', skuQuantitiesData);
+                initialSkuQuantities = skuQuantitiesData;
+            /*[/]*/
+            
             // --- END: Data from Controller ---
 
             document.addEventListener('DOMContentLoaded', function () {
                 const sizeContainer = document.getElementById('size-variants-container');
+
+                console.log('Initializing form with:');
+                console.log('  - Sizes:', initialSizeJson);
+                console.log('  - Colors:', initialColorJson);
+                console.log('  - SKU Quantities:', initialSkuQuantities);
 
                 // 1. Build Size Checkboxes
                 const sizeRow = document.createElement('div');
@@ -182,12 +195,13 @@
                 if (initialSizeJson) {
                     try {
                         const selectedSizes = JSON.parse(initialSizeJson);
+                        console.log('Selected sizes:', selectedSizes);
                         selectedSizes.forEach(size => {
                             const checkbox = document.getElementById('size-' + size);
                             if (checkbox) checkbox.checked = true;
                         });
                     } catch (e) {
-                        console.error('Could not parse size JSON:', initialSizeJson);
+                        console.error('Could not parse size JSON:', initialSizeJson, e);
                     }
                 }
 
@@ -195,16 +209,18 @@
                 if (initialColorJson) {
                     try {
                         const colors = JSON.parse(initialColorJson);
+                        console.log('Parsed colors:', colors);
                         colors.forEach(hexValue => { 
                             // Ensure initialSkuQuantities is not null and the color key exists
                             const quantities = (initialSkuQuantities && initialSkuQuantities[hexValue]) 
                                                 ? initialSkuQuantities[hexValue] 
                                                 : {};
+                            console.log('Creating color row for', hexValue, 'with quantities:', quantities);
                             createColorRow(hexValue, quantities);
                         });
                         updateTotalStock();
                     } catch (e) {
-                        console.error('Could not parse color JSON:', initialColorJson);
+                        console.error('Could not parse color JSON:', initialColorJson, e);
                     }
                 }
 
@@ -220,14 +236,24 @@
                 const colorRow = document.createElement('div');
                 colorRow.className = 'color-variant-card card mb-3';
                 
+                console.log('Creating color row with value:', value, 'and quantities:', quantities);
+                
                 let sizeInputsHtml = '<div class="row mt-2">';
                 allSizes.forEach(size => {
-                    const qty = quantities[size] || 0;
+                    const qty = quantities[size] !== undefined ? quantities[size] : 0;
+                    console.log(`  Size ${size}: ${qty}`);
+                    // Add a class to highlight if there's existing stock
+                    const hasStock = qty > 0 ? 'border-success' : '';
                     sizeInputsHtml += `
                         <div class="col-md-4">
                             <div class="input-group input-group-sm mb-2">
                                 <span class="input-group-text">${size}</span>
-                                <input type="number" class="form-control sku-quantity-input" data-size="${size}" value="${qty}" min="0" placeholder="Qty">
+                                <input type="number" class="form-control sku-quantity-input ${hasStock}" 
+                                       data-size="${size}" 
+                                       value="${qty}" 
+                                       min="0" 
+                                       placeholder="Qty"
+                                       title="Current stock: ${qty}">
                             </div>
                         </div>
                     `;
@@ -237,19 +263,27 @@
                 colorRow.innerHTML = `
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div class="input-group" style="max-width: 200px;">
+                            <div class="input-group" style="max-width: 250px;">
                                 <span class="input-group-text">Color</span>
                                 <input type="color" class="form-control form-control-color color-value" value="${value}" title="Choose your color">
+                                <span class="input-group-text">${value}</span>
                             </div>
                             <button class="btn btn-sm btn-outline-danger remove-color-btn" type="button">Remove Color</button>
                         </div>
                         <hr>
-                        <p class="card-subtitle mb-2 text-muted small">Enter stock for each size variant of this color.</p>
+                        <p class="card-subtitle mb-2 text-muted small">
+                            <i class="bi bi-info-circle"></i> Enter stock quantity for each size. Current values are shown.
+                        </p>
                         ${sizeInputsHtml}
                     </div>
                 `;
                 colorContainer.appendChild(colorRow);
-                colorRow.querySelector('.sku-quantity-input').addEventListener('input', updateTotalStock);
+                
+                // Add event listener to all quantity inputs
+                colorRow.querySelectorAll('.sku-quantity-input').forEach(input => {
+                    input.addEventListener('input', updateTotalStock);
+                });
+                
                 colorRow.querySelector('.remove-color-btn').addEventListener('click', () => {
                     colorRow.remove();
                     updateTotalStock();
@@ -317,6 +351,29 @@
                 document.getElementById('skuQuantitiesJson').value = JSON.stringify(skuQuantities);
             }
         </script>
+        
+        <style>
+            /* Highlight inputs with existing stock */
+            .sku-quantity-input.border-success {
+                border-color: #28a745 !important;
+                border-width: 2px;
+            }
+            
+            /* Style for color variant cards */
+            .color-variant-card {
+                border-left: 4px solid #dee2e6;
+            }
+            
+            .color-variant-card:hover {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            /* Better spacing for input groups */
+            .input-group-text {
+                min-width: 45px;
+                justify-content: center;
+            }
+        </style>
     </th:block>
 
 </body>
