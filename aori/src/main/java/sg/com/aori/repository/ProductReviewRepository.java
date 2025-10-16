@@ -12,7 +12,7 @@ import sg.com.aori.model.ProductReview;
 /**
  * Detailed description of the class.
  *
- * @author Simon Lei
+ * @author Lei Nuozhen
  * @date 2025-10-07
  * @version 1.0
  * @version 2.0 - Removed variant

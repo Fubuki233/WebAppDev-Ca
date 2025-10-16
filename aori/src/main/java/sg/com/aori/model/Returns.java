@@ -8,7 +8,7 @@ import jakarta.validation.constraints.*;
 /**
  * Update on the Returns entity to add some validations.
  * 
- * @author Simon Lei
+ * @author Lei Nuozhen
  * @date 2025-10-11
  * @version 2.0
  */

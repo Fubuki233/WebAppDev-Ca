@@ -14,7 +14,7 @@ import sg.com.aori.repository.ProductReviewRepository;
 /**
  * Detailed description of the class.
  *
- * @author Simon Lei
+ * @author Lei Nuozhen
  * @date 2025-10-16
  * @version 2.0
  */

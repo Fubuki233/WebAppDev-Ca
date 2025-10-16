@@ -19,7 +19,7 @@ import sg.com.aori.model.Product;
  * @date 2025-10-07
  * @version 1.0
  * 
- * @author Simon Lei
+ * @author Lei Nuozhen
  * @date 2025-10-08
  * @version 1.1 - Added findByProductNameContainingIgnoreCase
  */

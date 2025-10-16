@@ -6,6 +6,14 @@ import java.util.Map;
 
 import sg.com.aori.model.ProductReview;
 
+/**
+ * Interface for viewing product reviews.
+ *
+ * @author Lei Nuozhen
+ * @date 2025-10-16
+ * @version 2.0
+ */
+
 public interface IViewReview {
 
     List<ProductReview> listApprovedReviews(String productId);

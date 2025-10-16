@@ -14,7 +14,7 @@ import sg.com.aori.repository.CategoryRepository;
 /**
  * Service for searching products with pagination and sorting.
  *
- * @author Simon Lei
+ * @author Lei Nuozhen
  * @date 2025-10-08
  * @version 1.0
  * @version 1.1

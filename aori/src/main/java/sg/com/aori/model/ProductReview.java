@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 /**
  * Detailed description of the class.
  *
- * @author Simon Lei
+ * @author Lei Nuozhen
  * @date 2025-10-07
  * @version 1.0
  */
