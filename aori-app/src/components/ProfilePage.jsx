@@ -13,6 +13,7 @@ import { getUserOrders, getOrderDetails, cancelOrder, confirmDelivery, requestRe
 import { getViewHistory } from '../api/viewHistoryApi';
 import { fetchProductById } from '../api/productApi';
 import { getOrderReviewStatus } from '../api/reviewApi';
+import { useAuth } from '../context/AuthContext';
 import '../styles/ProfilePage.css';
 
 const ProfilePage = () => {
@@ -65,6 +66,8 @@ const ProfilePage = () => {
     const [selectedOrderItem, setSelectedOrderItem] = useState(null);
     const [orderReviewStatus, setOrderReviewStatus] = useState({}); // Track review status per order
 
+    const { logout: logoutUser, isProcessing: authProcessing } = useAuth();
+
     // Load data on mount
     useEffect(() => {
         loadProfile();
@@ -86,6 +89,11 @@ const ProfilePage = () => {
             console.log('Active tab is history but profile.customerId is missing');
         }
     }, [activeTab, profile]);
+
+    const handleLogout = async () => {
+        await logoutUser();
+        window.location.hash = '#login';
+    };
 
     const loadProfile = async () => {
         setError('');
@@ -628,7 +636,16 @@ const ProfilePage = () => {
                 </div>
 
                 {/* Page Title */}
-                <h1 className="page-title">MY ACCOUNT</h1>
+                <div className="account-header">
+                    <h1 className="page-title">MY ACCOUNT</h1>
+                    <button
+                        className="btn-logout-account"
+                        onClick={handleLogout}
+                        disabled={authProcessing}
+                    >
+                        {authProcessing ? 'Logging out...' : 'Log Out'}
+                    </button>
+                </div>
 
                 <div className="account-layout">
                     {/* Sidebar Navigation */}

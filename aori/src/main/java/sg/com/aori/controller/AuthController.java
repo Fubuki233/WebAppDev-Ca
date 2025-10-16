@@ -73,6 +73,7 @@ public class AuthController {
         Customer customer = loginService.findCustomerByEmail(email).orElse(null);
         if (customer == null) {
             System.out.println("[LoginController] user not found: " + email);
+            clearSession(session);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new LoginResponse(false, "User not found", null, null));
         } else if (customer.getPassword().equals(passwd)) {
@@ -90,6 +91,7 @@ public class AuthController {
             return ResponseEntity.ok(new LoginResponse(true, "Login successful", userData, session.getId()));
         } else {
             System.out.println("[LoginController] password invalid for: " + email);
+            clearSession(session);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new LoginResponse(false, "Invalid password", null, null));
         }
@@ -168,12 +170,15 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         try {
+            clearSession(session);
             session.invalidate();
-            return ResponseEntity.ok(new LogoutResponse(true, "Logout successful"));
+        } catch (IllegalStateException ignored) {
+            // Session already invalidated - treat as success
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new LogoutResponse(false, "Logout failed"));
         }
+        return ResponseEntity.ok(new LogoutResponse(true, "Logout successful"));
     }
 
     /**
@@ -226,6 +231,17 @@ public class AuthController {
 
         public String getMessage() {
             return message;
+        }
+    }
+
+    private void clearSession(HttpSession session) {
+        if (session == null) {
+            return;
+        }
+        try {
+            session.removeAttribute("email");
+            session.removeAttribute("id");
+        } catch (IllegalStateException ignored) {
         }
     }
 }

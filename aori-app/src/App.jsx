@@ -27,9 +27,10 @@ import PaymentPage from "./components/PaymentPage";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import ProfilePage from "./components/ProfilePage";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import './styles/global.css';
 
-function App() {
+function AppContent() {
   const getPageFromHash = () => {
     const hash = window.location.hash;
     const parseProductsRoute = (hashValue) => {
@@ -93,6 +94,15 @@ function App() {
     };
   }, []);
 
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    const protectedPages = ['favourites', 'checkout', 'profile'];
+    if (!isAuthenticated && protectedPages.includes(currentRoute.page)) {
+      window.location.hash = '#login';
+    }
+  }, [currentRoute.page, isAuthenticated]);
+
   return (
     <div>
       {currentRoute.page === 'home' && <HomePage />}
@@ -113,6 +123,14 @@ function App() {
       {currentRoute.page === 'register' && <RegisterPage />}
       {currentRoute.page === 'profile' && <ProfilePage />}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

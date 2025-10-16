@@ -16,11 +16,13 @@ import React, { useState, useEffect } from 'react';
 import '../styles/Navbar.css';
 import aoriLogo from '../aori.png';
 import { getCartCount } from '../api/cartApi';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [cartItemCount, setCartItemCount] = useState(0);
+    const { isAuthenticated } = useAuth();
 
     const categories = ['UNISEX', 'MEN', 'WOMEN'];
 
@@ -122,7 +124,7 @@ const Navbar = () => {
                         </div>
                     </button>
 
-                    <button className="icon-button" onClick={() => window.location.hash = '#profile'} title="My Profile">
+                    <button className="icon-button" onClick={() => window.location.hash = isAuthenticated ? '#profile' : '#login'} title={isAuthenticated ? 'My Profile' : 'Log in'}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>

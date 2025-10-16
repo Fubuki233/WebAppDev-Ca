@@ -6,8 +6,9 @@
  * @version 1.0
  */
 import React, { useState } from 'react';
-import { login } from '../api/authApi';
+import { login as loginRequest } from '../api/authApi';
 import Navbar from './Navbar';
+import { useAuth } from '../context/AuthContext';
 import '../styles/LoginPage.css';
 
 const LoginPage = () => {
@@ -17,6 +18,7 @@ const LoginPage = () => {
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -34,12 +36,11 @@ const LoginPage = () => {
         setLoading(true);
 
         try {
-            const response = await login(formData.email, formData.password);
+            const response = await loginRequest(formData.email, formData.password);
             console.log('Login response:', response);
 
             if (response.success) {
-                // Store user info in localStorage
-                localStorage.setItem('user', JSON.stringify(response.user));
+                login(response.user);
                 console.log('Login successful, user stored:', response.user);
                 // Navigate to home page using hash
                 window.location.hash = '#';

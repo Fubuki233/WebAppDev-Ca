@@ -78,6 +78,15 @@ public class AuthHandler {
         if (customerId == null || customerId.isEmpty()) {
             System.out.println("[CustomerAccess] No customer ID in session - returning 401 Unauthorized " + customerId);
 
+            if ("/api/auth/logout".equals(request.getRequestURI())) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter()
+                        .write("{\"success\":false,\"message\":\"Already logged out\"}");
+                return false;
+            }
+
             if (request.getRequestURI().startsWith("/api/")) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
