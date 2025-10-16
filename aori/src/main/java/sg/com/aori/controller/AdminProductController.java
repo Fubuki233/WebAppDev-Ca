@@ -141,8 +141,8 @@ public class AdminProductController {
 							|| !existingProductId.equals(product.getProductId()))) {
 				throw new org.springframework.dao.DataIntegrityViolationException("Duplicate product code");
 			}
-
-			productService.saveProduct(product);
+			// Save the product and get the managed entity back.
+			product = productService.saveProduct(product);
 
 			ObjectMapper objectMapper = new ObjectMapper();
 			Map<String, Map<String, Integer>> skuQuantities = objectMapper.readValue(skuQuantitiesJson,

@@ -40,7 +40,7 @@ public interface IProduct {
     Page<Product> findPaginated(int page, int size, String keyword, String category, String season,
             String collection);
 
-    void saveProduct(Product product);
+    Product saveProduct(Product product);
 
     String findProductIdByProductCode(@Param("productCode") String productCode);
 }
