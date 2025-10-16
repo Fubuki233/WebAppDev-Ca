@@ -15,6 +15,11 @@
  * @author Sun Rui
  * @date 2025-10-14
  * @version 1.2
+ * 
+ * Parse the paging parameters in the hash and pass the initial page number/page quantity to ProductsPage.
+ * @author Sun Rui
+ * @date 2025-10-16
+ * @version 1.3
  */
 import { useState, useEffect } from 'react';
 import HomePage from "./components/HomePage";

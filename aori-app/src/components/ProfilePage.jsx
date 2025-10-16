@@ -4,6 +4,10 @@
  * @author Yunhe
  * @date 2025-10-15
  * @version 2.4 - Dynamic button text based on review completion status, loads review status on mount
+ * 
+ * @author Sun Rui
+ * @date 2025-10-16
+ * @version 2.5 - Add logout button to the personal information page and reuse AuthContext.logout
  */
 import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';

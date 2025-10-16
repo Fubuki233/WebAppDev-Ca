@@ -4,6 +4,10 @@
  * @author Yunhe
  * @date 2025-10-09
  * @version 1.0
+ * 
+ * @author Sun Rui
+ * @date 2025-10-16
+ * @version 1.1 - Call AuthContext.login to store user information instead.
  */
 import React, { useState } from 'react';
 import { login as loginRequest } from '../api/authApi';

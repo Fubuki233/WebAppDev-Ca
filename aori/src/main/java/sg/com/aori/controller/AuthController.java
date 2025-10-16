@@ -1,14 +1,20 @@
 package sg.com.aori.controller;
 
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.constraints.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import sg.com.aori.model.Customer;
 import sg.com.aori.service.LoginService;
 
@@ -27,6 +33,10 @@ import sg.com.aori.service.LoginService;
  * @author Sun Rui
  * @date 2025-10-10
  * @version 2.1 - Add validation
+ * 
+ * @author Sun Rui
+ * @date 2025-10-16
+ * @version 2.2 - Clean up the session when login fails, add logout implementation and a clearSession() helper method
  */
 
 @CrossOrigin
