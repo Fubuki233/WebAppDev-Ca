@@ -196,7 +196,10 @@
                     try {
                         const colors = JSON.parse(initialColorJson);
                         colors.forEach(hexValue => { 
-                            const quantities = initialSkuQuantities ? initialSkuQuantities[hexValue] : {};
+                            // Ensure initialSkuQuantities is not null and the color key exists
+                            const quantities = (initialSkuQuantities && initialSkuQuantities[hexValue]) 
+                                                ? initialSkuQuantities[hexValue] 
+                                                : {};
                             createColorRow(hexValue, quantities);
                         });
                         updateTotalStock();

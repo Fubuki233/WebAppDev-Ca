@@ -88,7 +88,10 @@
                          <dd class="col-sm-6" th:text="${#numbers.formatCurrency(product.price)}"></dd>
 
                          <dt class="col-sm-6">Total Stock</dt>
-                         <dd class="col-sm-6" th:text="${product.stockQuantity}"></dd>
+                         <!-- Calculate the sum of all quantities from the nested skuQuantities map -->
+                         <dd class="col-sm-6" 
+                             th:text="${#aggregates.sum(skuQuantities.values().![#aggregates.sum(values())])}">
+                         </dd>
                      </dl>
                  </div>
              </div>
@@ -127,10 +130,11 @@
                                     </td>
                                     <!-- For each size, find the corresponding quantity in the map -->
                                     <td th:each="size : ${product.getSizesAsList()}" class="align-middle">
-                                        <!-- Correct way to access nested map value in Thymeleaf -->
-                                        <th:block th:with="sizeQuantityMap=${colorEntry.value}">
-                                            <span th:text="${sizeQuantityMap[size]} ?: 0"></span>
-                                        </th:block>
+                                        <!--
+                                            Correct way to access nested map value in Thymeleaf.
+                                            First, get the inner map for the color, then get the quantity for the size from that inner map.
+                                        -->
+                                        <span th:text="${colorEntry.value.get(size) ?: 0}"></span>
                                     </td>
                                 </tr>
                             </tbody>
