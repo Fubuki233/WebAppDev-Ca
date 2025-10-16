@@ -1,11 +1,3 @@
-/**
- * Entity of Orders.(add validation constraint)
- *
- * @author YunHe / SunRui
- * @date 2025-10-08
- * @version 1.1
- */
-
 package sg.com.aori.model;
 
 import java.math.BigDecimal;
@@ -14,6 +6,18 @@ import java.util.UUID;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
+/**
+ * Entity of Orders
+ * 
+ * @author Yunhe
+ * @date 2025-10-08
+ * @version 1.0
+ * 
+ * @author Sun Rui
+ * @date 2025-10-0
+ * @version 1.1 - Added validation constraint
+ */
 
 @Entity
 @Table(name = "orders")
@@ -25,7 +29,7 @@ public class Orders {
         Shipped,
         Delivered,
         Returned,
-        Cancelled
+        Cancelled,
     }
 
     public enum PaymentStatus {

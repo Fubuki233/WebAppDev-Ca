@@ -2,13 +2,13 @@ package sg.com.aori.controller;
 
 import java.math.BigDecimal;
 import java.util.*;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpSession;
 import sg.com.aori.interfaces.ICart;
 import sg.com.aori.model.ShoppingCart;
 import sg.com.aori.service.CRUDProductService;
@@ -16,7 +16,7 @@ import sg.com.aori.service.SkuService;
 import sg.com.aori.utils.SkuTool;
 
 /**
- * @author Jiang
+ * @author Yibai
  * @version 2.0 - REST API applied
  * @version 2.1 - Session applied
  * @version 2.2 - Test completed
@@ -24,7 +24,7 @@ import sg.com.aori.utils.SkuTool;
  * @author Sun Rui
  * @version 2.3 - Add validation for addToCart
  * 
- * @author Jiang
+ * @author Yibai
  * @version 2.4 - Added sku, optimized detail statements
  */
 

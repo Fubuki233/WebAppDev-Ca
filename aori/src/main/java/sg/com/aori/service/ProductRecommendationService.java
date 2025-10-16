@@ -1,13 +1,13 @@
 package sg.com.aori.service;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import sg.com.aori.model.*;
 import sg.com.aori.repository.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Service for generating product recommendations based on user purchase history
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  * @date 2025-10-12
  * @version 1.0
  */
+
 @Service
 public class ProductRecommendationService {
 

@@ -1,8 +1,8 @@
 package sg.com.aori.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import jakarta.persistence.*;
 
 /**
  * Detailed description of the class.

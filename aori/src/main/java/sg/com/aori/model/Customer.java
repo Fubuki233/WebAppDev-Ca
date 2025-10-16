@@ -1,19 +1,19 @@
+package sg.com.aori.model;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+import org.hibernate.validator.constraints.Length;
+
 /**
  * Entity of Customer.
  *
- * @author YunHe / SunRui
+ * @author Yunhe & Sun Rui
  * @date 2025-10-08
  * @version 1.1
  */
-
-package sg.com.aori.model;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Customer")

@@ -1,14 +1,14 @@
 package sg.com.aori.controller;
 
+import java.math.BigDecimal;
+import java.util.List;
+import jakarta.validation.constraints.Size;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import sg.com.aori.model.Product;
 import sg.com.aori.service.ProductSearchService;
-
-import java.math.BigDecimal;
-import java.util.List;
-import jakarta.validation.constraints.Size;
 
 /**
  * Controller for product search and detail endpoints.

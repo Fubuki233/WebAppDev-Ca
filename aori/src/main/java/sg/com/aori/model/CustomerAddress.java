@@ -1,19 +1,19 @@
+package sg.com.aori.model;
+
+import java.util.UUID;
+import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+
+import org.hibernate.validator.constraints.Length;
+
 /**
  * Entity of Customer Address.
  *
- * @author YunHe / SunRui
+ * @author Yunhe & Sun Rui
  * @date 2025-10-08
  * @version 1.1
  */
-
-package sg.com.aori.model;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "Customer_Address")

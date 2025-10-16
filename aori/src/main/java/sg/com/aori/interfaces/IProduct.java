@@ -1,12 +1,12 @@
 package sg.com.aori.interfaces;
 
-import sg.com.aori.model.Product;
-
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
+
+import sg.com.aori.model.Product;
 
 /**
  * Interface for product-related operations.

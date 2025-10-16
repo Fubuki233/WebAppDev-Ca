@@ -1,19 +1,5 @@
 package sg.com.aori.service;
 
-/**
- * SKU Service for managing stock keeping units (SKUs).
- * @author Yunhe
- * @date 2025-10-13
- * @version 1.0
- * 
- * @author Jiang
- * @date 2025-10-13
- * @version 1.1 - Debug
- * 
- * @author Yunhe
- * @date 2025-10-15
- * @version 1.2 - Added automatic product stock quantity calculation after SKU operations
- */
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +9,23 @@ import sg.com.aori.model.Product;
 import sg.com.aori.model.Sku;
 import sg.com.aori.repository.SkuRepository;
 import sg.com.aori.utils.SkuTool;
+
+/**
+ * SKU Service for managing stock keeping units (SKUs).
+ * 
+ * @author Yunhe
+ * @date 2025-10-13
+ * @version 1.0
+ * 
+ * @author Yibai
+ * @date 2025-10-13
+ * @version 1.1 - Debug
+ * 
+ * @author Yunhe
+ * @date 2025-10-15
+ * @version 1.2 - Added automatic product stock quantity calculation after SKU
+ *          operations
+ */
 
 @Service
 @Transactional
@@ -43,7 +46,6 @@ public class SkuService implements ISku {
         skuRepository.save(newSku);
         System.out.println("Created SKU: " + sku + " with quantity: " + quantity);
 
-        // Update product stock quantity after creating SKU
         updateProductStockQuantity(sku);
 
         return sku;
@@ -56,7 +58,6 @@ public class SkuService implements ISku {
      */
     private void updateProductStockQuantity(String sku) {
         try {
-            // Extract product code from SKU
             String[] parts = sku.split("&");
             if (parts.length < 3) {
                 System.out.println("[SkuService] Invalid SKU format, cannot update product stock: " + sku);
@@ -65,17 +66,14 @@ public class SkuService implements ISku {
 
             String productCode = parts[0];
 
-            // Get product ID from product code
             String productId = productService.findProductIdByProductCode(productCode);
             if (productId == null) {
                 System.out.println("[SkuService] Product not found for code: " + productCode);
                 return;
             }
 
-            // Calculate total quantity of all SKUs for this product
             Integer totalQuantity = skuRepository.getTotalQuantityByProductCode(productCode);
 
-            // Update product stock quantity
             Product product = productService.getProductById(productId).orElse(null);
             if (product != null) {
                 product.setStockQuantity(totalQuantity);
@@ -113,7 +111,32 @@ public class SkuService implements ISku {
         existingSku.setQuantity(existingSku.getQuantity() - 1);
         skuRepository.save(existingSku);
 
-        // Update product stock quantity after checkout
+        updateProductStockQuantity(sku);
+
+        return existingSku.getQuantity();
+    }
+
+    @Override
+    public int decreaseQuantity(String sku, int quantity) {
+        sku = SkuTool.convertUUIDSkutoProductCodeSku(sku, productService);
+        Sku existingSku = skuRepository.findById(sku).orElse(null);
+        if (existingSku == null) {
+            System.out.println("[SkuService] SKU not found: " + sku);
+            return -1;
+        }
+
+        if (existingSku.getQuantity() < quantity) {
+            System.out.println("[SkuService] Insufficient quantity for SKU: " + sku +
+                    ", available: " + existingSku.getQuantity() + ", requested: " + quantity);
+            return -1;
+        }
+
+        existingSku.setQuantity(existingSku.getQuantity() - quantity);
+        skuRepository.save(existingSku);
+
+        System.out.println("[SkuService] Decreased SKU " + sku + " quantity by " + quantity +
+                ", new quantity: " + existingSku.getQuantity());
+
         updateProductStockQuantity(sku);
 
         return existingSku.getQuantity();

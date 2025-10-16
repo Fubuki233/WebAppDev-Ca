@@ -1,21 +1,26 @@
-/**
- * v1.1(Jiang): Modfied variant into product
- * v1.2(Sun Rui): add validation constraint
- * v1.3(Jiang): Added sku
- * 
- * @author Jiang, Sun Rui
- * @date: 10-14
- * @version 1.3
- */
-
 package sg.com.aori.model;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
+/**
+ * @author Yibai
+ * @version 1.0
+ * @version 1.1 - Modfied variant into product
+ * 
+ * @author Xiaobo
+ * @date 2025-10-09
+ * @version 1.2 - Added method getPrice,
+ * 
+ * @author Sun Rui
+ * @version 1.3 - Added validation constraint
+ * 
+ * @author Yibai
+ * @date 10-14
+ * @version 1.4 - Added sku
+ */
 
 @Entity
 @Table(name = "order_item")
@@ -130,33 +135,25 @@ public class OrderItem {
         this.product = product;
     }
 
-    public String getSku(){
+    public String getSku() {
         return sku;
     }
 
-    public void setSku(String sku){
+    public void setSku(String sku) {
         this.sku = sku;
     }
 
     /**
-     * @author Xia Xiaobo
-     * @date 2025-10-09
-     * 
-     * Calculates and returns the net total price paid for this line item (used for
-     * refund calculation).
+     * Calculates and returns the net total price paid for this line item
+     * (used for refund calculation).
      * Calculation: (priceAtPurchase - discountApplied) * quantity
+     * 
      * @return The BigDecimal amount paid for this specific line item.
      */
     public BigDecimal getPrice() {
-        // 1. Calculate the final price per unit: (priceAtPurchase - discountApplied)
         BigDecimal netPricePerUnit = this.priceAtPurchase.subtract(
                 this.discountApplied != null ? this.discountApplied : BigDecimal.ZERO);
-
-        // 2. Multiply by the quantity to get the total paid amount for the line item
-        // Note: We use the Integer value of quantity converted to BigDecimal for the
-        // math.
         BigDecimal quantityBigDecimal = new BigDecimal(this.quantity);
-
         return netPricePerUnit.multiply(quantityBigDecimal);
     }
 

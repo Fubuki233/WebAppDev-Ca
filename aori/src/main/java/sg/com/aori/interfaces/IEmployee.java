@@ -1,8 +1,9 @@
 package sg.com.aori.interfaces;
 
-import sg.com.aori.model.Employee;
 import java.util.List;
 import java.util.Optional;
+
+import sg.com.aori.model.Employee;
 
 /**
  * Interface for Employee entity.

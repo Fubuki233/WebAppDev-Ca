@@ -12,6 +12,7 @@ import sg.com.aori.interfaces.IViewHistory;
 
 /**
  * HistoryService implements IViewHistory to manage product view history.
+ * 
  * @author Yunhe
  * @date 2025-10-12
  * @version 1.0

@@ -12,7 +12,7 @@ import sg.com.aori.model.Product;
  * @date 10-13
  * @version 1.0
  * 
- * @author Jiang
+ * @author Yibai
  * @date 10-13
  * @version 1.1 - Added method getProductIdBySku
  */

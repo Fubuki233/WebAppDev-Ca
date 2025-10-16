@@ -1,20 +1,20 @@
-
-/**
-*  Modified variant related code, Add constraints to entities
-* v1.4: Added sku
-* v1.5: Added unique constraint on customer_id + product_id + sku
-* @author Jiang, Sun Rui
-* @date 2025-10-15
-* @version 1.5
-*/
-
 package sg.com.aori.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+
+/**
+ * @author Yibai
+ * @version 1.0
+ * @version 1.1 - Modified variant related code, Add constraints to entities
+ * @version 1.2 - Added sku
+ * 
+ * @author Sun Rui
+ * @date 2025-10-15
+ * @version 1.4 - Added unique constraint on customer_id + product_id + sku
+ */
 
 @Entity
 @Table(name = "shopping_cart", uniqueConstraints = @UniqueConstraint(columnNames = { "customer_id", "product_id",

@@ -1,13 +1,13 @@
 package sg.com.aori.controller;
 
+import java.util.*;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import sg.com.aori.interfaces.IRole;
 import sg.com.aori.model.Role;
-
-import java.util.*;
 
 /**
  * Controller for Role entity.
@@ -69,7 +69,7 @@ public class RoleController {
     }
 
     /**
-     * DELETE /api/roles/{id} : Deletes a Role by ID.
+     * Deletes a Role by ID.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRole(@PathVariable String id) {
@@ -78,7 +78,7 @@ public class RoleController {
     }
 
     /**
-     * POST /api/roles/{roleId}/permissions : Assigns a permission to a role.
+     * Assigns a permission to a role.
      */
     @PostMapping("/{roleId}/permissions")
     public ResponseEntity<Void> assignPermission(

@@ -1,7 +1,9 @@
 package sg.com.aori.controller;
 
-import sg.com.aori.model.Product;
-import sg.com.aori.service.CRUDProductService;
+import java.util.List;
+import java.util.Optional;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,10 +12,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import java.util.List;
-import java.util.Optional;
+import sg.com.aori.model.Product;
+import sg.com.aori.service.CRUDProductService;
 
 /**
  * Controller class for handling product-related requests
@@ -40,6 +40,7 @@ import java.util.Optional;
 @RequestMapping("/api/products")
 @Validated
 public class ProductController {
+
     @Autowired
     private CRUDProductService crudProductService;
 
@@ -179,7 +180,6 @@ public class ProductController {
      */
     @PutMapping("/admin/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
-        // This method is kept simple as per your request.
         Product updatedProduct = crudProductService.updateProduct(id, product);
         return ResponseEntity.ok(updatedProduct);
     }
@@ -191,13 +191,10 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(@PathVariable String id) {
         try {
             Product deletedProduct = crudProductService.deleteProduct(id);
-            // Success: Return 200 OK with the data of the deleted product.
             return ResponseEntity.ok(deletedProduct);
         } catch (IllegalStateException e) {
-            // Failure 1: Product has existing orders. Return 409 Conflict.
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (RuntimeException e) {
-            // Failure 2: Product not found. Return 404 Not Found.
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
