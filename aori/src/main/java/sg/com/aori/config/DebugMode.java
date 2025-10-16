@@ -9,5 +9,5 @@ package sg.com.aori.config;
  */
 
 public class DebugMode {
-    public static Boolean DEBUG = true;
+    public static Boolean DEBUG = false;
 }

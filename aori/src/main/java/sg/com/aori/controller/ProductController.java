@@ -2,11 +2,9 @@ package sg.com.aori.controller;
 
 import java.util.List;
 import java.util.Optional;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -49,36 +47,9 @@ public class ProductController {
 
     String collectionDisplay = "Shizen";
 
-    @PostMapping("/admin/collectionDisplay")
-    public String setCollect(@RequestParam("collectionDisplay") String collectionDisplay) {
-        this.collectionDisplay = collectionDisplay;
-        return this.collectionDisplay;
-    }
-
     @GetMapping("/collectionDisplay")
     public String getCollect() {
         return this.collectionDisplay;
-    }
-
-    /**
-     * Create a new product.
-     * The foreign key is categoryId,but for frontend creating product,
-     * staff only need to select a category,
-     * then the backend will find the corresponding categoryId and construct the
-     * request body.
-     *
-     * @param product The product to create.
-     * @return The created product.
-     */
-    @PostMapping("/admin")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
-        if (product.getProductId() == null || product.getProductId().isEmpty()) {
-            product.setProductId(java.util.UUID.randomUUID().toString());
-        }
-
-        Product createdProduct = crudProductService.createProduct(product);
-        System.out.println("[ProductController] Created product: " + createdProduct);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
     /**
@@ -149,54 +120,6 @@ public class ProductController {
 
         return product.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Update an existing product.
-     * For updating the product, u dont need to provide productId in the request
-     * body(but u can for convenience), and category is optional(nothing will
-     * happend weather u provide it or not,
-     * it always returns a null value, ingore it).
-     * So for frontend developing, I suggest you to fetch the product by id first,
-     * then display and edit it.
-     * finally send the whole product object back to backend for updating.
-     * 
-     * Here is an example of request body:
-     * {
-     * "productCode": "PROD-000002",
-     * "productName": "test-update",
-     * "description": "WOW-update",
-     * "categoryId": "00c41711-68b0-4d03-a00b-67c6fba6ad87",
-     * "collection": "Summer Breeze",
-     * "material": "Linen",
-     * "season": "Summer",
-     * "careInstructions": "Machine wash cold, hang dry.",
-     * "createdAt": "2025-10-07T16:10:11.693456"
-     * }
-     * 
-     * @param id      The product's id
-     * @param product The product to create.
-     * @return The created product.
-     */
-    @PutMapping("/admin/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable String id, @RequestBody Product product) {
-        Product updatedProduct = crudProductService.updateProduct(id, product);
-        return ResponseEntity.ok(updatedProduct);
-    }
-
-    /**
-     * Delete product
-     */
-    @DeleteMapping("/admin/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable String id) {
-        try {
-            Product deletedProduct = crudProductService.deleteProduct(id);
-            return ResponseEntity.ok(deletedProduct);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
     }
 
     /**
