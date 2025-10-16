@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RestController;
 
 import sg.com.aori.model.Product;
 import sg.com.aori.service.CRUDProductService;
@@ -45,6 +44,9 @@ public class ProductController {
     @Autowired
     private sg.com.aori.service.ProductRecommendationService recommendationService;
 
+    @Autowired
+    private sg.com.aori.service.SkuService skuService;
+
     String collectionDisplay = "Shizen";
 
     @GetMapping("/collectionDisplay")
@@ -72,6 +74,10 @@ public class ProductController {
         Optional<List<Product>> products = crudProductService.getAllProducts();
         System.out.println(
                 "[ProductController] Fetching all products: " + products.map(List::size).orElse(0) + " products");
+
+        // for (Product p : products.orElseThrow()) {
+        // skuService.updateProductStockQuantityById(p.getProductId());
+        // }
         return products;
     }
 
@@ -117,6 +123,7 @@ public class ProductController {
             @PathVariable @NotBlank(message = "Product ID Cannot be empty") String id) {
         System.out.println("[ProductController] Fetching product with ID: " + id);
         Optional<Product> product = crudProductService.getProductById(id);
+        product.ifPresent(p -> skuService.updateProductStockQuantityById(p.getProductId()));
 
         return product.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

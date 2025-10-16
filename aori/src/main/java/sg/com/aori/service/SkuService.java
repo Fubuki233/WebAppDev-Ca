@@ -56,7 +56,7 @@ public class SkuService implements ISku {
      * 
      * @param sku the SKU string (format: PRODUCTCODE&COLOR&SIZE)
      */
-    private void updateProductStockQuantity(String sku) {
+    public void updateProductStockQuantity(String sku) {
         try {
             String[] parts = sku.split("&");
             if (parts.length < 3) {
@@ -81,6 +81,28 @@ public class SkuService implements ISku {
                 System.out.println(
                         "[SkuService] Updated product " + productCode + " stock quantity to: " + totalQuantity);
             }
+        } catch (Exception e) {
+            System.err.println("[SkuService] Error updating product stock quantity: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void updateProductStockQuantityById(String id) {
+        try {
+
+            String productId = id;
+            Product product = productService.getProductById(productId).orElse(null);
+            if (product == null) {
+                System.out.println("[SkuService] Product not found for code: " + id);
+                return;
+            }
+            Integer totalQuantity = skuRepository.getTotalQuantityByProductCode(product.getProductCode());
+
+            product.setStockQuantity(totalQuantity);
+            productService.saveProduct(product);
+            System.out.println(
+                    "[SkuService] Updated product " + product.getProductName() + " stock quantity to: "
+                            + totalQuantity + "----------------------------------------------------------");
         } catch (Exception e) {
             System.err.println("[SkuService] Error updating product stock quantity: " + e.getMessage());
             e.printStackTrace();
