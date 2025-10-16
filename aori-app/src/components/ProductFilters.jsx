@@ -193,7 +193,7 @@ const ProductFilters = ({ onFilterChange, categories, activeCategory, availableC
                                 checked={showAvailable}
                                 onChange={() => handleAvailabilityChange('available')}
                             />
-                            <span>Availability</span>
+                            <span>Available</span>
                         </label>
                         <label className="checkbox-label">
                             <input
